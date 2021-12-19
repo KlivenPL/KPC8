@@ -25,10 +25,14 @@ namespace Components.Signals {
             }
 
             public static bool operator ==(Readonly sig1, Readonly sig2) {
-                if (sig1 is null || sig2 is null)
+                if (sig1 is null && sig2 is null)
+                    return true;
+
+                if (sig1 is null && sig2 is not null ||
+                    sig1 is not null && sig2 is null)
                     return false;
 
-                return sig1.Equals(sig2);
+                return sig1.signal == sig2.signal;
             }
 
             public static bool operator !=(Readonly obj1, Readonly obj2) {

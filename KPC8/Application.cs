@@ -1,5 +1,6 @@
 ﻿using Autofac.Features.AttributeFilters;
 using Components.Clocks;
+using KPC8.Clocks;
 using Simulation.Frames;
 using Simulation.Loops;
 

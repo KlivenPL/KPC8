@@ -6,6 +6,8 @@ namespace Components.Signals {
         private bool value;
         private string name;
 
+        public event Action OnChange;
+
         private Signal(string name) {
             this.name = name;
         }
@@ -14,6 +16,10 @@ namespace Components.Signals {
 
         public static implicit operator bool(Signal signal) {
             return signal is not null && signal.Value;
+        }
+
+        public static implicit operator Readonly(Signal signal) {
+            return new Readonly(signal);
         }
 
         public static bool operator ==(Signal sig1, Signal sig2) {
@@ -54,6 +60,7 @@ namespace Components.Signals {
                 }
 
                 this.value = value;
+                OnChange?.Invoke();
             }
         }
 

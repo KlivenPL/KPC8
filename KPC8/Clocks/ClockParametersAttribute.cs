@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Components.Clocks;
+using System;
 
-namespace Components.Clocks {
+namespace KPC8.Clocks {
     class ClockParametersAttribute : Attribute {
         public ClockParametersAttribute(double frequency, ClockMode clockMode) {
             Frequency = frequency;

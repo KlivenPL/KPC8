@@ -8,10 +8,10 @@ namespace Components.Clocks {
         private double timer = 0.0;
         private ClockMode mode;
 
-        public Clock(ClockMode mode, double frequency, ClockType clockType) {
+        public Clock(Signal signal, ClockMode mode, double frequency) {
             Mode = mode;
             Frequency = frequency;
-            Clk = Signal.Factory.GetOrCreate($"sig_{clockType}");
+            Clk = signal;
         }
 
         public double Frequency { get; set; }
@@ -35,7 +35,7 @@ namespace Components.Clocks {
 
         public double Period => 1.0 / Frequency;
 
-        private bool IsManualTickInProgress => timer >= 0.0 && Mode == ClockMode.Manual;
+        public bool IsManualTickInProgress => timer >= 0.0 && Mode == ClockMode.Manual;
 
         public void MakeTick() {
             if (Mode == ClockMode.Automatic) {

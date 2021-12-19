@@ -19,8 +19,12 @@ namespace Components.Signals {
                     throw new Exception($"Signal of name: {signalName} is already used");
                 }
 
+                signal = new Signal(signalName);
+
+                signals.Add(signal);
                 usedNames.Add(signalName);
-                return new Signal(signalName);
+
+                return signal;
             }
         }
     }
