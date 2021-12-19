@@ -36,6 +36,10 @@ namespace Infrastructure.BitArrays {
             return new BitArray(bytes);
         }
 
+        public static BitArray ToBitArray(this byte @byte) {
+            return new BitArray(@byte);
+        }
+
         public static BitArray[] To4BitArrays(this byte[] bytes) {
             var ba = new BitArray(bytes);
 

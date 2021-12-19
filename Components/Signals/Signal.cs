@@ -2,9 +2,9 @@
 
 namespace Components.Signals {
     public sealed partial class Signal : IEquatable<Signal> {
+        private readonly string name;
         private Signal masterSignal;
         private bool value;
-        private string name;
 
         public event Action OnChange;
 

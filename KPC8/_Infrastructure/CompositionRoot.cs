@@ -14,7 +14,6 @@ namespace KPC8._Infrastructure {
             builder.RegisterType<Application>().WithAttributeFiltering();
 
             builder.RegisterModule<ClocksModule>();
-            builder.RegisterModule<UpdatesModule>();
             builder.RegisterModule<SimulationModule>();
             builder.RegisterModule<SignalsModule>();
 

@@ -2,25 +2,40 @@
 using Simulation.Updates;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace Simulation.Loops {
     public class SimulationLoop {
-        private List<IUpdate> updates;
-        private Stopwatch sw;
+        private readonly Stopwatch sw;
         private double lastUpdateDeltaTime;
 
-        public SimulationLoop(IEnumerable<IUpdate> updates) {
-            this.updates = updates.ToList();
-            sw = Stopwatch.StartNew();
+        private static List<IUpdate> updates = new List<IUpdate>();
+        private static List<IUpdate> newUpdates = new List<IUpdate>();
+        private static List<IUpdate> deletedUpdates = new List<IUpdate>();
+
+        public static void RegisterUpdate(IUpdate update) {
+            newUpdates.Add(update);
         }
 
+        public static void UnregisterUpdate(IUpdate update) {
+            deletedUpdates.Add(update);
+        }
+
+        public SimulationLoop() {
+            sw = Stopwatch.StartNew();
+        }
 
         public void Loop() {
             if (sw.ElapsedTicks >= 100) {
                 FrameInfo.Update(lastUpdateDeltaTime);
                 updates.ForEach(u => u.Update());
                 lastUpdateDeltaTime = (double)sw.ElapsedTicks / Stopwatch.Frequency;
+
+                updates.RemoveAll(u => deletedUpdates.Contains(u));
+                deletedUpdates.Clear();
+
+                updates.AddRange(newUpdates);
+                newUpdates.Clear();
+
                 sw.Restart();
             }
         }

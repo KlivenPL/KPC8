@@ -12,6 +12,8 @@ namespace Components.Clocks {
             Mode = mode;
             Frequency = frequency;
             Clk = signal;
+
+            this.RegisterUpdate();
         }
 
         public double Frequency { get; set; }

@@ -1,8 +1,15 @@
-﻿using System.Collections;
+﻿using Components.IODevices;
+using Components.Signals;
+using System.Collections;
 
 namespace Components.Registers {
-    class HL8BitRegister : HL8BitRegisterBase, I8BitRegister {
+    class HL8BitRegister : IODeviceBase, I8BitRegister {
         private readonly BitArray mainBuffer = new(8);
+
+        public SignalPort LoadEnable { get; protected set; } = new SignalPort();
+        public SignalPort OutputEnable { get; protected set; } = new SignalPort();
+        public SignalPort Clear { get; protected set; } = new SignalPort();
+        public SignalPort Clk { get; protected set; } = new SignalPort();
 
         public BitArray Content => new(mainBuffer);
 
@@ -10,8 +17,8 @@ namespace Components.Registers {
             Initialize();
         }
 
-        public override void Initialize() {
-            base.Initialize();
+        public void Initialize() {
+            base.Initialize(8, 8);
 
             Clk.OnEdgeRise += Clk_OnEdgeRise;
             Clear.OnEdgeRise += Clear_OnEdgeRise;
@@ -22,9 +29,9 @@ namespace Components.Registers {
         }
 
         private void Clk_OnEdgeRise() {
-            if (Enable) {
+            if (OutputEnable) {
                 WriteOutput();
-            } else if (Load) {
+            } else if (LoadEnable) {
                 LoadInput();
             }
         }

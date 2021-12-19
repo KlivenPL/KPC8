@@ -99,8 +99,8 @@ namespace Tests.ComponentTests {
             inputs = register.CreateSignalAndPlugInInputs().ToArray();
             outputs = register.CreateSignalAndPlugInOutputs().ToArray();
 
-            enableSig = register.CreateSignalAndPlugInPort(r => r.Enable);
-            loadSig = register.CreateSignalAndPlugInPort(r => r.Load);
+            enableSig = register.CreateSignalAndPlugInPort(r => r.OutputEnable);
+            loadSig = register.CreateSignalAndPlugInPort(r => r.LoadEnable);
             clearSig = register.CreateSignalAndPlugInPort(r => r.Clear);
 
             return register;
