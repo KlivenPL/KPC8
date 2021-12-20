@@ -10,6 +10,7 @@ namespace Components.Signals {
 
         private Signal(string name) {
             this.name = name;
+            value = false;
         }
 
         public string Name => name;
@@ -57,6 +58,10 @@ namespace Components.Signals {
             set {
                 if (masterSignal != null) {
                     throw new Exception("Cannot set value of slave's signal. Change the master signal instead.");
+                }
+
+                if (this.value == value) {
+                    return;
                 }
 
                 this.value = value;

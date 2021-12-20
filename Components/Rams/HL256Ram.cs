@@ -19,12 +19,10 @@ namespace Components.Rams {
 
         public HL256Ram() {
             Initialize(null);
-            this.RegisterUpdate();
         }
 
         public HL256Ram(BitArray[] initialMemory) {
             Initialize(initialMemory);
-            this.RegisterUpdate();
         }
 
         public void Initialize(BitArray[] initialMemory) {
@@ -44,6 +42,8 @@ namespace Components.Rams {
                     }
                 }
             }
+
+            this.RegisterUpdate();
         }
 
         public void Update() {
@@ -75,6 +75,10 @@ namespace Components.Rams {
             }
 
             return inputAddress.ToByteLittleEndian();
+        }
+
+        public void Dispose() {
+            this.UnregisterUpdate();
         }
     }
 }

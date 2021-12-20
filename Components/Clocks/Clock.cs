@@ -95,5 +95,9 @@ namespace Components.Clocks {
                 timer = -1L;
             }
         }
+
+        public void Dispose() {
+            this.UnregisterUpdate();
+        }
     }
 }

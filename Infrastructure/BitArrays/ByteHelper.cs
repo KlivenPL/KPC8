@@ -40,6 +40,12 @@ namespace Infrastructure.BitArrays {
             return new BitArray(@byte);
         }
 
+        public static BitArray ToBitArrayLittleEndian(this byte @byte) {
+            var ba = new BitArray(@byte);
+            ba.Reverse();
+            return ba;
+        }
+
         public static BitArray[] To4BitArrays(this byte[] bytes) {
             var ba = new BitArray(bytes);
 

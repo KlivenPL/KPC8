@@ -25,16 +25,16 @@ namespace Simulation.Loops {
         }
 
         public void Loop() {
-            lastUpdateDeltaTicks = sw.ElapsedTicks;
-            sw.Restart();
-            FrameInfo.Update(lastUpdateDeltaTicks);
-            updates.ForEach(u => u.Update());
-
             updates.RemoveAll(u => deletedUpdates.Contains(u));
             deletedUpdates.Clear();
 
             updates.AddRange(newUpdates);
             newUpdates.Clear();
+
+            lastUpdateDeltaTicks = sw.ElapsedTicks;
+            sw.Restart();
+            FrameInfo.Update(lastUpdateDeltaTicks);
+            updates.ForEach(u => u.Update());
         }
     }
 }

@@ -61,5 +61,9 @@ namespace Components.Adders {
                 Outputs[i].Write(inputA[i]);
             }
         }
+
+        public void Dispose() {
+            this.UnregisterUpdate();
+        }
     }
 }

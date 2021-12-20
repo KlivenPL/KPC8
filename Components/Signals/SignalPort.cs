@@ -3,7 +3,6 @@
 namespace Components.Signals {
     public class SignalPort {
         private Signal signal;
-        private bool prevSignalValue;
 
         public event Action OnEdgeRise;
         public event Action OnEdgeFall;
@@ -16,20 +15,23 @@ namespace Components.Signals {
             }
 
             this.signal = signal;
-            prevSignalValue = signal;
-
             signal.OnChange += Signal_OnChange;
         }
 
-        private void Signal_OnChange() {
-            if (prevSignalValue != signal) {
-                prevSignalValue = signal;
+        public void Unplug() {
+            if (signal == null) {
+                throw new Exception("This signal port was not occupied.");
+            }
 
-                if (signal == true) {
-                    OnEdgeRise?.Invoke();
-                } else if (signal == false) {
-                    OnEdgeFall?.Invoke();
-                }
+            signal.OnChange -= Signal_OnChange;
+            signal = null;
+        }
+
+        private void Signal_OnChange() {
+            if (signal == true) {
+                OnEdgeRise?.Invoke();
+            } else if (signal == false) {
+                OnEdgeFall?.Invoke();
             }
         }
 
