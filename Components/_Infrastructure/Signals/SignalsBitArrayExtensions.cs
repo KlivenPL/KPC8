@@ -17,5 +17,11 @@ namespace _Infrastructure.BitArrays {
                 yield return sig;
             }
         }
+
+        public static void WriteBitArray(this IEnumerable<Signal> signals, BitArray bitArray) {
+            for (int i = 0; i < signals.Count(); i++) {
+                signals.ElementAt(i).Value = bitArray[i];
+            }
+        }
     }
 }

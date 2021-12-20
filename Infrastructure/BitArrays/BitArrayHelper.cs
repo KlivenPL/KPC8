@@ -93,5 +93,37 @@ namespace Infrastructure.BitArrays {
         public static BitArray SkipLast(this BitArray bitArray, int skip) {
             return FromString(bitArray.ToBitString().Substring(0, bitArray.Count - skip));
         }
+
+        public static byte ToByte(this BitArray bitArray) {
+            if (bitArray.Length > 8)
+                throw new Exception("Length must not be greater than 8");
+
+            byte[] array = new byte[8];
+            bitArray.CopyTo(array, 0);
+            return array[0];
+        }
+
+        public static byte ToByteLittleEndian(this BitArray bitArray) {
+            if (bitArray.Length > 8)
+                throw new Exception("Length must not be greater than 8");
+
+            var copy = new BitArray(bitArray);
+            copy.Reverse();
+
+            byte[] array = new byte[8];
+            copy.CopyTo(array, 0);
+            return array[0];
+        }
+
+        public static void Reverse(this BitArray array) {
+            int length = array.Length;
+            int mid = (length / 2);
+
+            for (int i = 0; i < mid; i++) {
+                bool bit = array[i];
+                array[i] = array[length - i - 1];
+                array[length - i - 1] = bit;
+            }
+        }
     }
 }

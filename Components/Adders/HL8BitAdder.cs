@@ -4,11 +4,9 @@ using Simulation.Updates;
 using System.Collections;
 
 namespace Components.Adders {
-    class HL8BitAdder : IODeviceBase, I8BitAdder, IUpdate {
+    class HL8BitAdder : IODeviceBase, IAdder, IUpdate {
         private readonly BitArray inputA = new(8);
         private readonly BitArray inputB = new(8);
-
-        //private readonly BitArray result = new(8);
 
         public BitArray Content => new(inputA);
         public SignalPort CarryIn { get; protected set; } = new SignalPort();

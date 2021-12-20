@@ -3,7 +3,7 @@ using Components.Signals;
 using System.Collections;
 
 namespace Components.Registers {
-    class HL8BitRegister : IODeviceBase, I8BitRegister {
+    class HL8BitRegister : IODeviceBase, IRegister {
         private readonly BitArray mainBuffer = new(8);
 
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();

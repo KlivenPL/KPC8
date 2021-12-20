@@ -2,7 +2,7 @@
 using Components.Signals;
 
 namespace Components.Registers {
-    public interface I8BitRegister : IIODevice {
+    public interface IRegister : IIODevice {
         public SignalPort LoadEnable { get; }
         public SignalPort OutputEnable { get; }
         public SignalPort Clear { get; }
