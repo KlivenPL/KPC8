@@ -1,4 +1,4 @@
-﻿using Components.IODevices;
+﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
 using Simulation.Updates;

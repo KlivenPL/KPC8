@@ -2,10 +2,10 @@
 
 namespace KPC8.Clocks {
     public enum ClockType {
-        [ClockParameters(100, ClockMode.Automatic)]
+        [ClockParameters(4, ClockMode.Automatic)]
         MainClock,
 
-        [ClockParameters(10000, ClockMode.Manual)]
+        [ClockParameters(4, ClockMode.Manual)]
         TestManualClock,
     }
 }

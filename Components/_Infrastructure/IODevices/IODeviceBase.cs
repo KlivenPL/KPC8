@@ -1,6 +1,7 @@
-﻿using Components.Signals;
+﻿using Components.IODevices;
+using Components.Signals;
 
-namespace Components.IODevices {
+namespace Components._Infrastructure.IODevices {
     class IODeviceBase : IIODevice {
         public SignalPort[] Inputs { get; private set; }
         public SignalPort[] Outputs { get; private set; }

@@ -1,4 +1,4 @@
-﻿using Components.IODevices;
+﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
 using System.Collections;
 
