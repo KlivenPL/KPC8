@@ -3,6 +3,7 @@ using Components.Clocks;
 using KPC8.Clocks;
 using Simulation.Frames;
 using Simulation.Loops;
+using System.Diagnostics;
 
 namespace KPC8 {
     class Application {
@@ -19,11 +20,19 @@ namespace KPC8 {
         }
 
         public void Run() {
+            int t = 0;
+            int f = 0;
 
-            while (FrameInfo.Time < 10f) {
+            while (FrameInfo.Ticks < (ulong)Stopwatch.Frequency * 10L) {
                 loop.Loop();
-                System.Console.WriteLine(mainClock.Clk);
+                if (mainClock.Clk) {
+                    t++;
+                } else {
+                    f++;
+                }
+
             }
+            System.Console.WriteLine($"t: {t} f: {f}");
         }
     }
 }

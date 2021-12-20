@@ -24,7 +24,7 @@ namespace KPC8._Infrastructure.Modules {
                     .Keyed<Clock>(clockType)
                     .WithParameters(new[] {
                         new TypedParameter(typeof(ClockMode), parameters.ClockMode),
-                        new TypedParameter(typeof(double), parameters.Frequency),
+                        new TypedParameter(typeof(long), parameters.PeriodInTicks),
                         new TypedParameter(typeof(Signal), Signal.Factory.GetOrCreate($"sig_{clockType}")),
                     })
                     .AsSelf()

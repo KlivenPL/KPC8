@@ -5,25 +5,26 @@ using System;
 
 namespace Components.Clocks {
     public class Clock : IUpdate {
-        private double timer = 0.0;
+        private long timer = 0L;
         private ClockMode mode;
 
-        public Clock(Signal signal, ClockMode mode, double frequency) {
+        public Clock(Signal signal, ClockMode mode, long periodInTicks) {
             Mode = mode;
-            Frequency = frequency;
+            PeriodInTicks = periodInTicks;
             Clk = signal;
 
             this.RegisterUpdate();
+            // Console.WriteLine($"Running clock in {1 / ((decimal)periodInTicks / Stopwatch.Frequency) / 1000} KHz");
         }
 
-        public double Frequency { get; set; }
+        public long PeriodInTicks { get; set; }
         public ClockMode Mode {
             get => mode;
             set {
                 if (value == ClockMode.Automatic) {
-                    timer = 0.0;
+                    timer = 0L;
                 } else if (value == ClockMode.Manual) {
-                    timer = -1.0;
+                    timer = -1L;
                 }
 
                 mode = value;
@@ -35,9 +36,7 @@ namespace Components.Clocks {
             private set;
         }
 
-        public double Period => 1.0 / Frequency;
-
-        public bool IsManualTickInProgress => timer >= 0.0 && Mode == ClockMode.Manual;
+        public bool IsManualTickInProgress => timer >= 0L && Mode == ClockMode.Manual;
 
         public void MakeTick() {
             if (Mode == ClockMode.Automatic) {
@@ -49,7 +48,7 @@ namespace Components.Clocks {
                 return;
             }
 
-            timer = 0.0;
+            timer = 0L;
         }
 
         public void Update() {
@@ -66,24 +65,24 @@ namespace Components.Clocks {
         }
 
         private void AutomaticUpdate() {
-            timer += FrameInfo.DeltaTime;
+            timer += FrameInfo.DeltaTicks;
 
-            Clk.Value = timer <= Period / 2.0;
+            Clk.Value = timer <= PeriodInTicks / 2L;
 
-            if (timer >= Period) {
-                timer = 0.0;
+            if (timer >= PeriodInTicks) {
+                timer = 0L;
             }
         }
 
         private void ManualUpdate() {
             if (IsManualTickInProgress) {
-                timer += FrameInfo.DeltaTime;
+                timer += FrameInfo.DeltaTicks;
             }
 
-            Clk.Value = timer <= Period / 2.0 && IsManualTickInProgress;
+            Clk.Value = timer <= PeriodInTicks / 2L && IsManualTickInProgress;
 
-            if (timer >= Period) {
-                timer = -1.0;
+            if (timer >= PeriodInTicks) {
+                timer = -1L;
             }
         }
     }

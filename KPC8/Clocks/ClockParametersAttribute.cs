@@ -3,12 +3,12 @@ using System;
 
 namespace KPC8.Clocks {
     class ClockParametersAttribute : Attribute {
-        public ClockParametersAttribute(double frequency, ClockMode clockMode) {
-            Frequency = frequency;
+        public ClockParametersAttribute(long periodInTicks, ClockMode clockMode) {
+            PeriodInTicks = periodInTicks;
             ClockMode = clockMode;
         }
 
-        public double Frequency { get; }
+        public long PeriodInTicks { get; }
         public ClockMode ClockMode { get; }
     }
 }
