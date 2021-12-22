@@ -67,6 +67,20 @@ namespace Infrastructure.BitArrays {
             return sb.ToString();
         }
 
+        public static string ToBitStringWithDecAndHexLittleEndian(this BitArray bitArray) {
+            if (bitArray == null)
+                return null;
+            StringBuilder sb = new StringBuilder(bitArray.Length);
+            for (int i = 0; i < bitArray.Length; i++) {
+                sb.Append(bitArray[i] ? "1" : "0");
+            }
+
+            var @byte = bitArray.ToByteLittleEndian();
+            sb.Append($" (0x{BitConverter.ToString(new[] { @byte })}) ({@byte})");
+
+            return sb.ToString();
+        }
+
         public static double CompareTo(this BitArray bitArray, BitArray other) {
             if (bitArray == null || other == null)
                 return 0;

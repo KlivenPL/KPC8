@@ -83,7 +83,6 @@ namespace KPC8 {
         }
 
         public void Run() {
-            bool escape = false;
             while (true) {
                 Enable(pcOutputEnable);
                 Enable(marLoadEnable);
@@ -106,6 +105,12 @@ namespace KPC8 {
 
                 Enable(ramOutputEnable);
                 Enable(regBLoadEnable);
+
+                MakeTickAndWait();
+                if (ShouldEscape()) break;
+
+                Enable(aluOutputEnable);
+                Enable(regALoadEnable);
 
                 MakeTickAndWait();
                 if (ShouldEscape()) break;
@@ -206,11 +211,12 @@ namespace KPC8 {
             cycleSignals.Clear();
 
             Console.WriteLine($"#{cycleNumber++}");
-            Console.WriteLine($"PC:\t{pc.Content.ToBitString()}");
-            Console.WriteLine($"Bus:\t{dataBus.PeakAll().ToBitString()}");
-            Console.WriteLine($"A:\t{regA.Content.ToBitString()}");
-            Console.WriteLine($"B:\t{regB.Content.ToBitString()}");
-            Console.WriteLine($"ALU:\t{aluAdder.Content.ToBitString()}");
+            Console.WriteLine($"PC:\t{pc.Content.ToBitStringWithDecAndHexLittleEndian()}");
+            Console.WriteLine($"Bus:\t{dataBus.PeakAll().ToBitStringWithDecAndHexLittleEndian()}");
+            Console.WriteLine($"MAR:\t{mar.Content.ToBitStringWithDecAndHexLittleEndian()} -> RAM: \t{ram.Content[mar.Content.ToByteLittleEndian()].ToBitStringWithDecAndHexLittleEndian()}");
+            Console.WriteLine($"A:\t{regA.Content.ToBitStringWithDecAndHexLittleEndian()}");
+            Console.WriteLine($"B:\t{regB.Content.ToBitStringWithDecAndHexLittleEndian()}");
+            Console.WriteLine($"ALU:\t{aluAdder.Content.ToBitStringWithDecAndHexLittleEndian()}");
             Console.WriteLine();
         }
 
