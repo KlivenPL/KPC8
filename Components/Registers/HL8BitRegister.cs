@@ -4,7 +4,7 @@ using Simulation.Updates;
 using System.Collections;
 
 namespace Components.Registers {
-    class HL8BitRegister : IODeviceBase, IRegister, IUpdate {
+    public class HL8BitRegister : IODeviceBase, IRegister, IUpdate {
         private readonly BitArray mainBuffer = new(8);
 
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();

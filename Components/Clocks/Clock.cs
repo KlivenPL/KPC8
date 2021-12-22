@@ -10,6 +10,7 @@ namespace Components.Clocks {
         private Stopwatch sw;
 
         private long cycles = 0;
+        public event Action<Clock> OnCycle;
 
         public Clock(Signal signal, ClockMode mode, long periodInTicks) {
             sw = new Stopwatch();
@@ -80,6 +81,7 @@ namespace Components.Clocks {
                     sw.Restart();
                 }
 
+                OnCycle?.Invoke(this);
                 timer = 0L;
             }
         }
@@ -92,6 +94,7 @@ namespace Components.Clocks {
             Clk.Value = timer <= PeriodInTicks / 2L && IsManualTickInProgress;
 
             if (timer >= PeriodInTicks) {
+                OnCycle?.Invoke(this);
                 timer = -1L;
             }
         }

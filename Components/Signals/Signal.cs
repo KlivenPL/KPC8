@@ -6,7 +6,7 @@ namespace Components.Signals {
         private Signal masterSignal;
         private bool value;
 
-        public event Action OnChange;
+        public event Action<Signal> OnChange;
 
         private Signal(string name) {
             this.name = name;
@@ -65,7 +65,7 @@ namespace Components.Signals {
                 }
 
                 this.value = value;
-                OnChange?.Invoke();
+                OnChange?.Invoke(this);
             }
         }
 

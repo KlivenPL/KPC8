@@ -74,6 +74,7 @@ namespace Tests.ComponentTests {
                 ram = new HL256Ram(initialMemory);
             }
 
+            ram.Clk.PlugIn(_testClock.Clk);
             inputs = ram.CreateSignalAndPlugInInputs().ToArray();
             outputs = ram.CreateSignalAndPlugInOutputs().ToArray();
 

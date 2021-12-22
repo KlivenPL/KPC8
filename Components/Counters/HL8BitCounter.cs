@@ -4,7 +4,7 @@ using Simulation.Updates;
 using System.Collections;
 
 namespace Components.Counters {
-    class HL8BitCounter : IODeviceBase, ICounter, IUpdate {
+    public class HL8BitCounter : IODeviceBase, ICounter, IUpdate {
         private readonly BitArray mainBuffer = new(8);
 
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();

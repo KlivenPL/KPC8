@@ -3,9 +3,10 @@ using Components.Signals;
 using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System.Collections;
+using System.Linq;
 
 namespace Components.Rams {
-    class HL256Ram : IODeviceBase, IRam, IUpdate {
+    public class HL256Ram : IODeviceBase, IRam, IUpdate {
         private const int MemorySizeInBytes = 256; // 2^AddressSize
         private const int AddressSize = 8;
         private const int DataSize = 8;
@@ -16,12 +17,12 @@ namespace Components.Rams {
         public BitArray[] Content => memory;
         public SignalPort WriteEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
+        public SignalPort Clk { get; protected set; } = new SignalPort();
 
-        public HL256Ram() {
-            Initialize(null);
-        }
+        public SignalPort[] AddressInputs => Inputs.Take(8).ToArray();
+        public SignalPort[] DataInputs => Inputs.Skip(8).ToArray();
 
-        public HL256Ram(BitArray[] initialMemory) {
+        public HL256Ram(BitArray[] initialMemory = null) {
             Initialize(initialMemory);
         }
 
@@ -43,14 +44,19 @@ namespace Components.Rams {
                 }
             }
 
+            Clk.OnEdgeRise += Clk_OnEdgeRise;
             this.RegisterUpdate();
         }
 
         public void Update() {
+            if (OutputEnable) {
+                WriteOutput();
+            }
+        }
+
+        private void Clk_OnEdgeRise() {
             if (WriteEnable) {
                 WriteData();
-            } else if (OutputEnable) {
-                WriteOutput();
             }
         }
 

@@ -2,7 +2,7 @@
 using Components.Signals;
 
 namespace Components._Infrastructure.IODevices {
-    class IODeviceBase : IIODevice {
+    public class IODeviceBase : IIODevice {
         public SignalPort[] Inputs { get; private set; }
         public SignalPort[] Outputs { get; private set; }
 

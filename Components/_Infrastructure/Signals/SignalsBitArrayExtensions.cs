@@ -1,8 +1,10 @@
-﻿using Components.Signals;
+﻿using _Infrastructure.Names;
+using Components.Signals;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace _Infrastructure.BitArrays {
     public static class SignalsBitArrayExtensions {
@@ -22,6 +24,13 @@ namespace _Infrastructure.BitArrays {
             for (int i = 0; i < signals.Count(); i++) {
                 signals.ElementAt(i).Value = bitArray[i];
             }
+        }
+
+        public static Signal CreateSignalAndPlugin<T>(this T obj, string nameof, Expression<Func<T, SignalPort>> expression) {
+            var signal = Signal.Factory.Create(NameOf<T>.Full(nameof, expression));
+            var func = expression.Compile();
+            func(obj).PlugIn(signal);
+            return signal;
         }
     }
 }

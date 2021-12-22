@@ -1,36 +1,42 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Components.Signals {
     public class SignalPort {
-        private Signal signal;
+        private List<Signal> signals = new List<Signal>();
 
         public event Action OnEdgeRise;
         public event Action OnEdgeFall;
 
-        public bool Value => signal is not null && signal.Value;
-
-        public void PlugIn(Signal signal) {
-            if (this.signal != null) {
-                throw new Exception("This signal port is already occupied.");
+        public bool Value {
+            get {
+                var anySig = signals.Count > 0;
+                if (!anySig) {
+                    Console.WriteLine("Trying to read unconnected port");
+                }
+                return anySig && signals.Any(s => s);
             }
+        }
+        public void PlugIn(Signal signal) {
+            signals.Add(signal);
 
-            this.signal = signal;
             signal.OnChange += Signal_OnChange;
         }
 
-        public void Unplug() {
-            if (signal == null) {
+        public void UnplugAll() {
+            if (!signals.Any()) {
                 throw new Exception("This signal port was not occupied.");
             }
 
-            signal.OnChange -= Signal_OnChange;
-            signal = null;
+            signals.ForEach(s => s.OnChange -= Signal_OnChange);
+            signals.Clear();
         }
 
-        private void Signal_OnChange() {
-            if (signal == true) {
+        private void Signal_OnChange(Signal signal) {
+            if (signal) {
                 OnEdgeRise?.Invoke();
-            } else if (signal == false) {
+            } else {
                 OnEdgeFall?.Invoke();
             }
         }
@@ -40,8 +46,8 @@ namespace Components.Signals {
         }
 
         public void Write(bool value) {
-            if (signal != null) {
-                signal.Value = value;
+            if (signals.Any()) {
+                signals.ForEach(s => s.Value = value);
             }
         }
     }

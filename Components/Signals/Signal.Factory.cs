@@ -26,6 +26,21 @@ namespace Components.Signals {
 
                 return signal;
             }
+
+            public static void CreateAndConnectPorts(string namePrefix, IEnumerable<SignalPort> portsA, IEnumerable<SignalPort> portsB) {
+                if (portsA.Count() != portsB.Count())
+                    throw new Exception("Ports must be this same size");
+
+                for (int i = 0; i < portsA.Count(); i++) {
+                    var signal = Create($"{i}#{namePrefix}");
+                    portsA.ElementAt(i).PlugIn(signal);
+                    portsB.ElementAt(i).PlugIn(signal);
+                }
+            }
+
+            public static Signal Create(string namePrefix) {
+                return GetOrCreate($"{namePrefix}_{Guid.NewGuid()}");
+            }
         }
     }
 }
