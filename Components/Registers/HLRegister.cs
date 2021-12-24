@@ -4,8 +4,8 @@ using Simulation.Updates;
 using System.Collections;
 
 namespace Components.Registers {
-    public class HL8BitRegister : IODeviceBase, IRegister, IUpdate {
-        private readonly BitArray mainBuffer = new(8);
+    public class HLRegister : IODeviceBase, IRegister, IUpdate {
+        private readonly BitArray mainBuffer;
 
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
@@ -14,12 +14,13 @@ namespace Components.Registers {
 
         public BitArray Content => new(mainBuffer);
 
-        public HL8BitRegister() {
-            Initialize();
+        public HLRegister(int size) {
+            mainBuffer = new(8);
+            Initialize(size);
         }
 
-        public void Initialize() {
-            base.Initialize(8, 8);
+        public void Initialize(int size) {
+            base.Initialize(size, size);
 
             Clk.OnEdgeRise += Clk_OnEdgeRise;
             Clear.OnEdgeRise += Clear_OnEdgeRise;
@@ -44,13 +45,13 @@ namespace Components.Registers {
         }
 
         private void LoadInput() {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < Inputs.Length; i++) {
                 mainBuffer[i] = Inputs[i];
             }
         }
 
         private void WriteOutput() {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < Inputs.Length; i++) {
                 Outputs[i].Write(mainBuffer[i]);
             }
         }

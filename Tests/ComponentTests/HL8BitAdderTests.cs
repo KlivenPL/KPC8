@@ -105,8 +105,8 @@ namespace Tests.ComponentTests {
             Assert.True(carryOut);
         }
 
-        private HL8BitAdder CreateAdder(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal substractEnable, out Signal carryIn, out Signal carryOut) {
-            var register = new HL8BitAdder();
+        private HLAdder CreateAdder(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal substractEnable, out Signal carryIn, out Signal carryOut) {
+            var register = new HLAdder(8);
 
             inputs = register.CreateSignalAndPlugInInputs().ToArray();
             outputs = register.CreateSignalAndPlugInOutputs().ToArray();

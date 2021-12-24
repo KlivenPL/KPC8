@@ -2,17 +2,17 @@
 using Components.Signals;
 using Infrastructure.BitArrays;
 using Simulation.Updates;
+using System;
 using System.Collections;
 using System.Linq;
 
 namespace Components.Rams {
-    public class HL256Ram : IODeviceBase, IRam, IUpdate {
-        private const int MemorySizeInBytes = 256; // 2^AddressSize
-        private const int AddressSize = 8;
-        private const int DataSize = 8;
-        private const int OutputSize = 8;
+    public class HLRam : IODeviceBase, IRam, IUpdate {
+        private readonly int MemorySizeInBytes;
+        private readonly int AddressSize;
+        private readonly int DataSize;
 
-        private readonly BitArray[] memory = new BitArray[MemorySizeInBytes];
+        private readonly BitArray[] memory;
 
         public BitArray[] Content => memory;
         public SignalPort WriteEnable { get; protected set; } = new SignalPort();
@@ -22,12 +22,16 @@ namespace Components.Rams {
         public SignalPort[] AddressInputs => Inputs.Take(8).ToArray();
         public SignalPort[] DataInputs => Inputs.Skip(8).ToArray();
 
-        public HL256Ram(BitArray[] initialMemory = null) {
+        public HLRam(int dataSize, int addressSize, BitArray[] initialMemory = null) {
+            MemorySizeInBytes = (int)Math.Pow(2, addressSize);
+            AddressSize = addressSize;
+            DataSize = dataSize;
+            memory = new BitArray[MemorySizeInBytes];
             Initialize(initialMemory);
         }
 
         public void Initialize(BitArray[] initialMemory) {
-            base.Initialize(AddressSize + DataSize, OutputSize);
+            base.Initialize(AddressSize + DataSize, DataSize);
 
             if (initialMemory == null) {
                 for (int i = 0; i < MemorySizeInBytes; i++) {

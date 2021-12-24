@@ -23,6 +23,7 @@ namespace Tests {
         }
 
         public void MakeTickAndWait() {
+            _testSimulationLoop.Loop();
             _testClock.MakeTick();
             while (_testClock.IsManualTickInProgress) {
                 _testSimulationLoop.Loop();

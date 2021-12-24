@@ -23,12 +23,12 @@ namespace KPC8 {
         private readonly SimulationLoop loop;
 
         private HLBus dataBus;
-        private HL8BitRegister regA;
-        private HL8BitRegister regB;
-        private HL8BitRegister mar;
-        private HL8BitAdder aluAdder;
-        private HL8BitCounter pc;
-        private HL256Ram ram;
+        private HLRegister regA;
+        private HLRegister regB;
+        private HLRegister mar;
+        private HLAdder aluAdder;
+        private HLCounter pc;
+        private HLRam ram;
         private HLTransciever transcAtoBus;
         private HLTransciever transcBtoBus;
         private int cycleNumber = 0;
@@ -127,12 +127,12 @@ namespace KPC8 {
         private void Create(BitArray[] initialMemory = null) {
             dataBus = new HLBus(/*mainClock,*/ 8);
 
-            regA = new HL8BitRegister();
-            regB = new HL8BitRegister();
-            mar = new HL8BitRegister();
-            aluAdder = new HL8BitAdder();
-            pc = new HL8BitCounter();
-            ram = new HL256Ram(initialMemory);
+            regA = new HLRegister(8);
+            regB = new HLRegister(8);
+            mar = new HLRegister(8);
+            aluAdder = new HLAdder(8);
+            pc = new HLCounter(8);
+            ram = new HLRam(8, 8, initialMemory);
             transcAtoBus = new HLTransciever(8);
             transcBtoBus = new HLTransciever(8);
 

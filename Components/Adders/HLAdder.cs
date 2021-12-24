@@ -4,9 +4,9 @@ using Simulation.Updates;
 using System.Collections;
 
 namespace Components.Adders {
-    public class HL8BitAdder : IODeviceBase, IAdder, IUpdate {
-        private readonly BitArray inputA = new(8);
-        private readonly BitArray inputB = new(8);
+    public class HLAdder : IODeviceBase, IAdder, IUpdate {
+        private readonly BitArray inputA;
+        private readonly BitArray inputB;
 
         public BitArray Content => new(inputA);
         public SignalPort CarryIn { get; protected set; } = new SignalPort();
@@ -14,13 +14,16 @@ namespace Components.Adders {
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
         public SignalPort SubstractEnable { get; protected set; } = new SignalPort();
 
-        public HL8BitAdder() {
-            Initialize();
+        public HLAdder(int size) {
+            inputA = new(size);
+            inputB = new(size);
+
+            Initialize(size);
             this.RegisterUpdate();
         }
 
-        public void Initialize() {
-            base.Initialize(16, 8);
+        public void Initialize(int size) {
+            base.Initialize(size + size, size);
         }
 
         public void Update() {
@@ -35,19 +38,19 @@ namespace Components.Adders {
         }
 
         private void LoadInputA() {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < inputA.Length; i++) {
                 inputA[i] = Inputs[i];
             }
         }
 
         private void LoadInputB(bool invert) {
-            for (int i = 0; i < 8; i++) {
-                inputB[i] = invert ? !Inputs[i + 8] : Inputs[i + 8];
+            for (int i = 0; i < inputA.Length; i++) {
+                inputB[i] = invert ? !Inputs[i + inputA.Length] : Inputs[i + inputA.Length];
             }
         }
 
         private bool Add(bool carryIn) {
-            for (int i = 7; i >= 0; i--) {
+            for (int i = inputA.Length - 1; i >= 0; i--) {
                 var tmp = inputA[i] ^ inputB[i] ^ carryIn;
                 carryIn = inputA[i] && inputB[i] || inputA[i] && carryIn || inputB[i] && carryIn;
                 inputA[i] = tmp;
@@ -57,7 +60,7 @@ namespace Components.Adders {
         }
 
         private void WriteOutput() {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < inputA.Length; i++) {
                 Outputs[i].Write(inputA[i]);
             }
         }

@@ -80,8 +80,8 @@ namespace Tests.ComponentTests {
             BitAssert.Equality(data, outputs);
         }
 
-        private HL8BitCounter CreateCounter(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal loadEnable, out Signal countEnable, out Signal clear) {
-            var counter = new HL8BitCounter();
+        private HLCounter CreateCounter(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal loadEnable, out Signal countEnable, out Signal clear) {
+            var counter = new HLCounter(8);
             counter.Clk.PlugIn(_testClock.Clk);
 
             inputs = counter.CreateSignalAndPlugInInputs().ToArray();

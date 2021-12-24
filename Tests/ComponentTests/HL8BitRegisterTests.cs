@@ -92,8 +92,8 @@ namespace Tests.ComponentTests {
             Assert.True(register.Content.EqualTo(zeroData));
         }
 
-        private HL8BitRegister CreateRegister(out Signal[] inputs, out Signal[] outputs, out Signal enableSig, out Signal loadSig, out Signal clearSig) {
-            var register = new HL8BitRegister();
+        private HLRegister CreateRegister(out Signal[] inputs, out Signal[] outputs, out Signal enableSig, out Signal loadSig, out Signal clearSig) {
+            var register = new HLRegister(8);
             register.Clk.PlugIn(_testClock.Clk);
 
             inputs = register.CreateSignalAndPlugInInputs().ToArray();

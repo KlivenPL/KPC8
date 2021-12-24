@@ -65,13 +65,13 @@ namespace Tests.ComponentTests {
             Assert.True(outputs.ToBitArray().EqualTo(data));
         }
 
-        private HL256Ram CreateRam(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal writeEnable, BitArray[] initialMemory = null) {
-            HL256Ram ram = null;
+        private HLRam CreateRam(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal writeEnable, BitArray[] initialMemory = null) {
+            HLRam ram = null;
 
             if (initialMemory == null) {
-                ram = new HL256Ram();
+                ram = new HLRam(8, 8);
             } else {
-                ram = new HL256Ram(initialMemory);
+                ram = new HLRam(8, 8, initialMemory);
             }
 
             ram.Clk.PlugIn(_testClock.Clk);
