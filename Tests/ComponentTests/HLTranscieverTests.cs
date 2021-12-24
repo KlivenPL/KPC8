@@ -14,7 +14,7 @@ namespace Tests.ComponentTests {
             var inputData = BitArrayHelper.FromString("11110001");
             var zero = BitArrayHelper.FromString("00000000");
 
-            var transciever = CreateTransciever(out var inputs, out var outputs, out var outputEnable);
+            using var transciever = CreateTransciever(out var inputs, out var outputs, out var outputEnable);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = inputData[i];
@@ -49,7 +49,7 @@ namespace Tests.ComponentTests {
             var inputData = BitArrayHelper.FromString("11110001");
             var zero = BitArrayHelper.FromString("00000000");
 
-            var transciever = CreateTransciever(out var inputs, out var outputs, out var outputEnable);
+            using var transciever = CreateTransciever(out var inputs, out var outputs, out var outputEnable);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = inputData[i];

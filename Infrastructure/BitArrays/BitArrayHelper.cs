@@ -112,7 +112,7 @@ namespace Infrastructure.BitArrays {
             if (bitArray.Length > 8)
                 throw new Exception("Length must not be greater than 8");
 
-            byte[] array = new byte[8];
+            byte[] array = new byte[1];
             bitArray.CopyTo(array, 0);
             return array[0];
         }
@@ -124,9 +124,21 @@ namespace Infrastructure.BitArrays {
             var copy = new BitArray(bitArray);
             copy.Reverse();
 
-            byte[] array = new byte[8];
+            byte[] array = new byte[1];
             copy.CopyTo(array, 0);
             return array[0];
+        }
+
+        public static ushort ToShortLittleEndian(this BitArray bitArray) {
+            if (bitArray.Length > 16)
+                throw new Exception("Length must not be greater than 16");
+
+            var copy = new BitArray(bitArray);
+            copy.Reverse();
+
+            byte[] array = new byte[2];
+            copy.CopyTo(array, 0);
+            return (ushort)(array[0] + (array[1] << 8));
         }
 
         public static void Reverse(this BitArray array) {

@@ -7,14 +7,14 @@ using Tests.Adapters;
 using Xunit;
 
 namespace Tests.ComponentTests {
-    public class HL8BitCounterTests : TestBase {
+    public class HLCounterTests : TestBase {
 
         [Fact]
         public void TwoClockCyclesCount() {
             var firstCount = BitArrayHelper.FromString("00000001");
             var secondCount = BitArrayHelper.FromString("00000010");
 
-            var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
+            using var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
 
             countEnable.Value = true;
             MakeTickAndWait();
@@ -33,7 +33,7 @@ namespace Tests.ComponentTests {
             var zero = BitArrayHelper.FromString("00000000");
             var one = BitArrayHelper.FromString("00000001");
 
-            var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
+            using var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = data[i];
@@ -58,7 +58,7 @@ namespace Tests.ComponentTests {
         public void LoadDataAndWait() {
             var data = BitArrayHelper.FromString("01010101");
 
-            var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
+            using var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = data[i];

@@ -9,7 +9,7 @@ using Xunit;
 namespace Tests._Infrastructure {
     public static class BitAssert {
         public static void Equality(BitArray bitArray, ICollection<Signal> signals) {
-            if (bitArray.Length != signals.Count()) {
+            if (bitArray.Length != signals.Count) {
                 Assert.True(false, $"BitArray length ({bitArray.Length}) != to Signals count ({signals.Count()})");
             }
 

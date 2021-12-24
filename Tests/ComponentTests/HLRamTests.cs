@@ -8,7 +8,7 @@ using Tests.Adapters;
 using Xunit;
 
 namespace Tests.ComponentTests {
-    public class HL256RamTests : TestBase {
+    public class HLRamTests : TestBase {
 
         [Fact]
         public void WriteAndOutputData() {
@@ -16,7 +16,7 @@ namespace Tests.ComponentTests {
             var address = BitArrayHelper.FromString("01001111");
             var data = BitArrayHelper.FromString("11001111");
 
-            var ram = CreateRam(out var inputs, out var outputs, out var outputEnable, out var writeEnable);
+            using var ram = CreateRam(out var inputs, out var outputs, out var outputEnable, out var writeEnable);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = address[i];
@@ -51,7 +51,7 @@ namespace Tests.ComponentTests {
                 data
             };
 
-            var ram = CreateRam(out var inputs, out var outputs, out var outputEnable, out var writeEnable, initialMemory);
+            using var ram = CreateRam(out var inputs, out var outputs, out var outputEnable, out var writeEnable, initialMemory);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = address[i];

@@ -6,13 +6,13 @@ using Tests.Adapters;
 using Xunit;
 
 namespace Tests.ComponentTests {
-    public class HL8BitRegisterTests : TestBase {
+    public class HLRegisterTests : TestBase {
 
         [Fact]
         public void LoadAndOutputData() {
             var data = BitArrayHelper.FromString("11110001");
 
-            var register = CreateRegister(out var inputs, out var outputs, out var enableSig, out var loadSig, out _);
+            using var register = CreateRegister(out var inputs, out var outputs, out var enableSig, out var loadSig, out _);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = data[i];
@@ -42,7 +42,7 @@ namespace Tests.ComponentTests {
         public void DoNothing() {
             var data = BitArrayHelper.FromString("11110001");
 
-            var register = CreateRegister(out var inputs, out var outputs, out _, out _, out _);
+            using var register = CreateRegister(out var inputs, out var outputs, out _, out _, out _);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = data[i];
@@ -71,7 +71,7 @@ namespace Tests.ComponentTests {
             var data = BitArrayHelper.FromString("11110001");
             var zeroData = BitArrayHelper.FromString("00000000");
 
-            var register = CreateRegister(out var inputs, out _, out _, out var loadSig, out var clearSig);
+            using var register = CreateRegister(out var inputs, out _, out _, out var loadSig, out var clearSig);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = data[i];

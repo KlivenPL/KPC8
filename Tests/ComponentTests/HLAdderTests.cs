@@ -7,7 +7,7 @@ using Tests.Adapters;
 using Xunit;
 
 namespace Tests.ComponentTests {
-    public class HL8BitAdderTests : TestBase {
+    public class HLAdderTests : TestBase {
 
         [Fact]
         public void LoadAddAndOutput() {
@@ -16,7 +16,7 @@ namespace Tests.ComponentTests {
 
             var addResult = BitArrayHelper.FromString("01111100");
 
-            var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
+            using var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = dataA[i];
@@ -40,7 +40,7 @@ namespace Tests.ComponentTests {
 
             var addResult = BitArrayHelper.FromString("10111011");
 
-            var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
+            using var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = dataA[i];
@@ -64,7 +64,7 @@ namespace Tests.ComponentTests {
 
             var addResult = BitArrayHelper.FromString("00100011");
 
-            var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
+            using var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = dataA[i];
@@ -89,7 +89,7 @@ namespace Tests.ComponentTests {
 
             var addResult = BitArrayHelper.FromString("11001110");
 
-            var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
+            using var adder = CreateAdder(out var inputs, out var outputs, out var outputEnable, out var substractEnable, out var carryIn, out var carryOut);
 
             for (int i = 0; i < 8; i++) {
                 inputs[i].Value = dataA[i];

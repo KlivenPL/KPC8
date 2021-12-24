@@ -6,8 +6,8 @@ using System;
 using System.Collections;
 using System.Linq;
 
-namespace Components.Rams {
-    public class HLRam : IODeviceBase, IRam, IUpdate {
+namespace Components.Roms {
+    public class HLRom : IODeviceBase, IRom, IUpdate {
         private readonly int MemorySizeInBytes;
         private readonly int AddressSize;
         private readonly int DataSize;
@@ -15,14 +15,11 @@ namespace Components.Rams {
         private readonly BitArray[] memory;
 
         public BitArray[] Content => memory;
-        public SignalPort WriteEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
-        public SignalPort Clk { get; protected set; } = new SignalPort();
 
         public SignalPort[] AddressInputs => Inputs.Take(AddressSize).ToArray();
-        public SignalPort[] DataInputs => Inputs.Skip(AddressSize).ToArray();
 
-        public HLRam(int dataSize, int addressSize, BitArray[] initialMemory = null) {
+        public HLRom(int dataSize, int addressSize, BitArray[] initialMemory) {
             MemorySizeInBytes = (int)Math.Pow(2, addressSize);
             AddressSize = addressSize;
             DataSize = dataSize;
@@ -48,26 +45,12 @@ namespace Components.Rams {
                 }
             }
 
-            Clk.OnEdgeRise += Clk_OnEdgeRise;
             this.RegisterUpdate();
         }
 
         public void Update() {
             if (OutputEnable) {
                 WriteOutput();
-            }
-        }
-
-        private void Clk_OnEdgeRise() {
-            if (WriteEnable) {
-                WriteData();
-            }
-        }
-
-        private void WriteData() {
-            var addr = GetMemoryAddress();
-            for (int i = 0; i < DataSize; i++) {
-                memory[addr][i] = Inputs[i + AddressSize];
             }
         }
 
@@ -84,7 +67,7 @@ namespace Components.Rams {
                 inputAddress[i] = Inputs[i];
             }
 
-            return inputAddress.ToByteLittleEndian();
+            return inputAddress.ToShortLittleEndian();
         }
 
         public void Dispose() {
