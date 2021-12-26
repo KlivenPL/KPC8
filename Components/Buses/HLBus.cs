@@ -38,5 +38,11 @@ namespace Components.Buses {
         public BitArray PeakAll() {
             return Lanes.ToBitArray();
         }
+
+        public void WriteTestOnly(BitArray data) {
+            for (int i = 0; i < data.Length; i++) {
+                Lanes[i].Value = data[i];
+            }
+        }
     }
 }

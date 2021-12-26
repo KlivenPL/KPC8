@@ -1,6 +1,4 @@
 ﻿using Components.Buses;
-using Components.Registers;
-using Components.Signals;
 using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
 using KPC8.Modules;
@@ -8,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Tests._Infrastructure;
-using Tests.Adapters;
 using Xunit;
 
 namespace Tests.KPC8Tests.ModulesTests {
@@ -22,11 +19,11 @@ namespace Tests.KPC8Tests.ModulesTests {
             var rom0 = BitArrayHelper.FromString("11110000");
             var rom1 = BitArrayHelper.FromString("10110000");
 
-            //using var irRegisterMock = CreateHiLoRegisterMock(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var loadEnableHi, out var loadEnableLo, out var clear);
-            var module = CreateMemoryModule(CreateTestRom().ToArray(), out var dataBus, out var addressBus, out var cs);
+            var module = CreateMemoryModule(CreateTestRomData().ToArray(), null, out var dataBus, out var addressBus, out var cs);
 
             Enable(cs.Pc_oe);
-            Enable(cs.Mar_le);
+            Enable(cs.Mar_le_hi);
+            Enable(cs.Mar_le_lo);
 
             MakeTickAndWait();
 
@@ -50,19 +47,109 @@ namespace Tests.KPC8Tests.ModulesTests {
             BitAssert.Equality(pc1, addressBus.Lanes);
         }
 
+        [Fact]
+        public void FetchInstructionFromRam() {
+            var pc0 = BitArrayHelper.FromString("00000000 00000000");
+            var pc1 = BitArrayHelper.FromString("00000000 00000010");
 
-        private Memory CreateMemoryModule(BitArray[] romData, out IBus dataBus, out IBus addressBus, out CsPanel.MemoryPanel csPanel) {
+            var ram0 = BitArrayHelper.FromString("10110010");
+            var ram1 = BitArrayHelper.FromString("10110001");
+
+            var module = CreateMemoryModule(null, CreateTestRamData().ToArray(), out var dataBus, out var addressBus, out var cs);
+
+            Enable(cs.Pc_oe);
+            Enable(cs.Mar_le_hi);
+            Enable(cs.Mar_le_lo);
+
+            MakeTickAndWait();
+
+            BitAssert.Equality(pc0, addressBus.Lanes);
+
+            Enable(cs.Pc_ce);
+            Enable(cs.Ram_oe);
+
+            MakeTickAndWait();
+
+            BitAssert.Equality(ram0, dataBus.Lanes);
+
+            Enable(cs.Mar_ce);
+            Enable(cs.Ram_oe);
+            Enable(cs.Pc_ce);
+            Enable(cs.Pc_oe);
+
+            MakeTickAndWait();
+
+            BitAssert.Equality(pc1, addressBus.Lanes);
+            BitAssert.Equality(ram1, dataBus.Lanes);
+        }
+
+        [Fact]
+        public void StoreByteInRam() {
+            var zero = BitArrayHelper.FromString("00000000");
+            var ramAddressHi = BitArrayHelper.FromString("01000100");
+            var ramAddressLo = BitArrayHelper.FromString("10000010");
+            var @byte = BitArrayHelper.FromString("11010111");
+
+            var module = CreateMemoryModule(CreateTestRomData().ToArray(), null, out var dataBus, out var addressBus, out var cs);
+
+            dataBus.WriteTestOnly(ramAddressHi);
+            Enable(cs.Mar_le_hi);
+
+            MakeTickAndWait();
+
+            dataBus.WriteTestOnly(ramAddressLo);
+            Enable(cs.Mar_le_lo);
+
+            MakeTickAndWait();
+
+            dataBus.WriteTestOnly(@byte);
+            Enable(cs.Ram_we);
+
+            MakeTickAndWait();
+
+            dataBus.WriteTestOnly(zero);
+            BitAssert.Equality(zero, dataBus.Lanes);
+
+            Enable(cs.Ram_oe);
+
+            MakeTickAndWait();
+
+            BitAssert.Equality(@byte, dataBus.Lanes);
+        }
+
+        [Fact]
+        public void LoadAddressToMar() {
+            var zero = BitArrayHelper.FromString("00000000 00000000");
+            var ramAddress = BitArrayHelper.FromString("01000100 10000010");
+
+            var module = CreateMemoryModule(CreateTestRomData().ToArray(), null, out var dataBus, out var addressBus, out var cs);
+
+            addressBus.WriteTestOnly(ramAddress);
+            Enable(cs.Mar_le_hi);
+            Enable(cs.Mar_le_lo);
+
+            MakeTickAndWait();
+
+            addressBus.WriteTestOnly(zero);
+            BitAssert.Equality(zero, addressBus.Lanes);
+
+            Enable(cs.MarToBus_oe);
+            MakeTickAndWait();
+
+            BitAssert.Equality(ramAddress, addressBus.Lanes);
+        }
+
+        private Memory CreateMemoryModule(BitArray[] romData, BitArray[] ramData, out IBus dataBus, out IBus addressBus, out CsPanel.MemoryPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             addressBus = new HLBus("TestAddressBus", 16);
 
-            var memory = new Memory(romData, _testClock, dataBus, addressBus);
-
+            var memory = new Memory(romData, ramData, _testClock, dataBus, addressBus);
             csPanel = memory.CreateMemoryPanel();
 
             return memory;
         }
 
-        private IEnumerable<BitArray> CreateTestRom() {
+        private IEnumerable<BitArray> CreateTestRomData() {
             for (int i = 0; i < 65536; i++) {
                 if (i == 0) {
                     yield return BitArrayHelper.FromString("11110000");
@@ -79,20 +166,21 @@ namespace Tests.KPC8Tests.ModulesTests {
             }
         }
 
-        private HLHiLoRegister CreateHiLoRegisterMock(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal loadEnable, out Signal loadEnableHi, out Signal loadEnableLo, out Signal clear) {
-            var register = new HLHiLoRegister(16);
-            register.Clk.PlugIn(_testClock.Clk);
+        private IEnumerable<BitArray> CreateTestRamData() {
+            for (int i = 0; i < 65536; i++) {
+                if (i == 0) {
+                    yield return BitArrayHelper.FromString("10110010");
+                } else if (i == 1) {
+                    yield return BitArrayHelper.FromString("10110001");
+                } else if (i == 65534) {
+                    yield return BitArrayHelper.FromString("10000101");
+                } else if (i == 65535) {
+                    yield return BitArrayHelper.FromString("01001011");
+                } else {
+                    yield return new BitArray(8);
+                }
 
-            inputs = register.CreateSignalAndPlugInInputs().ToArray();
-            outputs = register.CreateSignalAndPlugInOutputs().ToArray();
-
-            outputEnable = register.CreateSignalAndPlugInPort(r => r.OutputEnable);
-            loadEnableHi = register.CreateSignalAndPlugInPort(r => r.LoadEnableHigh);
-            loadEnableLo = register.CreateSignalAndPlugInPort(r => r.LoadEnableLow);
-            loadEnable = register.CreateSignalAndPlugInPort(r => r.LoadEnable);
-            clear = register.CreateSignalAndPlugInPort(r => r.Clear);
-
-            return register;
+            }
         }
     }
 }

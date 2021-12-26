@@ -8,7 +8,7 @@ namespace KPC8.Clocks {
         [ClockParameters(10000, ClockMode.Manual)]
         MainManualClock,
 
-        [ClockParameters(4, ClockMode.Manual)]
+        [ClockParameters(50, ClockMode.Manual)]
         TestManualClock,
     }
 }

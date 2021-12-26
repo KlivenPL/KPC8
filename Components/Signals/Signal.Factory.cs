@@ -32,10 +32,14 @@ namespace Components.Signals {
                     throw new Exception("Ports must be this same size");
 
                 for (int i = 0; i < portsA.Count(); i++) {
-                    var signal = Create($"{i}#{namePrefix}");
-                    portsA.ElementAt(i).PlugIn(signal);
-                    portsB.ElementAt(i).PlugIn(signal);
+                    CreateAndConnectPort($"{i}#{namePrefix}", portsA.ElementAt(i), portsB.ElementAt(i));
                 }
+            }
+
+            public static void CreateAndConnectPort(string namePrefix, SignalPort portA, SignalPort portB) {
+                var signal = Create(namePrefix);
+                portA.PlugIn(signal);
+                portB.PlugIn(signal);
             }
 
             public static Signal Create(string namePrefix) {

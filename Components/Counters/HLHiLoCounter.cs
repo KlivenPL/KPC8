@@ -11,9 +11,9 @@ namespace Components.Counters {
             int start = 0;
             int end = Inputs.Length;
 
-            if (LoadEnableLow) {
+            if (LoadEnableLow && !LoadEnableHigh) {
                 start = end / 2;
-            } else if (LoadEnableHigh) {
+            } else if (LoadEnableHigh && !LoadEnableLow) {
                 end /= 2;
             }
 

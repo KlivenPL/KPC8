@@ -2,7 +2,6 @@
 using Components.Signals;
 using Infrastructure.BitArrays;
 using Simulation.Updates;
-using System;
 using System.Collections;
 using System.Linq;
 
@@ -84,7 +83,7 @@ namespace Components.Rams {
                 inputAddress[i] = Inputs[i];
             }
 
-            return inputAddress.ToByteLittleEndian();
+            return inputAddress.ToIntLittleEndian();
         }
 
         public void Dispose() {

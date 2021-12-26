@@ -14,9 +14,6 @@ namespace KPC8.ControlSignals {
             [ControlSignal(ControlSignalType.Pc_le_lo)]
             public Signal Pc_le_lo { get; init; }
 
-            [ControlSignal(ControlSignalType.Pc_le)]
-            public Signal Pc_le { get; init; }
-
             [ControlSignal(ControlSignalType.Pc_oe)]
             public Signal Pc_oe { get; init; }
 
@@ -28,9 +25,6 @@ namespace KPC8.ControlSignals {
 
             [ControlSignal(ControlSignalType.Mar_le_lo)]
             public Signal Mar_le_lo { get; init; }
-
-            [ControlSignal(ControlSignalType.Mar_le)]
-            public Signal Mar_le { get; init; }
 
             [ControlSignal(ControlSignalType.MarToBus_oe)]
             public Signal MarToBus_oe { get; init; }

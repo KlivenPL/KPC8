@@ -2,6 +2,7 @@
 using Components.Buses;
 using Components.Clocks;
 using Components.Counters;
+using Components.Logic;
 using Components.Rams;
 using Components.Roms;
 using Components.Signals;
@@ -19,15 +20,19 @@ namespace KPC8.Modules {
         private readonly HLRam ram;
         private readonly HLRom rom;
         private readonly HLTransciever marToAddressBus;
+        private readonly SingleOrGate pc_leHi_leLo_to_le;
+        private readonly SingleOrGate mar_leHi_leLo_to_le;
 
         private Signal mar_oe_const;
 
-        public Memory(BitArray[] romData, Clock mainClock, IBus dataBus, IBus addressBus) {
+        public Memory(BitArray[] romData, BitArray[] ramData, Clock mainClock, IBus dataBus, IBus addressBus) {
             pc = new HLHiLoCounter(16);
             mar = new HLHiLoCounter(16);
-            ram = new HLRam(8, 16, MemorySize);
             rom = new HLRom(8, 16, MemorySize, romData);
+            ram = new HLRam(8, 16, MemorySize, ramData);
             marToAddressBus = new HLTransciever(16);
+            pc_leHi_leLo_to_le = new SingleOrGate(2);
+            mar_leHi_leLo_to_le = new SingleOrGate(2);
 
             ConnectInternals();
             CreateAndSetConstSignals();
@@ -46,6 +51,12 @@ namespace KPC8.Modules {
             Signal.Factory.CreateAndConnectPorts(nameof(marToAddressBus), mar.Outputs, marToAddressBus.Inputs);
             Signal.Factory.CreateAndConnectPorts("MarToRom", mar.Outputs, rom.AddressInputs);
             Signal.Factory.CreateAndConnectPorts("MarToRam", mar.Outputs, ram.AddressInputs);
+
+            Signal.Factory.CreateAndConnectPort(nameof(pc_leHi_leLo_to_le), pc_leHi_leLo_to_le.Output, pc.LoadEnable);
+            Signal.Factory.CreateAndConnectPorts(nameof(pc_leHi_leLo_to_le), new[] { pc.LoadEnableHigh, pc.LoadEnableLow }, pc_leHi_leLo_to_le.Inputs);
+
+            Signal.Factory.CreateAndConnectPort(nameof(mar_leHi_leLo_to_le), mar_leHi_leLo_to_le.Output, mar.LoadEnable);
+            Signal.Factory.CreateAndConnectPorts(nameof(mar_leHi_leLo_to_le), new[] { mar.LoadEnableHigh, mar.LoadEnableLow }, mar_leHi_leLo_to_le.Inputs);
         }
 
         private void CreateAndSetConstSignals() {
@@ -78,15 +89,13 @@ namespace KPC8.Modules {
 
         public CsPanel.MemoryPanel CreateMemoryPanel() {
             return new CsPanel.MemoryPanel {
-                Pc_le_hi = pc.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Pc_le_hi), x => x.LoadEnableHigh),
-                Pc_le_lo = pc.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Pc_le_lo), x => x.LoadEnableLow),
-                Pc_le = pc.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Pc_le), x => x.LoadEnable),
+                Pc_le_hi = pc_leHi_leLo_to_le.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Pc_le_hi), x => x.Inputs[0]),
+                Pc_le_lo = pc_leHi_leLo_to_le.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Pc_le_lo), x => x.Inputs[1]),
                 Pc_oe = pc.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Pc_oe), x => x.OutputEnable),
                 Pc_ce = pc.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Pc_ce), x => x.CountEnable),
 
-                Mar_le_hi = mar.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Mar_le_hi), x => x.LoadEnableHigh),
-                Mar_le_lo = mar.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Mar_le_lo), x => x.LoadEnableLow),
-                Mar_le = mar.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Mar_le), x => x.LoadEnable),
+                Mar_le_hi = mar_leHi_leLo_to_le.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Mar_le_hi), x => x.Inputs[0]),
+                Mar_le_lo = mar_leHi_leLo_to_le.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Mar_le_lo), x => x.Inputs[1]),
                 MarToBus_oe = marToAddressBus.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.MarToBus_oe), x => x.OutputEnable),
                 Mar_ce = mar.CreateSignalAndPlugin(nameof(CsPanel.MemoryPanel.Mar_ce), x => x.CountEnable),
 

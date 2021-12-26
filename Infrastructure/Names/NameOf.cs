@@ -11,6 +11,10 @@ namespace _Infrastructure.Names {
                     memberExpression = unaryExpression.Operand as MemberExpression;
             }
 
+            if (memberExpression == null) {
+                return Guid.NewGuid().ToString();
+            }
+
             var result = memberExpression.ToString();
             result = result.Substring(result.IndexOf('.') + 1);
 

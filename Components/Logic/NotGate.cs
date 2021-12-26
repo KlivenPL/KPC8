@@ -2,9 +2,9 @@
 using Simulation.Updates;
 
 namespace Components.Logic {
-    public class Inverter : IODeviceBase, IUpdate {
+    public class NotGate : IODeviceBase, IUpdate {
 
-        public Inverter(int lanes) {
+        public NotGate(int lanes) {
             Initialize(lanes);
             this.RegisterUpdate();
         }

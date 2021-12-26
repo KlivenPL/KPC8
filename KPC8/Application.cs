@@ -25,7 +25,7 @@ namespace KPC8 {
         private readonly SimulationLoop loop;
 
         private Signal mainClockBar;
-        private Inverter mainClockInverter;
+        private NotGate mainClockInverter;
         private HLBus dataBus;
         private HLBus addressBus;
         private HLRegister regA;
@@ -140,7 +140,7 @@ namespace KPC8 {
 
         private void Create(BitArray[] initialMemory = null) {
 
-            mainClockInverter = new Inverter(1);
+            mainClockInverter = new NotGate(1);
             mainClockInverter.Inputs[0].PlugIn(mainClock.Clk);
             mainClockBar = Signal.Factory.Create(nameof(mainClockBar));
             mainClockInverter.Outputs[0].PlugIn(mainClockBar);

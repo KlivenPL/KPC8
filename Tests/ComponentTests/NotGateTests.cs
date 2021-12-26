@@ -7,9 +7,9 @@ using Tests.Adapters;
 using Xunit;
 
 namespace Tests.ComponentTests {
-    public class InverterTests : TestBase {
+    public class NotGateTests : TestBase {
         [Fact]
-        public void Invert() {
+        public void Not() {
             var original = BitArrayHelper.FromString("10001001");
             var inverted = BitArrayHelper.FromString("01110110");
 
@@ -24,8 +24,8 @@ namespace Tests.ComponentTests {
             BitAssert.Equality(inverted, outputs);
         }
 
-        private Inverter CreateInverter(out Signal[] inputs, out Signal[] outputs) {
-            var inverter = new Inverter(8);
+        private NotGate CreateInverter(out Signal[] inputs, out Signal[] outputs) {
+            var inverter = new NotGate(8);
 
             inputs = inverter.CreateSignalAndPlugInInputs().ToArray();
             outputs = inverter.CreateSignalAndPlugInOutputs().ToArray();
