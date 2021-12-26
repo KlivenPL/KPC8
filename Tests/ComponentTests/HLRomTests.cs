@@ -86,7 +86,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLRom CreateRom(BitArray[] initialMemory, out Signal[] inputs, out Signal[] outputs, out Signal outputEnable) {
-            HLRom rom = new HLRom(8, 16, initialMemory);
+            HLRom rom = new HLRom(8, 16, 65536, initialMemory);
 
             inputs = rom.CreateSignalAndPlugInInputs().ToArray();
             outputs = rom.CreateSignalAndPlugInOutputs().ToArray();

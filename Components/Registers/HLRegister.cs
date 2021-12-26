@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace Components.Registers {
     public class HLRegister : IODeviceBase, IRegister, IUpdate {
-        private readonly BitArray mainBuffer;
+        protected readonly BitArray mainBuffer;
 
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
@@ -15,7 +15,7 @@ namespace Components.Registers {
         public BitArray Content => new(mainBuffer);
 
         public HLRegister(int size) {
-            mainBuffer = new(8);
+            mainBuffer = new(size);
             Initialize(size);
         }
 
@@ -44,7 +44,7 @@ namespace Components.Registers {
             }
         }
 
-        private void LoadInput() {
+        protected virtual void LoadInput() {
             for (int i = 0; i < Inputs.Length; i++) {
                 mainBuffer[i] = Inputs[i];
             }

@@ -2,7 +2,6 @@
 using Components.Signals;
 using Infrastructure.BitArrays;
 using Simulation.Updates;
-using System;
 using System.Collections;
 using System.Linq;
 
@@ -19,8 +18,8 @@ namespace Components.Roms {
 
         public SignalPort[] AddressInputs => Inputs.Take(AddressSize).ToArray();
 
-        public HLRom(int dataSize, int addressSize, BitArray[] initialMemory) {
-            MemorySizeInBytes = (int)Math.Pow(2, addressSize);
+        public HLRom(int dataSize, int addressSize, int totalSizeInBytes, BitArray[] initialMemory) {
+            MemorySizeInBytes = totalSizeInBytes;
             AddressSize = addressSize;
             DataSize = dataSize;
             memory = new BitArray[MemorySizeInBytes];
@@ -67,7 +66,7 @@ namespace Components.Roms {
                 inputAddress[i] = Inputs[i];
             }
 
-            return inputAddress.ToShortLittleEndian();
+            return inputAddress.ToIntLittleEndian();
         }
 
         public void Dispose() {

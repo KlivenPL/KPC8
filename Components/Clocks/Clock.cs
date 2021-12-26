@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics;
 
 namespace Components.Clocks {
-    public class Clock : IUpdate {
+    public class Clock : IHighPriorityUpdate {
         private long timer = 0L;
         private ClockMode mode;
         private Stopwatch sw;

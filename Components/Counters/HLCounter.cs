@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace Components.Counters {
     public class HLCounter : IODeviceBase, ICounter, IUpdate {
-        private readonly BitArray mainBuffer;
+        protected readonly BitArray mainBuffer;
 
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
@@ -30,10 +30,6 @@ namespace Components.Counters {
         }
 
         public void Update() {
-            if (LoadEnable) {
-                LoadInput();
-            }
-
             if (OutputEnable) {
                 WriteOutput();
             }
@@ -44,12 +40,16 @@ namespace Components.Counters {
         }
 
         private void Clk_OnEdgeRise() {
+            if (LoadEnable) {
+                LoadInput();
+            }
+
             if (CountEnable) {
                 Count();
             }
         }
 
-        private void LoadInput() {
+        protected virtual void LoadInput() {
             for (int i = 0; i < Inputs.Length; i++) {
                 mainBuffer[i] = Inputs[i];
             }

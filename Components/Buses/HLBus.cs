@@ -1,5 +1,4 @@
 ﻿using _Infrastructure.BitArrays;
-using Components.Clocks;
 using Components.Signals;
 using System;
 using System.Collections;
@@ -10,19 +9,11 @@ namespace Components.Buses {
     public class HLBus : IBus {
         public Signal[] Lanes { get; private set; }
 
-        public HLBus(/*Clock clock, */int lanes) {
+        public HLBus(string name, int lanes) {
             Lanes = new Signal[lanes];
 
             for (int i = 0; i < lanes; i++) {
-                Lanes[i] = Signal.Factory.GetOrCreate($"Bus_{Guid.NewGuid()}");
-            }
-
-            //clock.OnCycle += ResetLanes;
-        }
-
-        private void ResetLanes(Clock obj) {
-            for (int i = 0; i < Lanes.Length; i++) {
-                Lanes[i].Value = false;
+                Lanes[i] = Signal.Factory.GetOrCreate($"{name}_{Guid.NewGuid()}");
             }
         }
 

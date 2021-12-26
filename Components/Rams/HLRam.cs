@@ -22,8 +22,8 @@ namespace Components.Rams {
         public SignalPort[] AddressInputs => Inputs.Take(AddressSize).ToArray();
         public SignalPort[] DataInputs => Inputs.Skip(AddressSize).ToArray();
 
-        public HLRam(int dataSize, int addressSize, BitArray[] initialMemory = null) {
-            MemorySizeInBytes = (int)Math.Pow(2, addressSize);
+        public HLRam(int dataSize, int addressSize, int totalSizeInBytes, BitArray[] initialMemory = null) {
+            MemorySizeInBytes = totalSizeInBytes;
             AddressSize = addressSize;
             DataSize = dataSize;
             memory = new BitArray[MemorySizeInBytes];

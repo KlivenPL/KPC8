@@ -69,9 +69,9 @@ namespace Tests.ComponentTests {
             HLRam ram = null;
 
             if (initialMemory == null) {
-                ram = new HLRam(8, 8);
+                ram = new HLRam(8, 8, 256);
             } else {
-                ram = new HLRam(8, 8, initialMemory);
+                ram = new HLRam(8, 8, 256, initialMemory);
             }
 
             ram.Clk.PlugIn(_testClock.Clk);

@@ -4,8 +4,10 @@ using Components.Adders;
 using Components.Buses;
 using Components.Clocks;
 using Components.Counters;
+using Components.Logic;
 using Components.Rams;
 using Components.Registers;
+using Components.Roms;
 using Components.Signals;
 using Components.Transcievers;
 using Infrastructure.BitArrays;
@@ -22,13 +24,19 @@ namespace KPC8 {
         private readonly Clock mainClock;
         private readonly SimulationLoop loop;
 
+        private Signal mainClockBar;
+        private Inverter mainClockInverter;
         private HLBus dataBus;
+        private HLBus addressBus;
         private HLRegister regA;
         private HLRegister regB;
-        private HLRegister mar;
+        private HLCounter mar;
+        private HLRegister ir;
         private HLAdder aluAdder;
         private HLCounter pc;
+        private HLCounter ic;
         private HLRam ram;
+        private HLRom rom;
         private HLTransciever transcAtoBus;
         private HLTransciever transcBtoBus;
         private int cycleNumber = 0;
@@ -83,7 +91,7 @@ namespace KPC8 {
         }
 
         public void Run() {
-            while (true) {
+            /*while (true) {
                 Enable(pcOutputEnable);
                 Enable(marLoadEnable);
 
@@ -114,6 +122,12 @@ namespace KPC8 {
 
                 MakeTickAndWait();
                 if (ShouldEscape()) break;
+            }*/
+
+            while (true) {
+
+                MakeTickAndWait();
+                if (ShouldEscape()) break;
             }
         }
 
@@ -125,16 +139,34 @@ namespace KPC8 {
         }
 
         private void Create(BitArray[] initialMemory = null) {
-            dataBus = new HLBus(/*mainClock,*/ 8);
 
+            mainClockInverter = new Inverter(1);
+            mainClockInverter.Inputs[0].PlugIn(mainClock.Clk);
+            mainClockBar = Signal.Factory.Create(nameof(mainClockBar));
+            mainClockInverter.Outputs[0].PlugIn(mainClockBar);
+
+            #region 8Bit
+
+            dataBus = new HLBus("dataBus", 8);
             regA = new HLRegister(8);
             regB = new HLRegister(8);
-            mar = new HLRegister(8);
+            ic = new HLCounter(8);
             aluAdder = new HLAdder(8);
-            pc = new HLCounter(8);
-            ram = new HLRam(8, 8, initialMemory);
             transcAtoBus = new HLTransciever(8);
             transcBtoBus = new HLTransciever(8);
+
+            #endregion
+
+            #region 16Bit
+
+            addressBus = new HLBus("addressBus", 16);
+            pc = new HLCounter(16);
+            ram = new HLRam(8, 16, (int)Math.Pow(2, 16), initialMemory);
+            rom = new HLRom(8, 16, (int)Math.Pow(2, 16), null);
+            mar = new HLCounter(16);
+            ir = new HLRegister(16);
+
+            #endregion
 
             dataBus
                 .Connect(0, 8, regA.Inputs.Skip(0))
@@ -142,16 +174,25 @@ namespace KPC8 {
                 .Connect(0, 8, regB.Inputs.Skip(0))
                 .Connect(0, 8, transcBtoBus.Outputs.Skip(0))
                 .Connect(0, 8, aluAdder.Outputs.Skip(0))
-                .Connect(0, 8, pc.Inputs.Skip(0))
-                .Connect(0, 8, pc.Outputs.Skip(0))
-                .Connect(0, 8, mar.Inputs.Skip(0))
+                .Connect(0, 8, pc.Inputs.Skip(8))
+                .Connect(0, 8, mar.Inputs.Skip(8))
                 .Connect(0, 8, ram.DataInputs.Skip(0))
-                .Connect(0, 8, ram.Outputs.Skip(0));
+                .Connect(0, 8, ram.Outputs.Skip(0))
+                .Connect(0, 8, ir.Inputs.Skip(8))
+                .Connect(0, 8, ir.Outputs.Skip(8));
+
+            addressBus
+                .Connect(0, 16, pc.Outputs.Skip(0))
+                .Connect(0, 16, mar.Outputs.Skip(0))
+                .Connect(0, 16, ram.AddressInputs.Skip(0))
+                .Connect(0, 16, rom.AddressInputs.Skip(0));
 
             regA.Clk.PlugIn(mainClock.Clk);
             regB.Clk.PlugIn(mainClock.Clk);
             pc.Clk.PlugIn(mainClock.Clk);
             mar.Clk.PlugIn(mainClock.Clk);
+            ir.Clk.PlugIn(mainClock.Clk);
+            ic.Clk.PlugIn(mainClockBar);
 
             Signal.Factory.CreateAndConnectPorts("RegAOutputsToAluAdderInputs", regA.Outputs, aluAdder.Inputs.Take(8));
             Signal.Factory.CreateAndConnectPorts("RegBOutputsToAluAdderInputs", regB.Outputs, aluAdder.Inputs.Skip(8));
@@ -159,7 +200,7 @@ namespace KPC8 {
             Signal.Factory.CreateAndConnectPorts("RegAOutputsToTranscAtoBusInputs", regA.Outputs, transcAtoBus.Inputs.Skip(0));
             Signal.Factory.CreateAndConnectPorts("RegBOutputsToTranscBtoBusInputs", regB.Outputs, transcBtoBus.Inputs.Skip(0));
 
-            Signal.Factory.CreateAndConnectPorts("MarOutputsToRamAddressInputs", mar.Outputs, ram.AddressInputs.Skip(0));
+            Signal.Factory.CreateAndConnectPorts("RegBOutputsToTranscBtoBusInputs", regB.Outputs, transcBtoBus.Inputs.Skip(0));
 
             regALoadEnable = regA.CreateSignalAndPlugin(nameof(regA), x => x.LoadEnable);
             var regAOutputEnable = regA.CreateSignalAndPlugin(nameof(regA), x => x.OutputEnable);
@@ -213,7 +254,7 @@ namespace KPC8 {
             Console.WriteLine($"#{cycleNumber++}");
             Console.WriteLine($"PC:\t{pc.Content.ToBitStringWithDecAndHexLittleEndian()}");
             Console.WriteLine($"Bus:\t{dataBus.PeakAll().ToBitStringWithDecAndHexLittleEndian()}");
-            Console.WriteLine($"MAR:\t{mar.Content.ToBitStringWithDecAndHexLittleEndian()} -> RAM: \t{ram.Content[mar.Content.ToByteLittleEndian()].ToBitStringWithDecAndHexLittleEndian()}");
+            Console.WriteLine($"MAR:\t{mar.Content.ToBitStringWithDecAndHexLittleEndian()} -> RAM: \t{ram.Content[mar.Content.ToIntLittleEndian()].ToBitStringWithDecAndHexLittleEndian()}");
             Console.WriteLine($"A:\t{regA.Content.ToBitStringWithDecAndHexLittleEndian()}");
             Console.WriteLine($"B:\t{regB.Content.ToBitStringWithDecAndHexLittleEndian()}");
             Console.WriteLine($"ALU:\t{aluAdder.Content.ToBitStringWithDecAndHexLittleEndian()}");
