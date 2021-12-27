@@ -116,11 +116,8 @@ namespace KPC8.Modules {
         public override CsPanel.ControlPanel CreateControlPanel(IBus controlBus) {
             ConnectControlBusToControllerPorts(controlBus);
 
-            ir.CreateSignalAndPlugin("slave_ir.LoadEnableHigh", x => x.LoadEnableHigh)
-                .SetMaster(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));
-
-            ir.CreateSignalAndPlugin("slave_ir.LoadEnableLow", x => x.LoadEnableLow)
-                .SetMaster(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
+            ir.LoadEnableHigh.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));
+            ir.LoadEnableLow.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
 
             return new CsPanel.ControlPanel {
                 Ir_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Ir_le_hi, ir_leHi_leLo_to_le.Inputs[0]),

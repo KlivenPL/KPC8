@@ -88,17 +88,11 @@ namespace KPC8.Modules {
         }
 
         public override CsPanel.MemoryPanel CreateControlPanel(IBus controlBus) {
-            pc.CreateSignalAndPlugin("slave_pc.LoadEnableHigh", x => x.LoadEnableHigh)
-                .SetMaster(controlBus.GetControlSignal(ControlSignalType.Pc_le_hi));
+            pc.LoadEnableHigh.PlugIn(controlBus.GetControlSignal(ControlSignalType.Pc_le_hi));
+            pc.LoadEnableLow.PlugIn(controlBus.GetControlSignal(ControlSignalType.Pc_le_lo));
 
-            pc.CreateSignalAndPlugin("slave_pc.LoadEnableLow", x => x.LoadEnableLow)
-                .SetMaster(controlBus.GetControlSignal(ControlSignalType.Pc_le_lo));
-
-            mar.CreateSignalAndPlugin("slave_mar.LoadEnableHigh", x => x.LoadEnableHigh)
-                .SetMaster(controlBus.GetControlSignal(ControlSignalType.Mar_le_hi));
-
-            mar.CreateSignalAndPlugin("slave_mar.LoadEnableLow", x => x.LoadEnableLow)
-                .SetMaster(controlBus.GetControlSignal(ControlSignalType.Mar_le_lo));
+            mar.LoadEnableHigh.PlugIn(controlBus.GetControlSignal(ControlSignalType.Mar_le_hi));
+            mar.LoadEnableLow.PlugIn(controlBus.GetControlSignal(ControlSignalType.Mar_le_lo));
 
             return new CsPanel.MemoryPanel {
                 Pc_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_le_hi, pc_leHi_leLo_to_le.Inputs[0]),
