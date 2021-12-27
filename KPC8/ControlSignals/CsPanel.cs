@@ -1,13 +1,14 @@
 ﻿using Components.Signals;
 
 namespace KPC8.ControlSignals {
+    public interface ICsPanel { }
     public class CsPanel {
         public MemoryPanel Mem { get; init; }
         public ControlPanel Ctrl { get; init; }
         public RegsPanel Regs { get; init; }
         public AluPanel Alu { get; init; }
 
-        public class MemoryPanel {
+        public class MemoryPanel : ICsPanel {
             [ControlSignal(ControlSignalType.Pc_le_hi)]
             public Signal Pc_le_hi { get; init; }
 
@@ -42,7 +43,7 @@ namespace KPC8.ControlSignals {
             public Signal Rom_oe { get; init; }
         }
 
-        public class ControlPanel {
+        public class ControlPanel : ICsPanel {
             [ControlSignal(ControlSignalType.Ir_le_hi)]
             public Signal Ir_le_hi { get; init; }
 
@@ -52,20 +53,20 @@ namespace KPC8.ControlSignals {
             [ControlSignal(ControlSignalType.Ir8LSBToBus_oe)]
             public Signal Ir8LSBToBus_oe { get; init; }
 
-            [ControlSignal(ControlSignalType.IC_clr)]
-            public Signal IC_clr { get; init; }
+            [ControlSignal(ControlSignalType.Ic_clr)]
+            public Signal Ic_clr { get; init; }
 
-            [ControlSignal(ControlSignalType.MuxDest_e)]
-            public Signal MuxDest_e { get; init; }
+            [ControlSignal(ControlSignalType.DecDest_oe)]
+            public Signal DecDest_oe { get; init; }
 
-            [ControlSignal(ControlSignalType.MuxA_e)]
-            public Signal MuxA_e { get; init; }
+            [ControlSignal(ControlSignalType.DecA_oe)]
+            public Signal DecA_oe { get; init; }
 
-            [ControlSignal(ControlSignalType.MuxB_e)]
-            public Signal MuxB_e { get; init; }
+            [ControlSignal(ControlSignalType.DecB_oe)]
+            public Signal DecB_oe { get; init; }
         }
 
-        public class RegsPanel {
+        public class RegsPanel : ICsPanel {
             [ControlSignal(ControlSignalType.Regs_le)]
             public Signal Regs_le { get; init; }
 
@@ -73,7 +74,7 @@ namespace KPC8.ControlSignals {
             public Signal Regs_oe { get; init; }
         }
 
-        public class AluPanel {
+        public class AluPanel : ICsPanel {
             [ControlSignal(ControlSignalType.RegA_le)]
             public Signal RegA_le { get; init; }
 

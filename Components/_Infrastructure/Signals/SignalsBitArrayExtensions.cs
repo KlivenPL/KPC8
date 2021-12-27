@@ -12,6 +12,10 @@ namespace _Infrastructure.BitArrays {
             return new BitArray(signals.Select(s => (bool)s).ToArray());
         }
 
+        public static BitArray ToBitArray(this IEnumerable<SignalPort> signalPorts) {
+            return new BitArray(signalPorts.Select(s => (bool)s).ToArray());
+        }
+
         public static IEnumerable<Signal> ToSignals(this BitArray bitArray) {
             foreach (bool bit in bitArray) {
                 var sig = Signal.Factory.GetOrCreate(Guid.NewGuid().ToString());

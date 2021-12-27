@@ -3,7 +3,7 @@ using Components.Signals;
 using Simulation.Updates;
 
 namespace Components.Logic {
-    public class SingleOrGate : IODeviceBase, IUpdate {
+    public class SingleOrGate : IODeviceBase, IHighPriorityUpdate {
         public SignalPort Output => Outputs[0];
 
         public SingleOrGate(int totalInputs) {

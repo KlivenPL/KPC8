@@ -28,17 +28,17 @@ namespace Components.Registers {
             this.RegisterUpdate();
         }
 
-        public void Update() {
+        public virtual void Update() {
             if (OutputEnable) {
                 WriteOutput();
             }
         }
 
-        private void Clear_OnEdgeRise() {
+        protected virtual void Clear_OnEdgeRise() {
             mainBuffer.SetAll(false);
         }
 
-        private void Clk_OnEdgeRise() {
+        protected virtual void Clk_OnEdgeRise() {
             if (LoadEnable) {
                 LoadInput();
             }

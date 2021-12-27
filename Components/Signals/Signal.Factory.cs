@@ -36,10 +36,11 @@ namespace Components.Signals {
                 }
             }
 
-            public static void CreateAndConnectPort(string namePrefix, SignalPort portA, SignalPort portB) {
+            public static Signal CreateAndConnectPort(string namePrefix, SignalPort portA, SignalPort portB) {
                 var signal = Create(namePrefix);
                 portA.PlugIn(signal);
                 portB.PlugIn(signal);
+                return signal;
             }
 
             public static Signal Create(string namePrefix) {

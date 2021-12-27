@@ -1,4 +1,5 @@
-﻿using Components.Counters;
+﻿using _Infrastructure.BitArrays;
+using Components.Counters;
 using Components.Signals;
 using Infrastructure.BitArrays;
 using System.Linq;
@@ -35,9 +36,7 @@ namespace Tests.ComponentTests {
 
             using var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
 
-            for (int i = 0; i < 8; i++) {
-                inputs[i].Value = data[i];
-            }
+            inputs.WriteBitArray(data);
 
             loadEnable.Value = true;
             MakeTickAndWait();

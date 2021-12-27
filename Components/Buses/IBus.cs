@@ -9,6 +9,5 @@ namespace Components.Buses {
         IBus Connect(int startLane, int pinsCount, IEnumerable<SignalPort> ports);
         BitArray PeakAll();
         Signal.Readonly Peek(int lane);
-        void WriteTestOnly(BitArray data);
     }
 }

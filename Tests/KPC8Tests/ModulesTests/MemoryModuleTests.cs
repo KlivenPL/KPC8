@@ -1,4 +1,5 @@
-﻿using Components.Buses;
+﻿using Components._Infrastructure.Components;
+using Components.Buses;
 using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
 using KPC8.Modules;
@@ -88,26 +89,29 @@ namespace Tests.KPC8Tests.ModulesTests {
             var zero = BitArrayHelper.FromString("00000000");
             var ramAddressHi = BitArrayHelper.FromString("01000100");
             var ramAddressLo = BitArrayHelper.FromString("10000010");
+            var ramFullAddress = BitArrayHelper.FromString("01000100 10000010");
             var @byte = BitArrayHelper.FromString("11010111");
 
             var module = CreateMemoryModule(CreateTestRomData().ToArray(), null, out var dataBus, out var addressBus, out var cs);
 
-            dataBus.WriteTestOnly(ramAddressHi);
+            dataBus.Write(ramAddressHi);
             Enable(cs.Mar_le_hi);
 
             MakeTickAndWait();
 
-            dataBus.WriteTestOnly(ramAddressLo);
+            dataBus.Write(ramAddressLo);
             Enable(cs.Mar_le_lo);
 
             MakeTickAndWait();
 
-            dataBus.WriteTestOnly(@byte);
+            BitAssert.Equality(module.MarContent, ramFullAddress);
+
+            dataBus.Write(@byte);
             Enable(cs.Ram_we);
 
             MakeTickAndWait();
 
-            dataBus.WriteTestOnly(zero);
+            dataBus.Write(zero);
             BitAssert.Equality(zero, dataBus.Lanes);
 
             Enable(cs.Ram_oe);
@@ -124,13 +128,13 @@ namespace Tests.KPC8Tests.ModulesTests {
 
             var module = CreateMemoryModule(CreateTestRomData().ToArray(), null, out var dataBus, out var addressBus, out var cs);
 
-            addressBus.WriteTestOnly(ramAddress);
+            addressBus.Write(ramAddress);
             Enable(cs.Mar_le_hi);
             Enable(cs.Mar_le_lo);
 
             MakeTickAndWait();
 
-            addressBus.WriteTestOnly(zero);
+            addressBus.Write(zero);
             BitAssert.Equality(zero, addressBus.Lanes);
 
             Enable(cs.MarToBus_oe);
@@ -142,9 +146,10 @@ namespace Tests.KPC8Tests.ModulesTests {
         private Memory CreateMemoryModule(BitArray[] romData, BitArray[] ramData, out IBus dataBus, out IBus addressBus, out CsPanel.MemoryPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             addressBus = new HLBus("TestAddressBus", 16);
+            var controlBus = new HLBus("ControlBus", 32);
 
             var memory = new Memory(romData, ramData, _testClock, dataBus, addressBus);
-            csPanel = memory.CreateMemoryPanel();
+            csPanel = memory.CreateControlPanel(controlBus);
 
             return memory;
         }
