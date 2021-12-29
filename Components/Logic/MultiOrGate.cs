@@ -4,13 +4,13 @@ using Simulation.Updates;
 using System.Linq;
 
 namespace Components.Logic {
-    public class MultiAndGate : IODeviceBase, IUpdate {
+    public class MultiOrGate : IODeviceBase, IUpdate {
         private readonly int outputsSize;
 
         public SignalPort[] InputA => Inputs.Take(outputsSize).ToArray();
         public SignalPort[] InputB => Inputs.TakeLast(outputsSize).ToArray();
 
-        public MultiAndGate(int totalInputs) {
+        public MultiOrGate(int totalInputs) {
             if (totalInputs % 2 != 0) {
                 throw new System.Exception("Total inputs must be even.");
             }
@@ -30,7 +30,7 @@ namespace Components.Logic {
 
         private void WriteOutput() {
             for (int i = 0; i < outputsSize; i++) {
-                Outputs[i].Write(Inputs[i] & Inputs[outputsSize + i]);
+                Outputs[i].Write(Inputs[i] | Inputs[outputsSize + i]);
             }
         }
 

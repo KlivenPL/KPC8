@@ -215,7 +215,7 @@ namespace KPC8 {
             aluOutputEnable = aluAdder.CreateSignalAndPlugin(nameof(aluAdder), x => x.OutputEnable);
             aluSubstractEnable = aluAdder.CreateSignalAndPlugin(nameof(aluAdder), x => x.SubstractEnable);
             aluCarryIn = aluAdder.CreateSignalAndPlugin(nameof(aluAdder), x => x.CarryIn);
-            aluCarryOut = aluAdder.CreateSignalAndPlugin(nameof(aluAdder), x => x.CarryOut);
+            aluCarryOut = aluAdder.CreateSignalAndPlugin(nameof(aluAdder), x => x.CarryFlag);
 
             pcClear = pc.CreateSignalAndPlugin(nameof(pc), x => x.Clear);
             pcCountEnable = pc.CreateSignalAndPlugin(nameof(pc), x => x.CountEnable);

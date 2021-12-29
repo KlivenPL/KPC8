@@ -10,10 +10,10 @@ namespace Tests.ComponentTests {
     public class MultiAndGateTests : TestBase {
         [Fact]
         public void MultiAnd() {
-            var inputA = BitArrayHelper.FromString("11001001");
+            var inputA = BitArrayHelper.FromString("11001011");
             var inputB = BitArrayHelper.FromString("01110010");
 
-            var and = BitArrayHelper.FromString("01000000");
+            var and = BitArrayHelper.FromString("01000010");
 
             using var andGate = CreateMultiAndGate(out var inputs, out var outputs);
 
