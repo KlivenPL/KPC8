@@ -15,7 +15,7 @@ namespace Tests._Infrastructure {
 
             for (int i = 0; i < bitArray.Length; i++) {
                 if (signals.ElementAt(i) != bitArray[i])
-                    Assert.True(false, $"BitArray {bitArray.ToBitString()} differs to Signals {signals.ToBitArray().ToBitString()}");
+                    Assert.True(false, $"BitArray {bitArray.ToPrettyBitString()} differs to Signals {signals.ToBitArray().ToPrettyBitString()}");
             }
         }
 
@@ -26,7 +26,7 @@ namespace Tests._Infrastructure {
 
             for (int i = 0; i < bitArray1.Length; i++) {
                 if (bitArray1[i] != bitArray2[i])
-                    Assert.True(false, $"BitArray1: {bitArray1.ToBitString()} differs to BitArray2: {bitArray2.ToBitString()}");
+                    Assert.True(false, $"BitArray1: {bitArray1.ToPrettyBitString()} differs to BitArray2: {bitArray2.ToPrettyBitString()}");
             }
         }
     }

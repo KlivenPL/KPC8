@@ -4,6 +4,7 @@ using Components.Buses;
 using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
 using KPC8.Modules;
+using KPC8.ProgRegs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -84,6 +85,30 @@ namespace Tests.KPC8Tests.ModulesTests {
         }
 
         [Fact]
+        public void Output8LSBFromIrToDataBus() {
+            var zero = BitArrayHelper.FromString("00000000");
+            var instrHi = BitArrayHelper.FromString("11010001");
+            var instrLo = BitArrayHelper.FromString("10100010");
+            var totalInstruction = BitArrayHelper.FromString("11010001 10100010");
+
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
+
+            dataBus.Write(instrHi);
+            Enable(cs.Ir_le_hi);
+            MakeTickAndWait();
+
+            dataBus.Write(instrLo);
+            Enable(cs.Ir_le_lo);
+            MakeTickAndWait();
+
+            dataBus.Write(zero);
+            Enable(cs.Ir8LSBToBus_oe);
+            MakeTickAndWait();
+
+            BitAssert.Equality(instrLo, dataBus.Lanes);
+        }
+
+        [Fact]
         public void DecodeAllProgrammerRegisters() {
             var instrHi = BitArrayHelper.FromString("00000100");
             var instrLo = BitArrayHelper.FromString("01001000");
@@ -152,30 +177,29 @@ namespace Tests.KPC8Tests.ModulesTests {
         }
 
         [Theory]
-        [InlineData("0000")]
-        [InlineData("0001")]
-        [InlineData("0010")]
-        [InlineData("0011")]
-        [InlineData("0100")]
-        [InlineData("0101")]
-        [InlineData("0110")]
-        [InlineData("0111")]
-        [InlineData("1000")]
-        [InlineData("1001")]
-        [InlineData("1010")]
-        [InlineData("1011")]
-        [InlineData("1100")]
-        [InlineData("1101")]
-        [InlineData("1110")]
-        [InlineData("1111")]
-        public void DecodeAandBRegs(string regEncoded) {
+        [InlineData(Regs.Zero)]
+        [InlineData(Regs.Ass)]
+        [InlineData(Regs.Sp)]
+        [InlineData(Regs.Fp)]
+        [InlineData(Regs.T1)]
+        [InlineData(Regs.T2)]
+        [InlineData(Regs.T3)]
+        [InlineData(Regs.T4)]
+        [InlineData(Regs.S1)]
+        [InlineData(Regs.S2)]
+        [InlineData(Regs.S3)]
+        [InlineData(Regs.A1)]
+        [InlineData(Regs.A2)]
+        [InlineData(Regs.A3)]
+        [InlineData(Regs.Rt)]
+        [InlineData(Regs.Ra)]
+        public void DecodeAandBRegs(Regs reg) {
             var zero = BitArrayHelper.FromString("00000000 00000000");
             var instrHi = BitArrayHelper.FromString("00000000");
-            var instrLo = BitArrayHelper.FromString($"{regEncoded}{regEncoded}");
+            var instrLo = BitArrayHelper.FromString($"{reg.GetEncodedAddress().ToBitString()}{reg.GetEncodedAddress().ToBitString()}");
             var totalInstruction = instrHi.MergeWith(instrLo);
 
-            var decodedReg = new BitArray(16);
-            decodedReg.Set(BitArrayHelper.FromString(regEncoded).ToIntLE(), true);
+            var decodedReg = reg.GetDecodedAddress();
 
             var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
 
