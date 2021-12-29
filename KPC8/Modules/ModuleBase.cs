@@ -13,5 +13,6 @@ namespace KPC8.Modules {
         protected virtual void ConnectDataBus(IBus dataBus) => throw new NotImplementedException();
         protected virtual void ConnectAddressBus(IBus addressBus) => throw new NotImplementedException();
         protected virtual void ConnectRegisterSelectBus(IBus registerSelectBus) => throw new NotImplementedException();
+        protected virtual void ConnectFlagsBus(IBus flagsBus) => throw new NotImplementedException();
     }
 }

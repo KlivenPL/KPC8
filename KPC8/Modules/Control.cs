@@ -4,6 +4,7 @@ using Components.Clocks;
 using Components.Counters;
 using Components.Decoders;
 using Components.Logic;
+using Components.Multiplexers;
 using Components.Registers;
 using Components.Roms;
 using Components.Signals;
@@ -17,6 +18,8 @@ namespace KPC8.Modules {
     public class Control : ModuleBase<CsPanel.ControlPanel> {
         private const int InstRomSize = 1024;
         private const int OpCodeLength = 6;
+        private const int CondOpCodeLength = 3;
+        private const int FlagBusLength = 4;
 
         private const int DestRegEncodedLength = 2;
         private const int ARegEncodedSize = 4;
@@ -29,7 +32,10 @@ namespace KPC8.Modules {
         private readonly HLDecoder decA;
         private readonly HLDecoder decB;
         private readonly HLTransciever ir8LsbToBus;
+        private readonly HLSingleSwitch2NToNMux instructionSelectMux;
+
         private readonly SingleOrGate ir_leHi_leLo_to_le;
+        private readonly SingleAndGate condInstructionDetector;
 
         private Signal ir_oe_const;
         private Signal ic_ce_const;
@@ -47,7 +53,7 @@ namespace KPC8.Modules {
         public BitArray DecBOutput => decB.Outputs.ToBitArray();
         public BitArray InstRomAddress => instRom.AddressInputs.ToBitArray();
 
-        public Control(BitArray[] instrData, Clock mainClockBar, IBus dataBus, IBus registerSelectBus) {
+        public Control(BitArray[] instrData, Clock mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus) {
             ir = new HLHiLoRegister(16);
             ic = new HLCounter(4);
             instRom = new HLRom(32, 10, InstRomSize, instrData);
@@ -55,13 +61,16 @@ namespace KPC8.Modules {
             decA = new HLDecoder(ARegEncodedSize);
             decB = new HLDecoder(BRegEncodedSize);
             ir8LsbToBus = new HLTransciever(8);
+            instructionSelectMux = new HLSingleSwitch2NToNMux(10);
             ir_leHi_leLo_to_le = new SingleOrGate(2);
+            condInstructionDetector = new SingleAndGate(3);
 
             ConnectInternals();
             CreateAndSetConstSignals();
             ConnectMainClockBar(mainClockBar);
             ConnectDataBus(dataBus);
             ConnectRegisterSelectBus(registerSelectBus);
+            ConnectFlagsBus(flagsBus);
         }
 
         protected override void ConnectMainClockBar(Clock mainClockBar) {
@@ -72,11 +81,18 @@ namespace KPC8.Modules {
         protected override void ConnectInternals() {
             Signal.Factory.CreateAndConnectPorts(nameof(ir8LsbToBus), ir.Outputs.TakeLast(8), ir8LsbToBus.Inputs);
 
-            Signal.Factory.CreateAndConnectPorts("IrOpCodeToInstRom",
+            Signal.Factory.CreateAndConnectPorts("IrOpCodeToInstrMuxProcedural",
                 ir.Outputs
                     .Take(OpCodeLength),
-                instRom.AddressInputs
-                    .Take(OpCodeLength));
+                instructionSelectMux.InputsA
+                    .Take(6));
+
+            Signal.Factory.CreateAndConnectPorts("IrOpCodeToInstrMuxConditional",
+                ir.Outputs
+                    .Skip(OpCodeLength - CondOpCodeLength)
+                    .Take(CondOpCodeLength),
+                instructionSelectMux.InputsB
+                    .Take(3));
 
             Signal.Factory.CreateAndConnectPorts("IrToDecDest",
                 ir.Outputs
@@ -98,9 +114,27 @@ namespace KPC8.Modules {
                     .Take(BRegEncodedSize),
                 decB.Inputs);
 
-            Signal.Factory.CreateAndConnectPorts("IcToInstRom", ic.Outputs, instRom.AddressInputs.Skip(OpCodeLength));
+            Signal.Factory.CreateAndConnectPorts("IcToMuxProcedural",
+                ic.Outputs,
+                instructionSelectMux.InputsA
+                    .Skip(OpCodeLength));
+
+            Signal.Factory.CreateAndConnectPorts("IcToMuxConditional",
+                ic.Outputs
+                    .Skip(1),
+                instructionSelectMux.InputsB
+                    .Skip(CondOpCodeLength + FlagBusLength));
 
             Signal.Factory.CreateAndConnectPort(nameof(ir_leHi_leLo_to_le), ir_leHi_leLo_to_le.Output, ir.LoadEnable);
+
+            Signal.Factory.CreateAndConnectPorts("MuxToInstRom", instructionSelectMux.Outputs, instRom.AddressInputs);
+
+            Signal.Factory.CreateAndConnectPorts("CondInstructionDetectorInputs",
+                condInstructionDetector.Inputs,
+                ir.Outputs
+                    .Take(CondOpCodeLength));
+
+            Signal.Factory.CreateAndConnectPort("CondInstructionDetectorOutputs", condInstructionDetector.Output, instructionSelectMux.SelectB);
         }
 
         protected override void CreateAndSetConstSignals() {
@@ -144,6 +178,10 @@ namespace KPC8.Modules {
 
         public void ConnectControlBusToControllerPorts(IBus controlBus) {
             controlBus.Connect(0, 32, instRom.Outputs);
+        }
+
+        protected override void ConnectFlagsBus(IBus flagsBus) {
+            flagsBus.Connect(0, 4, instructionSelectMux.InputsB.Skip(CondOpCodeLength).Take(FlagBusLength));
         }
     }
 }

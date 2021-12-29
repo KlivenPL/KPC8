@@ -21,7 +21,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             var instrLo = BitArrayHelper.FromString("10100010");
             var totalInstruction = BitArrayHelper.FromString("11010001 10100010");
 
-            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
 
             dataBus.Write(instrHi);
             Enable(cs.Ir_le_hi);
@@ -35,15 +35,18 @@ namespace Tests.KPC8Tests.ModulesTests {
         }
 
         [Theory]
-        [InlineData("000000")]
-        [InlineData("000001")]
-        [InlineData("111111")]
-        public void LoadOpcodeToInstRom(string opCode) {
+        [InlineData("000000", "0000000000")] // Procedural instruction
+        [InlineData("000001", "0000010000")] // Procedural instruction
+        [InlineData("011101", "0111010000")] // Procedural instruction
+        [InlineData("111000", "0000000000")] // Conditional instruction
+        [InlineData("111010", "0100000000")] // Conditional instruction
+        [InlineData("111111", "1110000000")] // Conditional instruction
+        public void LoadOpcodeToInstRom(string opCode, string instRomContentStr) {
             var instrHi = BitArrayHelper.FromString($"{opCode}00");
             var instrLo = BitArrayHelper.FromString("00000000");
-            var instRomContent = BitArrayHelper.FromString($"{opCode}0000");
+            var instRomContent = BitArrayHelper.FromString(instRomContentStr);
 
-            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
 
             dataBus.Write(instrHi);
             Enable(cs.Ir_le_hi);
@@ -54,6 +57,54 @@ namespace Tests.KPC8Tests.ModulesTests {
             Enable(cs.Ic_clr);
             MakeTickAndWait();
 
+            BitAssert.Equality(instRomContent, module.InstRomAddress);
+        }
+
+        [Theory]
+        [InlineData("000000")] // Procedural instruction
+        [InlineData("001010")] // Procedural instruction
+        [InlineData("110111")] // Procedural instruction
+        public void LoadProceduralInstructionToInstRom(string opCode) {
+            var instrHi = BitArrayHelper.FromString($"{opCode}00");
+            var instrLo = BitArrayHelper.FromString("00000000");
+            var flags = BitArrayHelper.FromString("1101");
+
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
+            flagsBus.Write(flags);
+
+            dataBus.Write(instrHi);
+            Enable(cs.Ir_le_hi);
+            MakeTickAndWait();
+
+            dataBus.Write(instrLo);
+            Enable(cs.Ir_le_lo);
+            MakeTickAndWait();
+
+            var instRomContent = BitArrayHelper.FromString($"{opCode}{module.IcOutput.ToBitString()}");
+            BitAssert.Equality(instRomContent, module.InstRomAddress);
+        }
+
+        [Theory]
+        [InlineData("111000")] // Conditional instruction
+        [InlineData("111010")] // Conditional instruction
+        [InlineData("111111")] // Conditional instruction
+        public void LoadConditionalInstructionToInstRom(string opCode) {
+            var instrHi = BitArrayHelper.FromString($"{opCode}00");
+            var instrLo = BitArrayHelper.FromString("00000000");
+            var flags = BitArrayHelper.FromString("1101");
+
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
+            flagsBus.Write(flags);
+
+            dataBus.Write(instrHi);
+            Enable(cs.Ir_le_hi);
+            MakeTickAndWait();
+
+            dataBus.Write(instrLo);
+            Enable(cs.Ir_le_lo);
+            MakeTickAndWait();
+
+            var instRomContent = BitArrayHelper.FromString($"{opCode.Substring(3, 3)}{flagsBus.PeakAll().ToBitString()}{module.IcOutput.Skip(1).ToBitString()}");
             BitAssert.Equality(instRomContent, module.InstRomAddress);
         }
 
@@ -91,7 +142,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             var instrLo = BitArrayHelper.FromString("10100010");
             var totalInstruction = BitArrayHelper.FromString("11010001 10100010");
 
-            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
 
             dataBus.Write(instrHi);
             Enable(cs.Ir_le_hi);
@@ -118,7 +169,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             var decodedDecA = BitArrayHelper.FromString("00001000 00000000");
             var decodedDecB = BitArrayHelper.FromString("00000000 10000000");
 
-            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
 
             dataBus.Write(instrHi);
             Enable(cs.Ir_le_hi);
@@ -159,7 +210,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             var decodedDecDest = new BitArray(16);
             decodedDecDest.Set(BitArrayHelper.FromString($"01{decRegEncoded}").ToIntLE(), true);
 
-            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
 
             dataBus.Write(instrHi);
             Enable(cs.Ir_le_hi);
@@ -201,7 +252,7 @@ namespace Tests.KPC8Tests.ModulesTests {
 
             var decodedReg = reg.GetDecodedAddress();
 
-            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var cs);
+            var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
 
             dataBus.Write(instrHi);
             Enable(cs.Ir_le_hi);
@@ -227,12 +278,13 @@ namespace Tests.KPC8Tests.ModulesTests {
             BitAssert.Equality(decodedReg, registerSelectBus.Lanes);
         }
 
-        private Control CreateControlModule(out IBus dataBus, out IBus registerSelectBus, out IBus controlBus, out CsPanel.ControlPanel csPanel) {
+        private Control CreateControlModule(out IBus dataBus, out IBus registerSelectBus, out IBus controlBus, out IBus flagsBus, out CsPanel.ControlPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
             controlBus = new HLBus("ControlBus", 32);
+            flagsBus = new HLBus("FlagsBus", 4);
 
-            var control = new Control(null, _testClock, dataBus, registerSelectBus);
+            var control = new Control(null, _testClock, dataBus, registerSelectBus, flagsBus);
             csPanel = control.CreateControlPanel(controlBus);
 
             return control;
@@ -244,7 +296,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             controlBus = new HLBus("ControlBus", 32);
             mockControlBus = new HLBus("MockControlBus", 32);
 
-            var control = new Control(romData, _testClock, dataBus, registerSelectBus);
+            var control = new Control(romData, _testClock, dataBus, registerSelectBus, new HLBus("Flags bus", 4));
             csPanel = control.CreateControlPanel(controlBus);
             control.ConnectControlBusToControllerPorts(mockControlBus);
 
