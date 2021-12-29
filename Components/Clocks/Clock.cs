@@ -36,10 +36,7 @@ namespace Components.Clocks {
             }
         }
 
-        public Signal Clk {
-            get;
-            private set;
-        }
+        public Signal Clk { get; private set; }
 
         public bool IsManualTickInProgress => timer >= 0L && Mode == ClockMode.Manual;
 

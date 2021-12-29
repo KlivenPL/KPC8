@@ -1,5 +1,6 @@
 ﻿using _Infrastructure.BitArrays;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,6 +38,10 @@ namespace Components.Buses {
 
         public BitArray PeakAll() {
             return Lanes.ToBitArray();
+        }
+
+        public override string ToString() {
+            return Lanes.ToBitArray().ToBitString();
         }
     }
 }

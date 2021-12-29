@@ -66,7 +66,7 @@ namespace Components.Roms {
                 inputAddress[i] = Inputs[i];
             }
 
-            return inputAddress.ToIntLittleEndian();
+            return inputAddress.ToIntLE();
         }
 
         public void Dispose() {

@@ -12,12 +12,6 @@ namespace Components.Registers {
             }
         }
 
-        protected override void Clear_OnEdgeRise() {
-            if (ChipEnable) {
-                base.Clear_OnEdgeRise();
-            }
-        }
-
         protected override void Clk_OnEdgeRise() {
             if (ChipEnable) {
                 base.Clk_OnEdgeRise();

@@ -26,7 +26,10 @@ namespace Components.Decoders {
 
         private void WriteOutput() {
             var index = GetOutputIndex();
-            Outputs[index].Write(true);
+            for (int i = 0; i < Outputs.Length; i++) {
+                var value = i == index;
+                Outputs[i].Write(value);
+            }
         }
 
         private int GetOutputIndex() {
@@ -35,7 +38,7 @@ namespace Components.Decoders {
                 inputs[i] = Inputs[i];
             }
 
-            return inputs.ToIntLittleEndian();
+            return inputs.ToIntLE();
         }
 
         public void Dispose() {

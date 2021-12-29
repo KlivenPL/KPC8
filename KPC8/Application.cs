@@ -252,12 +252,12 @@ namespace KPC8 {
             cycleSignals.Clear();
 
             Console.WriteLine($"#{cycleNumber++}");
-            Console.WriteLine($"PC:\t{pc.Content.ToBitStringWithDecAndHexLittleEndian()}");
-            Console.WriteLine($"Bus:\t{dataBus.PeakAll().ToBitStringWithDecAndHexLittleEndian()}");
-            Console.WriteLine($"MAR:\t{mar.Content.ToBitStringWithDecAndHexLittleEndian()} -> RAM: \t{ram.Content[mar.Content.ToIntLittleEndian()].ToBitStringWithDecAndHexLittleEndian()}");
-            Console.WriteLine($"A:\t{regA.Content.ToBitStringWithDecAndHexLittleEndian()}");
-            Console.WriteLine($"B:\t{regB.Content.ToBitStringWithDecAndHexLittleEndian()}");
-            Console.WriteLine($"ALU:\t{aluAdder.Content.ToBitStringWithDecAndHexLittleEndian()}");
+            Console.WriteLine($"PC:\t{pc.Content.ToBitStringWithDecAndHexLE()}");
+            Console.WriteLine($"Bus:\t{dataBus.PeakAll().ToBitStringWithDecAndHexLE()}");
+            Console.WriteLine($"MAR:\t{mar.Content.ToBitStringWithDecAndHexLE()} -> RAM: \t{ram.Content[mar.Content.ToIntLE()].ToBitStringWithDecAndHexLE()}");
+            Console.WriteLine($"A:\t{regA.Content.ToBitStringWithDecAndHexLE()}");
+            Console.WriteLine($"B:\t{regB.Content.ToBitStringWithDecAndHexLE()}");
+            Console.WriteLine($"ALU:\t{aluAdder.Content.ToBitStringWithDecAndHexLE()}");
             Console.WriteLine();
         }
 

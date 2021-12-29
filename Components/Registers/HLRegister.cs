@@ -17,15 +17,13 @@ namespace Components.Registers {
         public HLRegister(int size) {
             mainBuffer = new(size);
             Initialize(size);
+            this.RegisterUpdate();
         }
 
         public void Initialize(int size) {
             base.Initialize(size, size);
 
             Clk.OnEdgeRise += Clk_OnEdgeRise;
-            Clear.OnEdgeRise += Clear_OnEdgeRise;
-
-            this.RegisterUpdate();
         }
 
         public virtual void Update() {
@@ -34,11 +32,11 @@ namespace Components.Registers {
             }
         }
 
-        protected virtual void Clear_OnEdgeRise() {
-            mainBuffer.SetAll(false);
-        }
-
         protected virtual void Clk_OnEdgeRise() {
+            if (Clear) {
+                mainBuffer.SetAll(false);
+            }
+
             if (LoadEnable) {
                 LoadInput();
             }

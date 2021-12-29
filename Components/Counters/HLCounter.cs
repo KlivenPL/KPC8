@@ -18,15 +18,13 @@ namespace Components.Counters {
         public HLCounter(int size) {
             mainBuffer = new(size);
             Initialize(size);
+            this.RegisterUpdate();
         }
 
         public void Initialize(int size) {
             base.Initialize(size, size);
 
             Clk.OnEdgeRise += Clk_OnEdgeRise;
-            Clear.OnEdgeRise += Clear_OnEdgeRise;
-
-            this.RegisterUpdate();
         }
 
         public void Update() {
@@ -35,17 +33,15 @@ namespace Components.Counters {
             }
         }
 
-        private void Clear_OnEdgeRise() {
-            mainBuffer.SetAll(false);
-        }
-
         private void Clk_OnEdgeRise() {
-            if (LoadEnable) {
-                LoadInput();
+            if (Clear) {
+                mainBuffer.SetAll(false);
+            } else if (CountEnable) {
+                Count();
             }
 
-            if (CountEnable) {
-                Count();
+            if (LoadEnable) {
+                LoadInput();
             }
         }
 

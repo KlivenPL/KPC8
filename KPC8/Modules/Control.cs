@@ -33,18 +33,25 @@ namespace KPC8.Modules {
 
         private Signal ir_oe_const;
         private Signal ic_ce_const;
+        private Signal ic_oe_const;
+        private Signal instRom_oe_const;
+        private Signal decDest_Input1_const;
 
         public BitArray IrOutput => ir.Outputs.ToBitArray();
         public BitArray IcOutput => ic.Outputs.ToBitArray();
+        public BitArray DecDestInput => decDest.Inputs.ToBitArray();
         public BitArray DecDestOutput => decDest.Outputs.ToBitArray();
+        public BitArray DecAInput => decA.Inputs.ToBitArray();
         public BitArray DecAOutput => decA.Outputs.ToBitArray();
+        public BitArray DecBInput => decB.Inputs.ToBitArray();
         public BitArray DecBOutput => decB.Outputs.ToBitArray();
+        public BitArray InstRomAddress => instRom.AddressInputs.ToBitArray();
 
         public Control(BitArray[] instrData, Clock mainClockBar, IBus dataBus, IBus registerSelectBus) {
             ir = new HLHiLoRegister(16);
             ic = new HLCounter(4);
             instRom = new HLRom(32, 10, InstRomSize, instrData);
-            decDest = new HLDecoder(DestRegEncodedLength);
+            decDest = new HLDecoder(DestRegEncodedLength + 2);
             decA = new HLDecoder(ARegEncodedSize);
             decB = new HLDecoder(BRegEncodedSize);
             ir8LsbToBus = new HLTransciever(8);
@@ -75,7 +82,9 @@ namespace KPC8.Modules {
                 ir.Outputs
                     .Skip(OpCodeLength)
                     .Take(DestRegEncodedLength),
-                decDest.Inputs);
+                decDest.Inputs
+                    .Skip(2)
+                    .Take(2));
 
             Signal.Factory.CreateAndConnectPorts("IrToDecA",
                 ir.Outputs
@@ -97,6 +106,9 @@ namespace KPC8.Modules {
         protected override void CreateAndSetConstSignals() {
             (ir_oe_const = ir.CreateSignalAndPlugin(nameof(ir_oe_const), x => x.OutputEnable)).Value = true;
             (ic_ce_const = ic.CreateSignalAndPlugin(nameof(ic_ce_const), x => x.CountEnable)).Value = true;
+            (ic_oe_const = ic.CreateSignalAndPlugin(nameof(ic_oe_const), x => x.OutputEnable)).Value = true;
+            (decDest_Input1_const = decDest.CreateSignalAndPlugin(nameof(decDest_Input1_const), x => x.Inputs[1])).Value = true;
+            (instRom_oe_const = instRom.CreateSignalAndPlugin(nameof(instRom_oe_const), x => x.OutputEnable)).Value = true;
         }
 
         protected override void ConnectDataBus(IBus dataBus) {
@@ -108,14 +120,12 @@ namespace KPC8.Modules {
 
         protected override void ConnectRegisterSelectBus(IBus registerSelectBus) {
             registerSelectBus
-                .Connect(4, 4, decDest.Outputs)
+                .Connect(0, 16, decDest.Outputs)
                 .Connect(0, 16, decA.Outputs)
                 .Connect(0, 16, decB.Outputs);
         }
 
         public override CsPanel.ControlPanel CreateControlPanel(IBus controlBus) {
-            ConnectControlBusToControllerPorts(controlBus);
-
             ir.LoadEnableHigh.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));
             ir.LoadEnableLow.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
 
@@ -132,16 +142,8 @@ namespace KPC8.Modules {
             };
         }
 
-        private void ConnectControlBusToControllerPorts(IBus controlBus) {
-            controlBus.ConnectToControllerPort(ControlSignalType.Ir_le_hi, instRom.Outputs);
-            controlBus.ConnectToControllerPort(ControlSignalType.Ir_le_lo, instRom.Outputs);
-            controlBus.ConnectToControllerPort(ControlSignalType.Ir8LSBToBus_oe, instRom.Outputs);
-
-            controlBus.ConnectToControllerPort(ControlSignalType.Ic_clr, instRom.Outputs);
-
-            controlBus.ConnectToControllerPort(ControlSignalType.DecDest_oe, instRom.Outputs);
-            controlBus.ConnectToControllerPort(ControlSignalType.DecA_oe, instRom.Outputs);
-            controlBus.ConnectToControllerPort(ControlSignalType.DecB_oe, instRom.Outputs);
+        public void ConnectControlBusToControllerPorts(IBus controlBus) {
+            controlBus.Connect(0, 32, instRom.Outputs);
         }
     }
 }

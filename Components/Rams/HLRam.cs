@@ -83,7 +83,7 @@ namespace Components.Rams {
                 inputAddress[i] = Inputs[i];
             }
 
-            return inputAddress.ToIntLittleEndian();
+            return inputAddress.ToIntLE();
         }
 
         public void Dispose() {

@@ -56,6 +56,14 @@ namespace Infrastructure.BitArrays {
             return new BitArray(str.Select(c => c == '1').ToArray());
         }
 
+        public static BitArray FromUIntLE(uint uint32) {
+            return new BitArray(BitConverter.GetBytes(uint32).Reverse().ToArray());
+        }
+
+        public static BitArray FromUIntEnumLE<TEnum>(TEnum uint32Enum) where TEnum : Enum {
+            return new BitArray(BitConverter.GetBytes((uint)(object)uint32Enum).Reverse().ToArray());
+        }
+
         public static string ToBitString(this BitArray bitArray) {
             if (bitArray == null)
                 return null;
@@ -67,7 +75,7 @@ namespace Infrastructure.BitArrays {
             return sb.ToString();
         }
 
-        public static string ToBitStringWithDecAndHexLittleEndian(this BitArray bitArray) {
+        public static string ToBitStringWithDecAndHexLE(this BitArray bitArray) {
             if (bitArray == null)
                 return null;
             StringBuilder sb = new StringBuilder(bitArray.Length);
@@ -75,7 +83,7 @@ namespace Infrastructure.BitArrays {
                 sb.Append(bitArray[i] ? "1" : "0");
             }
 
-            var @int = bitArray.ToIntLittleEndian();
+            var @int = bitArray.ToIntLE();
             sb.Append($" (0x{BitConverter.ToString(BitConverter.GetBytes(@int).Reverse().ToArray())}) ({@int})");
 
             return sb.ToString();
@@ -104,6 +112,14 @@ namespace Infrastructure.BitArrays {
             return FromString(bitArray.ToBitString().Substring(skip));
         }
 
+        public static BitArray Take(this BitArray bitArray, int take) {
+            return FromString(bitArray.ToBitString().Substring(0, take));
+        }
+
+        public static BitArray Slice(this BitArray bitArray, int skip, int take) {
+            return bitArray.Skip(skip).Take(take);
+        }
+
         public static BitArray SkipLast(this BitArray bitArray, int skip) {
             return FromString(bitArray.ToBitString().Substring(0, bitArray.Count - skip));
         }
@@ -117,7 +133,7 @@ namespace Infrastructure.BitArrays {
             return array[0];
         }
 
-        public static byte ToByteLittleEndian(this BitArray bitArray) {
+        public static byte ToByteLE(this BitArray bitArray) {
             if (bitArray.Length > 8)
                 throw new Exception("Length must not be greater than 8");
 
@@ -129,7 +145,7 @@ namespace Infrastructure.BitArrays {
             return array[0];
         }
 
-        public static int ToIntLittleEndian(this BitArray bitArray) {
+        public static int ToIntLE(this BitArray bitArray) {
             if (bitArray.Length > 32)
                 throw new Exception("Length must not be greater than 32");
 

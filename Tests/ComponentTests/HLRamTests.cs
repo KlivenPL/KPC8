@@ -26,14 +26,14 @@ namespace Tests.ComponentTests {
             writeEnable.Value = true;
             MakeTickAndWait();
 
-            Assert.True(ram.Content[address.ToByteLittleEndian()].EqualTo(data));
+            Assert.True(ram.Content[address.ToByteLE()].EqualTo(data));
             Assert.True(outputs.ToBitArray().EqualTo(zero));
 
             writeEnable.Value = false;
             outputEnable.Value = true;
             MakeTickAndWait();
 
-            Assert.True(ram.Content[address.ToByteLittleEndian()].EqualTo(data));
+            Assert.True(ram.Content[address.ToByteLE()].EqualTo(data));
             Assert.True(outputs.ToBitArray().EqualTo(data));
         }
 
@@ -60,8 +60,8 @@ namespace Tests.ComponentTests {
             outputEnable.Value = true;
             MakeTickAndWait();
 
-            Assert.True(ram.Content[address.ToByteLittleEndian()].EqualTo(data));
-            Assert.True(ram.Content[lastAddress.ToByteLittleEndian()].EqualTo(zero));
+            Assert.True(ram.Content[address.ToByteLE()].EqualTo(data));
+            Assert.True(ram.Content[lastAddress.ToByteLE()].EqualTo(zero));
             Assert.True(outputs.ToBitArray().EqualTo(data));
         }
 
