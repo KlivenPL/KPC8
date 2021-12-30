@@ -2,6 +2,7 @@
 using Components.Signals;
 using Simulation.Updates;
 using System.Collections;
+using System.Linq;
 
 namespace Components.Adders {
     public class HLAdder : IODeviceBase, IAdder, IUpdate {
@@ -16,6 +17,9 @@ namespace Components.Adders {
         public SignalPort ZeroFlag { get; protected set; } = new SignalPort();
         public SignalPort OverflowFlag { get; protected set; } = new SignalPort();
         public SignalPort NegativeFlag { get; protected set; } = new SignalPort();
+
+        public SignalPort[] InputsA => Inputs.Take(inputA.Length).ToArray();
+        public SignalPort[] InputsB => Inputs.TakeLast(inputA.Length).ToArray();
 
         public HLAdder(int size) {
             inputA = new(size);
@@ -77,8 +81,12 @@ namespace Components.Adders {
             NegativeFlag.Write(inputA[0]);
 
             var overflow =
-                !Inputs[0] && !inputB[0] && inputA[0] ||
-                Inputs[0] && inputB[0] && !inputA[0];
+                SubstractEnable ?
+                    !Inputs[0] && Inputs[inputA.Length] && inputA[0] ||
+                    Inputs[0] && !Inputs[inputA.Length] && !inputA[0]
+                :
+                    !Inputs[0] && !inputB[0] && inputA[0] ||
+                    Inputs[0] && inputB[0] && !inputA[0];
 
             OverflowFlag.Write(overflow);
             ZeroFlag.Write(isZero);
