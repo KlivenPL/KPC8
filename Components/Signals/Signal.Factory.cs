@@ -9,22 +9,24 @@ namespace Components.Signals {
             private static readonly HashSet<string> usedNames = new HashSet<string>();
 
             public static Signal GetOrCreate(string signalName) {
-                var signal = signals.FirstOrDefault(s => s.name == signalName);
+                lock (signals) {
+                    var signal = signals.FirstOrDefault(s => s.name == signalName);
 
-                if (signal != null) {
+                    if (signal != null) {
+                        return signal;
+                    }
+
+                    if (usedNames.Contains(signalName)) {
+                        throw new Exception($"Signal of name: {signalName} is already used");
+                    }
+
+                    signal = new Signal(signalName);
+
+                    signals.Add(signal);
+                    usedNames.Add(signalName);
+
                     return signal;
                 }
-
-                if (usedNames.Contains(signalName)) {
-                    throw new Exception($"Signal of name: {signalName} is already used");
-                }
-
-                signal = new Signal(signalName);
-
-                signals.Add(signal);
-                usedNames.Add(signalName);
-
-                return signal;
             }
 
             public static void CreateAndConnectPorts(string namePrefix, IEnumerable<SignalPort> portsA, IEnumerable<SignalPort> portsB) {

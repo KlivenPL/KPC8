@@ -1,7 +1,6 @@
 ﻿using _Infrastructure.BitArrays;
 using Components.Adders;
 using Components.Buses;
-using Components.Clocks;
 using Components.Registers;
 using Components.Signals;
 using Components.Transcievers;
@@ -26,7 +25,7 @@ namespace KPC8.Modules {
         public BitArray RegBContent => regB.Content;
         public BitArray RegFlagsContent => regFlags.Content;
 
-        public Alu(Clock mainClock, IBus dataBus, IBus flagsBus) {
+        public Alu(Signal mainClock, IBus dataBus, IBus flagsBus) {
             adder = new HLAdder(8);
             regA = new HLRegister(8);
             regB = new HLRegister(8);
@@ -41,10 +40,10 @@ namespace KPC8.Modules {
             ConnectFlagsBus(flagsBus);
         }
 
-        protected override void ConnectMainClock(Clock mainClock) {
-            regA.Clk.PlugIn(mainClock.Clk);
-            regB.Clk.PlugIn(mainClock.Clk);
-            regFlags.Clk.PlugIn(mainClock.Clk);
+        protected override void ConnectMainClock(Signal mainClock) {
+            regA.Clk.PlugIn(mainClock);
+            regB.Clk.PlugIn(mainClock);
+            regFlags.Clk.PlugIn(mainClock);
         }
 
         protected override void ConnectInternals() {

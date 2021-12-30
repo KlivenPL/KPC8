@@ -61,12 +61,12 @@ namespace Components.Roms {
         }
 
         private int GetMemoryAddress() {
-            var inputAddress = new BitArray(AddressSize);
-            for (int i = 0; i < AddressSize; i++) {
-                inputAddress[i] = Inputs[i];
+            var sum = 0;
+            for (int i = AddressSize - 1; i >= 0; i--) {
+                sum += Inputs[i] ? 1 << AddressSize - i - 1 : 0;
             }
 
-            return inputAddress.ToIntLE();
+            return sum;
         }
 
         public void Dispose() {

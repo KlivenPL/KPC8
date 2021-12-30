@@ -1,9 +1,7 @@
 ﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
-using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System;
-using System.Collections;
 
 namespace Components.Decoders {
     public class HLDecoder : IODeviceBase, IDecoder, IUpdate {
@@ -33,12 +31,12 @@ namespace Components.Decoders {
         }
 
         private int GetOutputIndex() {
-            var inputs = new BitArray(Inputs.Length);
-            for (int i = 0; i < inputs.Length; i++) {
-                inputs[i] = Inputs[i];
+            var sum = 0;
+            for (int i = Inputs.Length - 1; i >= 0; i--) {
+                sum += Inputs[i] ? 1 << Inputs.Length - i - 1 : 0;
             }
 
-            return inputs.ToIntLE();
+            return sum;
         }
 
         public void Dispose() {

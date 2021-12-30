@@ -1,6 +1,5 @@
 ﻿using _Infrastructure.BitArrays;
 using Components.Buses;
-using Components.Clocks;
 using Components.Counters;
 using Components.Logic;
 using Components.Rams;
@@ -29,7 +28,7 @@ namespace KPC8.Modules {
         public BitArray PcContent => pc.Content;
         public BitArray MarContent => mar.Content;
 
-        public Memory(BitArray[] romData, BitArray[] ramData, Clock mainClock, IBus dataBus, IBus addressBus) {
+        public Memory(BitArray[] romData, BitArray[] ramData, Signal mainClock, IBus dataBus, IBus addressBus) {
             pc = new HLHiLoCounter(16);
             mar = new HLHiLoCounter(16);
             rom = new HLRom(8, 16, MemorySize, romData);
@@ -45,10 +44,10 @@ namespace KPC8.Modules {
             ConnectAddressBus(addressBus);
         }
 
-        protected override void ConnectMainClock(Clock mainClock) {
-            pc.Clk.PlugIn(mainClock.Clk);
-            mar.Clk.PlugIn(mainClock.Clk);
-            ram.Clk.PlugIn(mainClock.Clk);
+        protected override void ConnectMainClock(Signal mainClock) {
+            pc.Clk.PlugIn(mainClock);
+            mar.Clk.PlugIn(mainClock);
+            ram.Clk.PlugIn(mainClock);
         }
 
         protected override void ConnectInternals() {

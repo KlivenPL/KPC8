@@ -148,7 +148,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             addressBus = new HLBus("TestAddressBus", 16);
             var controlBus = new HLBus("ControlBus", 32);
 
-            var memory = new Memory(romData, ramData, _testClock, dataBus, addressBus);
+            var memory = new Memory(romData, ramData, _testClock.Clk, dataBus, addressBus);
             csPanel = memory.CreateControlPanel(controlBus);
 
             return memory;

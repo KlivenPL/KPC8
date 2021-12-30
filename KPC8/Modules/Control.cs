@@ -1,6 +1,5 @@
 ﻿using _Infrastructure.BitArrays;
 using Components.Buses;
-using Components.Clocks;
 using Components.Counters;
 using Components.Decoders;
 using Components.Logic;
@@ -53,7 +52,7 @@ namespace KPC8.Modules {
         public BitArray DecBOutput => decB.Outputs.ToBitArray();
         public BitArray InstRomAddress => instRom.AddressInputs.ToBitArray();
 
-        public Control(BitArray[] instrData, Clock mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus) {
+        public Control(BitArray[] instrData, Signal mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus) {
             ir = new HLHiLoRegister(16);
             ic = new HLCounter(4);
             instRom = new HLRom(32, 10, InstRomSize, instrData);
@@ -73,9 +72,9 @@ namespace KPC8.Modules {
             ConnectFlagsBus(flagsBus);
         }
 
-        protected override void ConnectMainClockBar(Clock mainClockBar) {
-            ir.Clk.PlugIn(mainClockBar.Clk);
-            ic.Clk.PlugIn(mainClockBar.Clk);
+        protected override void ConnectMainClockBar(Signal mainClockBar) {
+            ir.Clk.PlugIn(mainClockBar);
+            ic.Clk.PlugIn(mainClockBar);
         }
 
         protected override void ConnectInternals() {

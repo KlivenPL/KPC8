@@ -11,11 +11,15 @@ namespace Components.Signals {
 
         public bool Value {
             get {
-                var anySig = signals.Count > 0;
-                if (!anySig) {
-                    Console.WriteLine("Trying to read unconnected port");
+                if (signals.Count == 0)
+                    return false;
+
+                for (int i = 0; i < signals.Count; i++) {
+                    if (signals[i].Value)
+                        return true;
                 }
-                return anySig && signals.Any(s => s);
+
+                return false;
             }
         }
         public void PlugIn(Signal signal) {
@@ -46,8 +50,8 @@ namespace Components.Signals {
         }
 
         public void Write(bool value) {
-            if (signals.Any()) {
-                signals.ForEach(s => s.Value = value);
+            for (int i = 0; i < signals.Count; i++) {
+                signals[i].Value = value;
             }
         }
     }

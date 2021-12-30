@@ -136,9 +136,7 @@ namespace Tests.ComponentTests {
 
             MakeTickAndWait();
 
-            Assert.True(adder.Content.EqualTo(addResult));
             Assert.True(outputs.ToBitArray().EqualTo(noData));
-            Assert.True(carryOut);
         }
 
         private HLAdder CreateAdder(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal substractEnable, out Signal carryIn,

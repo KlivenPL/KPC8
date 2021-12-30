@@ -34,12 +34,12 @@ namespace Components.Adders {
         }
 
         public void Update() {
-            LoadInputs(SubstractEnable);
-
-            Add(CarryIn || SubstractEnable, out var carryOut, out var isZero);
-            WriteFlags(carryOut, isZero);
-
             if (OutputEnable) {
+                LoadInputs(SubstractEnable);
+
+                Add(CarryIn || SubstractEnable, out var carryOut, out var isZero);
+                WriteFlags(carryOut, isZero);
+
                 WriteOutput();
             }
         }

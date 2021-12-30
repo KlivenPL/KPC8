@@ -1,6 +1,6 @@
 ﻿using Components.Buses;
-using Components.Clocks;
 using Components.Registers;
+using Components.Signals;
 using KPC8._Infrastructure.Components;
 using KPC8.ControlSignals;
 using KPC8.ProgRegs;
@@ -18,7 +18,7 @@ namespace KPC8.Modules {
         public BitArray GetRegContent(int index) => regs[index].Content;
         public bool IsRegSelected(int index) => regs[index].ChipEnable;
 
-        public Registers(Clock mainClock, IBus dataBus, IBus registerSelectBus) {
+        public Registers(Signal mainClock, IBus dataBus, IBus registerSelectBus) {
             regs = new HLCeRegister[RegistersCount];
 
             for (int i = 0; i < RegistersCount; i++) {
@@ -30,9 +30,9 @@ namespace KPC8.Modules {
             ConnectRegisterSelectBus(registerSelectBus);
         }
 
-        protected override void ConnectMainClock(Clock mainClock) {
+        protected override void ConnectMainClock(Signal mainClock) {
             for (int i = 0; i < RegistersCount; i++) {
-                regs[i].Clk.PlugIn(mainClock.Clk);
+                regs[i].Clk.PlugIn(mainClock);
             }
         }
 

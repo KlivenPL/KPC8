@@ -167,10 +167,10 @@ namespace Tests.KPC8Tests.ModulesTests {
             flagsBus = new HLBus("FlagsBus", 4);
             controlBus = new HLBus("ControlBus", 32);
 
-            var control = new Alu(_testClock, dataBus, flagsBus);
-            csPanel = control.CreateControlPanel(controlBus);
+            var alu = new Alu(_testClock.Clk, dataBus, flagsBus);
+            csPanel = alu.CreateControlPanel(controlBus);
 
-            return control;
+            return alu;
         }
     }
 }
