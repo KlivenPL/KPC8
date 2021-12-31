@@ -35,12 +35,12 @@ namespace Tests.KPC8Tests.ModulesTests {
         }
 
         [Theory]
-        [InlineData("000000", "0000000000")] // Procedural instruction
-        [InlineData("000001", "0000010000")] // Procedural instruction
-        [InlineData("011101", "0111010000")] // Procedural instruction
-        [InlineData("111000", "0000000000")] // Conditional instruction
-        [InlineData("111010", "0100000000")] // Conditional instruction
-        [InlineData("111111", "1110000000")] // Conditional instruction
+        [InlineData("000000", "00000000000")] // Procedural instruction
+        [InlineData("000001", "00000010000")] // Procedural instruction
+        [InlineData("011101", "00111010000")] // Procedural instruction
+        [InlineData("111000", "10000000000")] // Conditional instruction
+        [InlineData("111010", "10100000000")] // Conditional instruction
+        [InlineData("111111", "11110000000")] // Conditional instruction
         public void LoadOpcodeToInstRom(string opCode, string instRomContentStr) {
             var instrHi = BitArrayHelper.FromString($"{opCode}00");
             var instrLo = BitArrayHelper.FromString("00000000");
@@ -61,9 +61,9 @@ namespace Tests.KPC8Tests.ModulesTests {
         }
 
         [Theory]
-        [InlineData("000000")] // Procedural instruction
-        [InlineData("001010")] // Procedural instruction
-        [InlineData("110111")] // Procedural instruction
+        [InlineData("000000")] // Procedural instruction opcode
+        [InlineData("001010")] // Procedural instruction opcode
+        [InlineData("110111")] // Procedural instruction opcode
         public void LoadProceduralInstructionToInstRom(string opCode) {
             var instrHi = BitArrayHelper.FromString($"{opCode}00");
             var instrLo = BitArrayHelper.FromString("00000000");
@@ -80,14 +80,14 @@ namespace Tests.KPC8Tests.ModulesTests {
             Enable(cs.Ir_le_lo);
             MakeTickAndWait();
 
-            var instRomContent = BitArrayHelper.FromString($"{opCode}{module.IcOutput.ToBitString()}");
+            var instRomContent = BitArrayHelper.FromString($"0{opCode}{module.IcOutput.ToBitString()}");
             BitAssert.Equality(instRomContent, module.InstRomAddress);
         }
 
         [Theory]
-        [InlineData("111000")] // Conditional instruction
-        [InlineData("111010")] // Conditional instruction
-        [InlineData("111111")] // Conditional instruction
+        [InlineData("111000")] // Conditional instruction opcode
+        [InlineData("111010")] // Conditional instruction opcode
+        [InlineData("111111")] // Conditional instruction opcode
         public void LoadConditionalInstructionToInstRom(string opCode) {
             var instrHi = BitArrayHelper.FromString($"{opCode}00");
             var instrLo = BitArrayHelper.FromString("00000000");
@@ -104,7 +104,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             Enable(cs.Ir_le_lo);
             MakeTickAndWait();
 
-            var instRomContent = BitArrayHelper.FromString($"{opCode.Substring(3, 3)}{flagsBus.PeakAll().ToBitString()}{module.IcOutput.Skip(1).ToBitString()}");
+            var instRomContent = BitArrayHelper.FromString($"1{opCode.Substring(3, 3)}{flagsBus.PeakAll().ToBitString()}{module.IcOutput.Skip(1).ToBitString()}");
             BitAssert.Equality(instRomContent, module.InstRomAddress);
         }
 

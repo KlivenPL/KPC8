@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace KPC8.Modules {
     public class Control : ModuleBase<CsPanel.ControlPanel> {
-        private const int InstRomSize = 1024;
+        private const int InstRomSize = 2048;
         private const int OpCodeLength = 6;
         private const int CondOpCodeLength = 3;
         private const int FlagBusLength = 4;
@@ -55,7 +55,7 @@ namespace KPC8.Modules {
         public Control(BitArray[] instrData, Signal mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus) {
             ir = new HLHiLoRegister(16);
             ic = new HLCounter(4);
-            instRom = new HLRom(32, 10, InstRomSize, instrData);
+            instRom = new HLRom(32, 11, InstRomSize, instrData);
             decDest = new HLDecoder(DestRegEncodedLength + 2);
             decA = new HLDecoder(ARegEncodedSize);
             decB = new HLDecoder(BRegEncodedSize);
@@ -126,14 +126,15 @@ namespace KPC8.Modules {
 
             Signal.Factory.CreateAndConnectPort(nameof(ir_leHi_leLo_to_le), ir_leHi_leLo_to_le.Output, ir.LoadEnable);
 
-            Signal.Factory.CreateAndConnectPorts("MuxToInstRom", instructionSelectMux.Outputs, instRom.AddressInputs);
+            Signal.Factory.CreateAndConnectPorts("MuxToInstRom", instructionSelectMux.Outputs, instRom.AddressInputs.Skip(1));
 
             Signal.Factory.CreateAndConnectPorts("CondInstructionDetectorInputs",
                 condInstructionDetector.Inputs,
                 ir.Outputs
                     .Take(CondOpCodeLength));
 
-            Signal.Factory.CreateAndConnectPort("CondInstructionDetectorOutputs", condInstructionDetector.Output, instructionSelectMux.SelectB);
+            var condInstructionDetectorOutput = Signal.Factory.CreateAndConnectPort("CondInstructionDetectorOutputs", condInstructionDetector.Output, instructionSelectMux.SelectB);
+            instRom.AddressInputs[0].PlugIn(condInstructionDetectorOutput);
         }
 
         protected override void CreateAndSetConstSignals() {
