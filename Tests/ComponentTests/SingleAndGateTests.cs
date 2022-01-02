@@ -41,7 +41,7 @@ namespace Tests.ComponentTests {
         }
 
         private SingleAndGate CreateSingleAndGate(out Signal[] inputs, out Signal[] outputs) {
-            var andGate = new SingleAndGate(4);
+            var andGate = new SingleAndGate("singleAnd", 4);
 
             inputs = andGate.CreateSignalAndPlugInInputs().ToArray();
             outputs = andGate.CreateSignalAndPlugInOutputs().ToArray();

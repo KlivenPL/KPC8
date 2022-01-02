@@ -1,11 +1,14 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.BitArrays;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using Simulation.Updates;
+using System.Text;
 
 namespace Components.Transcievers {
     public class HLTransciever : IODeviceBase, ITransciever, IUpdate {
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
-        public HLTransciever(int lanes) {
+        public HLTransciever(string name, int lanes) : base(name) {
             Initialize(lanes);
         }
 
@@ -28,6 +31,14 @@ namespace Components.Transcievers {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
+            sb.AppendLine($"OE: {(OutputEnable ? "1" : "0")}, Outputs: {Outputs.ToBitArray().ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

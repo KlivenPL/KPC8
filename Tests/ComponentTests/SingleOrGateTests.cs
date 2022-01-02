@@ -41,7 +41,7 @@ namespace Tests.ComponentTests {
         }
 
         private SingleOrGate CreateSingleOrGate(out Signal[] inputs, out Signal[] outputs) {
-            var andGate = new SingleOrGate(4);
+            var andGate = new SingleOrGate("singleOr", 4);
 
             inputs = andGate.CreateSignalAndPlugInInputs().ToArray();
             outputs = andGate.CreateSignalAndPlugInOutputs().ToArray();

@@ -22,7 +22,7 @@ namespace KPC8.Modules {
             regs = new HLCeRegister[RegistersCount];
 
             for (int i = 0; i < RegistersCount; i++) {
-                regs[i] = new HLCeRegister(RegisterSize);
+                regs[i] = new HLCeRegister(nameof(regs), RegisterSize);
             }
 
             ConnectMainClock(mainClock);

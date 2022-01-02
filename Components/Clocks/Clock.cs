@@ -4,7 +4,8 @@ using System;
 using System.Diagnostics;
 
 namespace Components.Clocks {
-    public class Clock : IHighPriorityUpdate {
+    public class Clock : IUpdate {
+        public int Priority => 10;
         private long timer = 0L;
         private ClockMode mode;
         private Stopwatch sw;
@@ -106,6 +107,10 @@ namespace Components.Clocks {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            return $"Clk: {(Clk ? "1" : "0")}, Bar: {(ClkBar ? "1" : "0")}, Mode: {Mode}";
         }
     }
 }

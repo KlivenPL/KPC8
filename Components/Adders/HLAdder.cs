@@ -24,7 +24,7 @@ namespace Components.Adders {
         public SignalPort[] InputsA => Inputs.Take(inputA.Length).ToArray();
         public SignalPort[] InputsB => Inputs.TakeLast(inputA.Length).ToArray();
 
-        public HLAdder(int size) {
+        public HLAdder(string name, int size) : base(name) {
             inputA = new(size);
             inputB = new(size);
 
@@ -101,6 +101,7 @@ namespace Components.Adders {
 
         public override string ToString() {
             var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
             sb.AppendLine($"InputA: {InputsA.ToBitArray().ToPrettyBitString()}");
             sb.AppendLine($"InputB: {InputsB.ToBitArray().ToPrettyBitString()}");
             sb.AppendLine($"Content: {Content.ToPrettyBitString()}");

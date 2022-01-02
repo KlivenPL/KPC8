@@ -62,7 +62,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLHiLoRegister CreateHiLoRegister(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal loadEnable, out Signal loadEnableHi, out Signal loadEnableLo, out Signal clear) {
-            var register = new HLHiLoRegister(16);
+            var register = new HLHiLoRegister("hiloregister", 16);
             register.Clk.PlugIn(_testClock.Clk);
 
             inputs = register.CreateSignalAndPlugInInputs().ToArray();

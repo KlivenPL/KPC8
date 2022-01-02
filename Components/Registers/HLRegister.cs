@@ -9,6 +9,7 @@ namespace Components.Registers {
     public class HLRegister : IODeviceBase, IRegister, IUpdate {
         protected readonly BitArray mainBuffer;
 
+        public int Priority => -1;
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
         public SignalPort Clear { get; protected set; } = new SignalPort();
@@ -16,7 +17,9 @@ namespace Components.Registers {
 
         public BitArray Content => new(mainBuffer);
 
-        public HLRegister(int size) {
+        private bool clkEdgeRise = false;
+
+        public HLRegister(string name, int size) : base(name) {
             mainBuffer = new(size);
             Initialize(size);
             this.RegisterUpdate();
@@ -29,19 +32,25 @@ namespace Components.Registers {
         }
 
         public virtual void Update() {
+            if (clkEdgeRise) {
+                if (Clear) {
+                    mainBuffer.SetAll(false);
+                }
+
+                if (LoadEnable) {
+                    LoadInput();
+                }
+
+                clkEdgeRise = false;
+            }
+
             if (OutputEnable) {
                 WriteOutput();
             }
         }
 
         protected virtual void Clk_OnEdgeRise() {
-            if (Clear) {
-                mainBuffer.SetAll(false);
-            }
-
-            if (LoadEnable) {
-                LoadInput();
-            }
+            clkEdgeRise = true;
         }
 
         protected virtual void LoadInput() {
@@ -62,7 +71,8 @@ namespace Components.Registers {
 
         public override string ToString() {
             var sb = new StringBuilder();
-            sb.AppendLine($"Content: {Content.ToPrettyBitString()}");
+            sb.AppendLine(base.ToString());
+            sb.AppendLine($"LE: {(LoadEnable ? "1" : "0")}, Content: {Content.ToPrettyBitString()}");
 
             return sb.ToString();
         }

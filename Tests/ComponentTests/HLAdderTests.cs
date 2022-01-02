@@ -141,7 +141,7 @@ namespace Tests.ComponentTests {
 
         private HLAdder CreateAdder(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal substractEnable, out Signal carryIn,
                 out Signal carryOut, out Signal negativeFlag, out Signal zeroFlag, out Signal overflowFlag) {
-            var register = new HLAdder(8);
+            var register = new HLAdder("adder",8);
 
             inputs = register.CreateSignalAndPlugInInputs().ToArray();
             outputs = register.CreateSignalAndPlugInOutputs().ToArray();

@@ -5,7 +5,7 @@ namespace Components.Registers {
         public SignalPort LoadEnableHigh { get; protected set; } = new SignalPort();
         public SignalPort LoadEnableLow { get; protected set; } = new SignalPort();
 
-        public HLHiLoRegister(int size) : base(size) { }
+        public HLHiLoRegister(string name, int size) : base(name, size) { }
 
         protected override void LoadInput() {
             int start = 0;

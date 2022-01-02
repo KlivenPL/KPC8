@@ -1,12 +1,15 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.BitArrays;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using Simulation.Updates;
+using System.Text;
 
 namespace Components.Logic {
-    public class SingleOrGate : IODeviceBase, IHighPriorityUpdate {
+    public class SingleOrGate : IODeviceBase, IUpdate {
         public SignalPort Output => Outputs[0];
 
-        public SingleOrGate(int totalInputs) {
+        public SingleOrGate(string name, int totalInputs) : base(name) {
             if (totalInputs < 2) {
                 throw new System.Exception("At least 2 inputs are required");
             }
@@ -36,6 +39,14 @@ namespace Components.Logic {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
+            sb.AppendLine($"Outputs: {Outputs.ToBitArray().ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

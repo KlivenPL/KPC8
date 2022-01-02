@@ -35,7 +35,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLSingleSwitch2NToNMux CreateMux(int singleInputSize, out Signal[] inputs, out Signal[] outputs, out Signal selectB) {
-            var hLSingleSwitch2NToNMux = new HLSingleSwitch2NToNMux(singleInputSize);
+            var hLSingleSwitch2NToNMux = new HLSingleSwitch2NToNMux("hLSingleSwitch2NToNMux", singleInputSize);
 
             inputs = hLSingleSwitch2NToNMux.CreateSignalAndPlugInInputs().ToArray();
             outputs = hLSingleSwitch2NToNMux.CreateSignalAndPlugInOutputs().ToArray();

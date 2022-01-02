@@ -8,7 +8,7 @@ using System.Text;
 namespace Components.Counters {
     public class HLCounter : IODeviceBase, ICounter, IUpdate {
         protected readonly BitArray mainBuffer;
-
+        public int Priority => -1;
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
         public SignalPort CountEnable { get; protected set; } = new SignalPort();
@@ -17,7 +17,9 @@ namespace Components.Counters {
 
         public BitArray Content => new(mainBuffer);
 
-        public HLCounter(int size) {
+        private bool clkEdgeRise = false;
+
+        public HLCounter(string name, int size) : base(name) {
             mainBuffer = new(size);
             Initialize(size);
             this.RegisterUpdate();
@@ -30,21 +32,27 @@ namespace Components.Counters {
         }
 
         public void Update() {
+            if (clkEdgeRise) {
+                if (Clear) {
+                    mainBuffer.SetAll(false);
+                } else if (CountEnable) {
+                    Count();
+                }
+
+                if (LoadEnable) {
+                    LoadInput();
+                }
+
+                clkEdgeRise = false;
+            }
+
             if (OutputEnable) {
                 WriteOutput();
             }
         }
 
         private void Clk_OnEdgeRise() {
-            if (Clear) {
-                mainBuffer.SetAll(false);
-            } else if (CountEnable) {
-                Count();
-            }
-
-            if (LoadEnable) {
-                LoadInput();
-            }
+            clkEdgeRise = true;
         }
 
         protected virtual void LoadInput() {
@@ -75,7 +83,8 @@ namespace Components.Counters {
 
         public override string ToString() {
             var sb = new StringBuilder();
-            sb.AppendLine($"Content: {Content.ToPrettyBitString()}");
+            sb.AppendLine(base.ToString());
+            sb.AppendLine($"LE: {(LoadEnable ? "1" : "0")}, CE: {(CountEnable ? "1" : "0")}, Content: {Content.ToPrettyBitString()}");
 
             return sb.ToString();
         }

@@ -5,7 +5,7 @@ namespace Components.Counters {
         public SignalPort LoadEnableHigh { get; protected set; } = new SignalPort();
         public SignalPort LoadEnableLow { get; protected set; } = new SignalPort();
 
-        public HLHiLoCounter(int size) : base(size) { }
+        public HLHiLoCounter(string name, int size) : base(name, size) { }
 
         protected override void LoadInput() {
             int start = 0;

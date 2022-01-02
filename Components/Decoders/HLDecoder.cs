@@ -14,7 +14,7 @@ namespace Components.Decoders {
         public BitArray Input => Inputs.ToBitArray();
         public BitArray Output => Outputs.ToBitArray();
 
-        public HLDecoder(int inputSize) {
+        public HLDecoder(string name, int inputSize) : base(name) {
             Initialize(inputSize);
             this.RegisterUpdate();
         }
@@ -52,6 +52,7 @@ namespace Components.Decoders {
 
         public override string ToString() {
             var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
             sb.AppendLine($"Input: {Input.ToPrettyBitString()}");
             sb.AppendLine($"Output: {Output.ToPrettyBitString()}");
 

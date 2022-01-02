@@ -20,7 +20,7 @@ namespace Components.Roms {
 
         public SignalPort[] AddressInputs => Inputs.Take(AddressSize).ToArray();
 
-        public HLRom(int dataSize, int addressSize, int totalSizeInBytes, BitArray[] initialMemory) {
+        public HLRom(string name, int dataSize, int addressSize, int totalSizeInBytes, BitArray[] initialMemory) : base(name) {
             MemorySizeInBytes = totalSizeInBytes;
             AddressSize = addressSize;
             DataSize = dataSize;
@@ -77,6 +77,7 @@ namespace Components.Roms {
 
         public override string ToString() {
             var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
             sb.AppendLine($"Address: {AddressInputs.ToBitArray().ToPrettyBitString()}");
             sb.AppendLine($"Content@Addr: {memory[GetMemoryAddress()].ToPrettyBitString()}");
 

@@ -31,7 +31,7 @@ namespace Tests.ComponentTests {
         }
 
         private MultiOrGate CreateMultiOrGate(out Signal[] inputs, out Signal[] outputs) {
-            var orGate = new MultiOrGate(16);
+            var orGate = new MultiOrGate("multior", 16);
 
             inputs = orGate.CreateSignalAndPlugInInputs().ToArray();
             outputs = orGate.CreateSignalAndPlugInOutputs().ToArray();

@@ -4,7 +4,7 @@ namespace Components.Registers {
     public class HLCeRegister : HLRegister {
         public SignalPort ChipEnable { get; protected set; } = new SignalPort();
 
-        public HLCeRegister(int size) : base(size) { }
+        public HLCeRegister(string name, int size) : base(name, size) { }
 
         public override void Update() {
             if (ChipEnable) {

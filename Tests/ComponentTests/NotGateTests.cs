@@ -25,7 +25,7 @@ namespace Tests.ComponentTests {
         }
 
         private NotGate CreateInverter(out Signal[] inputs, out Signal[] outputs) {
-            var inverter = new NotGate(8);
+            var inverter = new NotGate("not", 8);
 
             inputs = inverter.CreateSignalAndPlugInInputs().ToArray();
             outputs = inverter.CreateSignalAndPlugInOutputs().ToArray();

@@ -15,6 +15,7 @@ namespace Components.Rams {
 
         private readonly BitArray[] memory;
 
+        public int Priority => -2;
         public BitArray[] Content => memory;
         public SignalPort WriteEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
@@ -23,7 +24,9 @@ namespace Components.Rams {
         public SignalPort[] AddressInputs => Inputs.Take(AddressSize).ToArray();
         public SignalPort[] DataInputs => Inputs.Skip(AddressSize).ToArray();
 
-        public HLRam(int dataSize, int addressSize, int totalSizeInBytes, BitArray[] initialMemory = null) {
+        private bool clkEdgeRise = false;
+
+        public HLRam(string name, int dataSize, int addressSize, int totalSizeInBytes, BitArray[] initialMemory = null) : base(name) {
             MemorySizeInBytes = totalSizeInBytes;
             AddressSize = addressSize;
             DataSize = dataSize;
@@ -54,15 +57,20 @@ namespace Components.Rams {
         }
 
         public void Update() {
+            if (clkEdgeRise) {
+                if (WriteEnable) {
+                    WriteData();
+                }
+                clkEdgeRise = false;
+            }
+
             if (OutputEnable) {
                 WriteOutput();
             }
         }
 
         private void Clk_OnEdgeRise() {
-            if (WriteEnable) {
-                WriteData();
-            }
+            clkEdgeRise = true;
         }
 
         private void WriteData() {
@@ -94,6 +102,7 @@ namespace Components.Rams {
 
         public override string ToString() {
             var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
             sb.AppendLine($"AddressInputs: {AddressInputs.ToBitArray().ToPrettyBitString()}");
             sb.AppendLine($"DataInputs: {DataInputs.ToBitArray().ToPrettyBitString()}");
             sb.AppendLine($"Content@Addr: {memory[GetMemoryAddress()].ToPrettyBitString()}");

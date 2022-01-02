@@ -37,11 +37,21 @@ namespace Tests {
                 _testSimulationLoop.Loop();
             }
 
+            _testSimulationLoop.Loop();
+
             foreach (var sig in cycleSignals) {
                 sig.Value = false;
             }
 
             cycleSignals.Clear();
+        }
+
+
+        public void MakeOnlyLoops() {
+            _testSimulationLoop.Loop();
+            _testSimulationLoop.Loop();
+            _testSimulationLoop.Loop();
+            _testSimulationLoop.Loop();
         }
     }
 }

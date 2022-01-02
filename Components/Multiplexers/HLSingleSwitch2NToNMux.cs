@@ -1,7 +1,10 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.BitArrays;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System.Linq;
+using System.Text;
 
 namespace Components.Multiplexers {
     public class HLSingleSwitch2NToNMux : IODeviceBase, IMux, IUpdate {
@@ -11,7 +14,7 @@ namespace Components.Multiplexers {
 
         private readonly int singleInputSize;
 
-        public HLSingleSwitch2NToNMux(int singleInputSize) {
+        public HLSingleSwitch2NToNMux(string name, int singleInputSize) : base(name) {
             this.singleInputSize = singleInputSize;
 
             Initialize();
@@ -36,6 +39,14 @@ namespace Components.Multiplexers {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
+            sb.AppendLine($"SelectB: {(SelectB ? "1" : "0")}, Outputs: {Outputs.ToBitArray().ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

@@ -38,20 +38,18 @@ namespace Simulation.Loops {
             }
 
             if (insertionPending) {
-                foreach (var priorityItem in newUpdates.OfType<IHighPriorityUpdate>()) {
-                    updates.Insert(0, priorityItem);
-                }
-
-                newUpdates.RemoveAll(x => x is IHighPriorityUpdate);
                 updates.AddRange(newUpdates);
                 newUpdates.Clear();
+                updates = updates.OrderByDescending(u => u.Priority).ToList();
                 insertionPending = false;
             }
 
             lastUpdateDeltaTicks = sw.ElapsedTicks;
             sw.Restart();
             FrameInfo.Update(lastUpdateDeltaTicks);
-            updates.ForEach(u => u.Update());
+            foreach (var update in updates) {
+                update.Update();
+            }
         }
     }
 }

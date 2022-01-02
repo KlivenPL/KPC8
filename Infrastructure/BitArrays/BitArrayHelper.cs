@@ -189,6 +189,18 @@ namespace Infrastructure.BitArrays {
             return BitConverter.ToInt32(array);
         }
 
+        public static uint ToUIntLE(this BitArray bitArray) {
+            if (bitArray.Length > 32)
+                throw new Exception("Length must not be greater than 32");
+
+            var copy = new BitArray(bitArray);
+            copy.Reverse();
+
+            byte[] array = new byte[4];
+            copy.CopyTo(array, 0);
+            return BitConverter.ToUInt32(array);
+        }
+
         public static void Reverse(this BitArray array) {
             int length = array.Length;
             int mid = (length / 2);

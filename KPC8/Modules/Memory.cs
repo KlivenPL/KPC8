@@ -2,6 +2,7 @@
 using Components.Buses;
 using Components.Counters;
 using Components.Logic;
+using Components.Multiplexers;
 using Components.Rams;
 using Components.Roms;
 using Components.Signals;
@@ -23,19 +24,28 @@ namespace KPC8.Modules {
         private readonly SingleOrGate pc_leHi_leLo_to_le;
         private readonly SingleOrGate mar_leHi_leLo_to_le;
 
+        private readonly HLSingleSwitch2NToNMux busSelectPc;
+        private readonly HLSingleSwitch2NToNMux busSelectMar;
+        private readonly SingleAndGate pc_leHi_and_leLo_to_addressBusSelect;
+        private readonly SingleAndGate mar_leHi_and_leLo_to_addressBusSelect;
+
         private Signal mar_oe_const;
 
         public BitArray PcContent => pc.Content;
         public BitArray MarContent => mar.Content;
 
         public Memory(BitArray[] romData, BitArray[] ramData, Signal mainClock, IBus dataBus, IBus addressBus) {
-            pc = new HLHiLoCounter(16);
-            mar = new HLHiLoCounter(16);
-            rom = new HLRom(8, 16, MemorySize, romData);
-            ram = new HLRam(8, 16, MemorySize, ramData);
-            marToAddressBus = new HLTransciever(16);
-            pc_leHi_leLo_to_le = new SingleOrGate(2);
-            mar_leHi_leLo_to_le = new SingleOrGate(2);
+            pc = new HLHiLoCounter(nameof(pc), 16);
+            mar = new HLHiLoCounter(nameof(mar), 16);
+            rom = new HLRom(nameof(rom), 8, 16, MemorySize, romData);
+            ram = new HLRam(nameof(ram), 8, 16, MemorySize, ramData);
+            marToAddressBus = new HLTransciever(nameof(marToAddressBus), 16);
+            pc_leHi_leLo_to_le = new SingleOrGate(nameof(pc_leHi_leLo_to_le), 2);
+            mar_leHi_leLo_to_le = new SingleOrGate(nameof(mar_leHi_leLo_to_le), 2);
+            busSelectPc = new HLSingleSwitch2NToNMux(nameof(busSelectPc), 16);
+            busSelectMar = new HLSingleSwitch2NToNMux(nameof(busSelectMar), 16);
+            pc_leHi_and_leLo_to_addressBusSelect = new SingleAndGate(nameof(pc_leHi_and_leLo_to_addressBusSelect), 2);
+            mar_leHi_and_leLo_to_addressBusSelect = new SingleAndGate(nameof(mar_leHi_and_leLo_to_addressBusSelect), 2);
 
             ConnectInternals();
             CreateAndSetConstSignals();
@@ -57,6 +67,12 @@ namespace KPC8.Modules {
 
             Signal.Factory.CreateAndConnectPort(nameof(pc_leHi_leLo_to_le), pc_leHi_leLo_to_le.Output, pc.LoadEnable);
             Signal.Factory.CreateAndConnectPort(nameof(mar_leHi_leLo_to_le), mar_leHi_leLo_to_le.Output, mar.LoadEnable);
+
+            Signal.Factory.CreateAndConnectPort(nameof(pc_leHi_and_leLo_to_addressBusSelect), pc_leHi_and_leLo_to_addressBusSelect.Output, busSelectPc.SelectB);
+            Signal.Factory.CreateAndConnectPort(nameof(mar_leHi_and_leLo_to_addressBusSelect), mar_leHi_and_leLo_to_addressBusSelect.Output, busSelectMar.SelectB);
+
+            Signal.Factory.CreateAndConnectPorts(nameof(busSelectPc), busSelectPc.Outputs, pc.Inputs);
+            Signal.Factory.CreateAndConnectPorts(nameof(busSelectMar), busSelectMar.Outputs, mar.Inputs);
         }
 
         protected override void CreateAndSetConstSignals() {
@@ -65,11 +81,15 @@ namespace KPC8.Modules {
 
         protected override void ConnectDataBus(IBus dataBus) {
             dataBus
-                .Connect(0, 8, pc.Inputs.Take(8))
-                .Connect(0, 8, pc.Inputs.TakeLast(8))
+                //.Connect(0, 8, pc.Inputs.Take(8))
+                //.Connect(0, 8, pc.Inputs.TakeLast(8))
+                .Connect(0, 8, busSelectPc.InputsA.Take(8))
+                .Connect(0, 8, busSelectPc.InputsA.TakeLast(8))
 
-                .Connect(0, 8, mar.Inputs.Take(8))
-                .Connect(0, 8, mar.Inputs.TakeLast(8))
+                //.Connect(0, 8, mar.Inputs.Take(8))
+                //.Connect(0, 8, mar.Inputs.TakeLast(8))
+                .Connect(0, 8, busSelectMar.InputsA.Take(8))
+                .Connect(0, 8, busSelectMar.InputsA.TakeLast(8))
 
                 .Connect(0, 8, ram.DataInputs)
                 .Connect(0, 8, ram.Outputs)
@@ -79,10 +99,12 @@ namespace KPC8.Modules {
 
         protected override void ConnectAddressBus(IBus addressBus) {
             addressBus
-                .Connect(0, 16, pc.Inputs)
+                //.Connect(0, 16, pc.Inputs)
+                .Connect(0, 16, busSelectPc.InputsB)
                 .Connect(0, 16, pc.Outputs)
 
-                .Connect(0, 16, mar.Inputs)
+                //.Connect(0, 16, mar.Inputs)
+                .Connect(0, 16, busSelectMar.InputsB)
                 .Connect(0, 16, marToAddressBus.Outputs);
         }
 
@@ -92,6 +114,12 @@ namespace KPC8.Modules {
 
             mar.LoadEnableHigh.PlugIn(controlBus.GetControlSignal(ControlSignalType.Mar_le_hi));
             mar.LoadEnableLow.PlugIn(controlBus.GetControlSignal(ControlSignalType.Mar_le_lo));
+
+            pc_leHi_and_leLo_to_addressBusSelect.Inputs[0].PlugIn(controlBus.GetControlSignal(ControlSignalType.Pc_le_hi));
+            pc_leHi_and_leLo_to_addressBusSelect.Inputs[1].PlugIn(controlBus.GetControlSignal(ControlSignalType.Pc_le_lo));
+
+            mar_leHi_and_leLo_to_addressBusSelect.Inputs[0].PlugIn(controlBus.GetControlSignal(ControlSignalType.Mar_le_hi));
+            mar_leHi_and_leLo_to_addressBusSelect.Inputs[1].PlugIn(controlBus.GetControlSignal(ControlSignalType.Mar_le_lo));
 
             return new CsPanel.MemoryPanel {
                 Pc_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_le_hi, pc_leHi_leLo_to_le.Inputs[0]),

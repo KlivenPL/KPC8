@@ -1,10 +1,13 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.BitArrays;
+using Components._Infrastructure.IODevices;
+using Infrastructure.BitArrays;
 using Simulation.Updates;
+using System.Text;
 
 namespace Components.Logic {
     public class NotGate : IODeviceBase, IUpdate {
 
-        public NotGate(int lanes) {
+        public NotGate(string name, int lanes) : base(name) {
             Initialize(lanes);
             this.RegisterUpdate();
         }
@@ -25,6 +28,14 @@ namespace Components.Logic {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine(base.ToString());
+            sb.AppendLine($"Outputs: {Outputs.ToBitArray().ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLTransciever CreateTransciever(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable) {
-            var register = new HLTransciever(8);
+            var register = new HLTransciever("transciever", 8);
             inputs = register.CreateSignalAndPlugInInputs().ToArray();
             outputs = register.CreateSignalAndPlugInOutputs().ToArray();
 

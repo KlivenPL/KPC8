@@ -16,6 +16,7 @@ namespace KPC8.RomProgrammers.Microcode {
         public abstract ControlSignalType[] InstructionSteps { get; }
         public abstract ControlSignalType[] PreInstructionSteps { get; }
         public abstract ControlSignalType OptionalPostInstructionStep { get; }
+        public int PreAndInstructionStepsCount => PreInstructionSteps.Length + InstructionSteps.Length;
 
         public virtual IEnumerable<ControlSignalType> BuildTotalSteps() {
             int currentLength = 0;
@@ -26,21 +27,21 @@ namespace KPC8.RomProgrammers.Microcode {
 
             for (int i = 0; i < InstructionSteps.Length; i++) {
                 currentLength++;
-                /*if (i == InstructionSteps.Length - 1) {
+                if (i == InstructionSteps.Length - 1) {
                     yield return InstructionSteps[i] | OptionalPostInstructionStep;
                 } else {
                     yield return InstructionSteps[i];
-                }*/
-                yield return InstructionSteps[i];
+                }
+                /*yield return InstructionSteps[i];*/
             }
 
 
-            /*for (int i = currentLength; i < MaxTotalStepsCount; i++) {
-                yield return OptionalPostInstructionStep;
-            }*/
             for (int i = currentLength; i < MaxTotalStepsCount; i++) {
-                yield return ControlSignalType.None;
+                yield return OptionalPostInstructionStep;
             }
+            /*for (int i = currentLength; i < MaxTotalStepsCount; i++) {
+                yield return ControlSignalType.None;
+            }*/
         }
     }
 }

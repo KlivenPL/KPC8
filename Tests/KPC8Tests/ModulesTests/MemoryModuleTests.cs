@@ -137,10 +137,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             addressBus.Write(zero);
             BitAssert.Equality(zero, addressBus.Lanes);
 
-            Enable(cs.MarToBus_oe);
-            MakeTickAndWait();
-
-            BitAssert.Equality(ramAddress, addressBus.Lanes);
+            BitAssert.Equality(ramAddress, module.MarContent);
         }
 
         private Memory CreateMemoryModule(BitArray[] romData, BitArray[] ramData, out IBus dataBus, out IBus addressBus, out CsPanel.MemoryPanel csPanel) {

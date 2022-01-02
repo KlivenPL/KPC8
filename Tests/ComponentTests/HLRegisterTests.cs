@@ -93,7 +93,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLRegister CreateRegister(out Signal[] inputs, out Signal[] outputs, out Signal enableSig, out Signal loadSig, out Signal clearSig) {
-            var register = new HLRegister(8);
+            var register = new HLRegister("register",8);
             register.Clk.PlugIn(_testClock.Clk);
 
             inputs = register.CreateSignalAndPlugInInputs().ToArray();

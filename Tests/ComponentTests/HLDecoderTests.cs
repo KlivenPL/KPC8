@@ -33,7 +33,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLDecoder CreateDecoder(int inputSize, out Signal[] inputs, out Signal[] outputs, out Signal outputEnable) {
-            var decoder = new HLDecoder(inputSize);
+            var decoder = new HLDecoder("decoder",inputSize);
 
             inputs = decoder.CreateSignalAndPlugInInputs().ToArray();
             outputs = decoder.CreateSignalAndPlugInOutputs().ToArray();

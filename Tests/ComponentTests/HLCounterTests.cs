@@ -80,7 +80,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLCounter CreateCounter(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal loadEnable, out Signal countEnable, out Signal clear) {
-            var counter = new HLCounter(8);
+            var counter = new HLCounter("hlCounter",8);
             counter.Clk.PlugIn(_testClock.Clk);
 
             inputs = counter.CreateSignalAndPlugInInputs().ToArray();

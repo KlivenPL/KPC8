@@ -26,12 +26,12 @@ namespace KPC8.Modules {
         public BitArray RegFlagsContent => regFlags.Content;
 
         public Alu(Signal mainClock, IBus dataBus, IBus flagsBus) {
-            adder = new HLAdder(8);
-            regA = new HLRegister(8);
-            regB = new HLRegister(8);
-            regFlags = new HLRegister(4);
-            regAToDataBus = new HLTransciever(8);
-            regBToDataBus = new HLTransciever(8);
+            adder = new HLAdder("Adder",8);
+            regA = new HLRegister(nameof(regA),8);
+            regB = new HLRegister(nameof(regB), 8);
+            regFlags = new HLRegister(nameof(regFlags), 4);
+            regAToDataBus = new HLTransciever(nameof(regAToDataBus), 8);
+            regBToDataBus = new HLTransciever(nameof(regBToDataBus), 8);
 
             ConnectInternals();
             CreateAndSetConstSignals();

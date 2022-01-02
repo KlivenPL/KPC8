@@ -48,7 +48,7 @@ namespace Tests.ComponentTests {
         }
 
         private HLHiLoCounter CreateHiLoCounter(out Signal[] inputs, out Signal[] outputs, out Signal outputEnable, out Signal loadEnable, out Signal loadEnableHi, out Signal loadEnableLo, out Signal countEnable, out Signal clear) {
-            var counter = new HLHiLoCounter(16);
+            var counter = new HLHiLoCounter("counter", 16);
             counter.Clk.PlugIn(_testClock.Clk);
 
             inputs = counter.CreateSignalAndPlugInInputs().ToArray();

@@ -55,16 +55,16 @@ namespace KPC8.Modules {
         public BitArray InstRomAddress => instRom.AddressInputs.ToBitArray();
 
         public Control(BitArray[] instrData, Signal mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus) {
-            ir = new HLHiLoRegister(16);
-            ic = new HLCounter(4);
-            instRom = new HLRom(32, 11, InstRomSize, instrData);
-            decDest = new HLDecoder(DestRegEncodedLength + 2);
-            decA = new HLDecoder(ARegEncodedSize);
-            decB = new HLDecoder(BRegEncodedSize);
-            ir8LsbToBus = new HLTransciever(8);
-            instructionSelectMux = new HLSingleSwitch2NToNMux(10);
-            ir_leHi_leLo_to_le = new SingleOrGate(2);
-            condInstructionDetector = new SingleAndGate(3);
+            ir = new HLHiLoRegister(nameof(ir), 16);
+            ic = new HLCounter(nameof(ic), 4);
+            instRom = new HLRom(nameof(instRom), 32, 11, InstRomSize, instrData);
+            decDest = new HLDecoder(nameof(decDest), DestRegEncodedLength + 2);
+            decA = new HLDecoder(nameof(decA), ARegEncodedSize);
+            decB = new HLDecoder(nameof(decB), BRegEncodedSize);
+            ir8LsbToBus = new HLTransciever(nameof(ir8LsbToBus),8);
+            instructionSelectMux = new HLSingleSwitch2NToNMux(nameof(instructionSelectMux), 10);
+            ir_leHi_leLo_to_le = new SingleOrGate(nameof(ir_leHi_leLo_to_le), 2);
+            condInstructionDetector = new SingleAndGate(nameof(condInstructionDetector), 3);
 
             ConnectInternals();
             CreateAndSetConstSignals();

@@ -31,7 +31,7 @@ namespace Tests.ComponentTests {
         }
 
         private MultiAndGate CreateMultiAndGate(out Signal[] inputs, out Signal[] outputs) {
-            var andGate = new MultiAndGate(16);
+            var andGate = new MultiAndGate("multiand", 16);
 
             inputs = andGate.CreateSignalAndPlugInInputs().ToArray();
             outputs = andGate.CreateSignalAndPlugInOutputs().ToArray();
