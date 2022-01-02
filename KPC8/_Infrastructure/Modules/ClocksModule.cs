@@ -1,5 +1,6 @@
 ﻿using _Infrastructure.Enums;
 using Autofac;
+using Autofac.Core;
 using Components.Clocks;
 using Components.Signals;
 using KPC8.Clocks;
@@ -22,14 +23,15 @@ namespace KPC8._Infrastructure.Modules {
                 builder
                     .RegisterType<Clock>()
                     .Keyed<Clock>(clockType)
-                    .WithParameters(new[] {
+                    .WithParameters(new ConstantParameter[] {
                         new TypedParameter(typeof(ClockMode), parameters.ClockMode),
                         new TypedParameter(typeof(long), parameters.PeriodInTicks),
-                        new TypedParameter(typeof(Signal), Signal.Factory.GetOrCreate($"sig_{clockType}")),
+                        new NamedParameter("clkSignal", Signal.Factory.Create($"sig_{clockType}")),
+                        new NamedParameter("clkBarSignal", Signal.Factory.Create($"sig_{clockType}_bar")),
                     })
                     .AsSelf()
                     .AsImplementedInterfaces()
-                    .InstancePerLifetimeScope();
+                    .SingleInstance();
             }
         }
     }

@@ -54,5 +54,9 @@ namespace Components.Signals {
                 signals[i].Value = value;
             }
         }
+
+        public override string ToString() {
+            return Value ? "1" : "0";
+        }
     }
 }

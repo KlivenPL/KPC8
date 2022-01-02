@@ -1,7 +1,9 @@
 ﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System.Collections;
+using System.Text;
 
 namespace Components.Registers {
     public class HLRegister : IODeviceBase, IRegister, IUpdate {
@@ -56,6 +58,13 @@ namespace Components.Registers {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Content: {Content.ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

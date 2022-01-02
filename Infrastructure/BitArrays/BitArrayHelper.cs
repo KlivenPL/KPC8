@@ -57,7 +57,15 @@ namespace Infrastructure.BitArrays {
         }
 
         public static BitArray FromUIntLE(uint uint32) {
-            return new BitArray(BitConverter.GetBytes(uint32).Reverse().ToArray());
+            var ba = new BitArray(32);
+            var byteArray = BitConverter.GetBytes(uint32);
+            for (int i = byteArray.Length - 1; i >= 0; i--) {
+                var tmpBa = FromByteLE(byteArray[i]);
+                for (int j = 0; j < 8; j++) {
+                    ba[8 * (byteArray.Length - i - 1) + j] = tmpBa[j];
+                }
+            }
+            return ba;
         }
 
         public static BitArray FromUShortLE(ushort ushort16) {
@@ -70,9 +78,9 @@ namespace Infrastructure.BitArrays {
             return ba;
         }
 
-        public static BitArray FromUIntEnumLE<TEnum>(TEnum uint32Enum) where TEnum : Enum {
+        /*public static BitArray FromUIntEnumLE<TEnum>(TEnum uint32Enum) where TEnum : Enum {
             return new BitArray(BitConverter.GetBytes((uint)(object)uint32Enum).Reverse().ToArray());
-        }
+        }*/
 
         public static string ToBitString(this BitArray bitArray) {
             if (bitArray == null)

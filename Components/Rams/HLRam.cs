@@ -1,9 +1,11 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.BitArrays;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System.Collections;
 using System.Linq;
+using System.Text;
 
 namespace Components.Rams {
     public class HLRam : IODeviceBase, IRam, IUpdate {
@@ -88,6 +90,15 @@ namespace Components.Rams {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine($"AddressInputs: {AddressInputs.ToBitArray().ToPrettyBitString()}");
+            sb.AppendLine($"DataInputs: {DataInputs.ToBitArray().ToPrettyBitString()}");
+            sb.AppendLine($"Content@Addr: {memory[GetMemoryAddress()].ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

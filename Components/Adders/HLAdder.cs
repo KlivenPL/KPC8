@@ -1,8 +1,11 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.BitArrays;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System.Collections;
 using System.Linq;
+using System.Text;
 
 namespace Components.Adders {
     public class HLAdder : IODeviceBase, IAdder, IUpdate {
@@ -94,6 +97,15 @@ namespace Components.Adders {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine($"InputA: {InputsA.ToBitArray().ToPrettyBitString()}");
+            sb.AppendLine($"InputB: {InputsB.ToBitArray().ToPrettyBitString()}");
+            sb.AppendLine($"Content: {Content.ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

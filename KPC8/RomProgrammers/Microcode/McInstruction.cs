@@ -26,15 +26,20 @@ namespace KPC8.RomProgrammers.Microcode {
 
             for (int i = 0; i < InstructionSteps.Length; i++) {
                 currentLength++;
-                if (i == InstructionSteps.Length - 1) {
+                /*if (i == InstructionSteps.Length - 1) {
                     yield return InstructionSteps[i] | OptionalPostInstructionStep;
                 } else {
                     yield return InstructionSteps[i];
-                }
+                }*/
+                yield return InstructionSteps[i];
             }
 
-            for (int i = currentLength; i < MaxTotalStepsCount; i++) {
+
+            /*for (int i = currentLength; i < MaxTotalStepsCount; i++) {
                 yield return OptionalPostInstructionStep;
+            }*/
+            for (int i = currentLength; i < MaxTotalStepsCount; i++) {
+                yield return ControlSignalType.None;
             }
         }
     }

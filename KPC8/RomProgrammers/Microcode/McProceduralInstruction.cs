@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using _Infrastructure.Enums;
+using KPC8._Infrastructure.Microcode.Attributes;
+using System.Collections.Generic;
 using System.Linq;
 using Cs = KPC8.ControlSignals.ControlSignalType;
 
 namespace KPC8.RomProgrammers.Microcode {
-    class McProceduralInstruction : McInstruction {
+    public class McProceduralInstruction : McInstruction {
         private readonly int totalStepsCount;
 
         public McProceduralInstruction(string name, Cs[] steps, uint opcode) : base(name) {
@@ -30,6 +32,12 @@ namespace KPC8.RomProgrammers.Microcode {
         public override Cs[] PreInstructionSteps => FetchInstructions().ToArray();
         public override Cs OptionalPostInstructionStep => Cs.Ic_clr;
         public override Cs[] InstructionSteps { get; }
+
+        public static McInstruction CreateFromStepsAndAttribute(Cs[] steps, ProceduralInstructionAttribute attribute) {
+            var devNameAttribute = attribute.McInstructionType.GetCustomAttribute<McInstructionDevNameAttribute>();
+            var instruction = new McProceduralInstruction(devNameAttribute.DevName, steps.ToArray(), (uint)attribute.McInstructionType);
+            return instruction;
+        }
 
         private IEnumerable<Cs> FetchInstructions() {
             yield return Cs.Pc_oe | Cs.Mar_le_hi | Cs.Mar_le_lo;

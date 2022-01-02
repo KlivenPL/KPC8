@@ -1,11 +1,18 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.BitArrays;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System;
+using System.Collections;
+using System.Text;
 
 namespace Components.Decoders {
     public class HLDecoder : IODeviceBase, IDecoder, IUpdate {
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
+
+        public BitArray Input => Inputs.ToBitArray();
+        public BitArray Output => Outputs.ToBitArray();
 
         public HLDecoder(int inputSize) {
             Initialize(inputSize);
@@ -41,6 +48,14 @@ namespace Components.Decoders {
 
         public void Dispose() {
             this.UnregisterUpdate();
+        }
+
+        public override string ToString() {
+            var sb = new StringBuilder();
+            sb.AppendLine($"Input: {Input.ToPrettyBitString()}");
+            sb.AppendLine($"Output: {Output.ToPrettyBitString()}");
+
+            return sb.ToString();
         }
     }
 }

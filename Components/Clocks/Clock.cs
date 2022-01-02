@@ -12,11 +12,15 @@ namespace Components.Clocks {
         private long cycles = 0;
         public event Action<Clock> OnCycle;
 
-        public Clock(Signal signal, ClockMode mode, long periodInTicks) {
+        public Clock(Signal clkSignal, Signal clkBarSignal, ClockMode mode, long periodInTicks) {
             sw = new Stopwatch();
             Mode = mode;
             PeriodInTicks = periodInTicks;
-            Clk = signal;
+            Clk = clkSignal;
+            ClkBar = clkBarSignal;
+
+            Clk.SetValueWithoutTriggeringEvents(false);
+            ClkBar.SetValueWithoutTriggeringEvents(true);
             this.RegisterUpdate();
         }
 
@@ -37,6 +41,7 @@ namespace Components.Clocks {
         }
 
         public Signal Clk { get; private set; }
+        public Signal ClkBar { get; private set; }
 
         public bool IsManualTickInProgress => timer >= 0L && Mode == ClockMode.Manual;
 
@@ -70,6 +75,7 @@ namespace Components.Clocks {
             timer += 1;
 
             Clk.Value = timer <= PeriodInTicks / 2L;
+            ClkBar.Value = !Clk.Value;
 
             if (timer >= PeriodInTicks) {
                 if (++cycles % 100000 == 0) {
@@ -90,6 +96,7 @@ namespace Components.Clocks {
             }
 
             Clk.Value = timer <= PeriodInTicks / 2L && IsManualTickInProgress;
+            ClkBar.Value = !Clk.Value;
 
             if (timer >= PeriodInTicks) {
                 OnCycle?.Invoke(this);

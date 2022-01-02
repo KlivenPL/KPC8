@@ -6,6 +6,10 @@ namespace Components.Signals {
         private Signal masterSignal;
         private bool value;
 
+        public void SetValueWithoutTriggeringEvents(bool value) {
+            this.value = value;
+        }
+
         public event Action<Signal> OnChange;
 
         private Signal(string name) {
@@ -75,6 +79,10 @@ namespace Components.Signals {
             }
 
             this.masterSignal = masterSignal;
+        }
+
+        public override string ToString() {
+            return Value ? "1" : "0";
         }
     }
 }

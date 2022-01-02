@@ -10,6 +10,7 @@ using Components.Signals;
 using Components.Transcievers;
 using KPC8._Infrastructure.Components;
 using KPC8.ControlSignals;
+using System;
 using System.Collections;
 using System.Linq;
 
@@ -43,6 +44,7 @@ namespace KPC8.Modules {
         private Signal decDest_Input1_const;
 
         public BitArray IrOutput => ir.Outputs.ToBitArray();
+        public BitArray IrContent => ir.Content;
         public BitArray IcOutput => ic.Outputs.ToBitArray();
         public BitArray DecDestInput => decDest.Inputs.ToBitArray();
         public BitArray DecDestOutput => decDest.Outputs.ToBitArray();
@@ -177,7 +179,9 @@ namespace KPC8.Modules {
         }
 
         public void ConnectControlBusToControllerPorts(IBus controlBus) {
-            controlBus.Connect(0, 32, instRom.Outputs);
+            foreach (var value in Enum.GetValues<ControlSignalType>().Skip(1)) {
+                controlBus.ConnectToControllerPort(value, instRom.Outputs);
+            }
         }
 
         protected override void ConnectFlagsBus(IBus flagsBus) {
