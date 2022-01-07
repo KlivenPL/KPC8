@@ -67,11 +67,14 @@ namespace KPC8.ControlSignals {
         }
 
         public class RegsPanel : ICsPanel {
-            [ControlSignal(ControlSignalType.Regs_le)]
-            public Signal Regs_le { get; init; }
+            [ControlSignal(ControlSignalType.Regs_L)]
+            public Signal Regs_L { get; init; }
 
-            [ControlSignal(ControlSignalType.Regs_oe)]
-            public Signal Regs_oe { get; init; }
+            [ControlSignal(ControlSignalType.Regs_O)]
+            public Signal Regs_O { get; init; }
+
+            [ControlSignal(ControlSignalType.Regs_H)]
+            public Signal Regs_H { get; init; }
         }
 
         public class AluPanel : ICsPanel {

@@ -8,16 +8,16 @@ namespace KPC8.Microcode {
 
         [ProceduralInstruction(McInstructionType.Add)]
         public static IEnumerable<Cs> Add() {
-            yield return Cs.DecA_oe | Cs.Regs_oe | Cs.RegA_le;
-            yield return Cs.DecB_oe | Cs.Regs_oe | Cs.RegB_le;
-            yield return Cs.Alu_oe | Cs.DecDest_oe | Cs.Regs_le;
+            yield return Cs.DecA_oe | Cs.Regs_O | Cs.RegA_le;
+            yield return Cs.DecB_oe | Cs.Regs_O | Cs.RegB_le;
+            yield return Cs.Alu_oe | Cs.DecDest_oe | Cs.Regs_L;
         }
 
         [ProceduralInstruction(McInstructionType.AddI)]
         public static IEnumerable<Cs> AddI() {
-            yield return Cs.DecDest_oe | Cs.Regs_oe | Cs.RegA_le;
+            yield return Cs.DecDest_oe | Cs.Regs_O | Cs.RegA_le;
             yield return Cs.Ir8LSBToBus_oe | Cs.RegB_le;
-            yield return Cs.Alu_oe | Cs.DecDest_oe | Cs.Regs_le;
+            yield return Cs.Alu_oe | Cs.DecDest_oe | Cs.Regs_L;
         }
     }
 }

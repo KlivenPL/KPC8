@@ -36,7 +36,7 @@ namespace Tests.ComponentTests {
 
             using var counter = CreateCounter(out var inputs, out var outputs, out var outputEnable, out var loadEnable, out var countEnable, out var clear);
 
-            inputs.WriteBitArray(data);
+            inputs.Write(data);
 
             loadEnable.Value = true;
             MakeTickAndWait();

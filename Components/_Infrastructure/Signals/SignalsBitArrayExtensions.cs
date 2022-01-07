@@ -24,7 +24,7 @@ namespace _Infrastructure.BitArrays {
             }
         }
 
-        public static void WriteBitArray(this IEnumerable<Signal> signals, BitArray bitArray) {
+        public static void Write(this IEnumerable<Signal> signals, BitArray bitArray) {
             for (int i = 0; i < signals.Count(); i++) {
                 signals.ElementAt(i).Value = bitArray[i];
             }

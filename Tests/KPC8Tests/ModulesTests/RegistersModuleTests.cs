@@ -67,20 +67,20 @@ namespace Tests.KPC8Tests.ModulesTests {
 
             registerSelectBus.Write(selectedRegisterAddress);
             dataBus.Write(data);
-            Enable(cs.Regs_le);
+            Enable(cs.Regs_L);
             MakeTickAndWait();
 
             var selectedIndex = selectedRegister.GetIndex();
 
-            BitAssert.Equality(data, module.GetRegContent(selectedIndex));
+            BitAssert.Equality(data, module.GetLoRegContent(selectedIndex));
 
             for (int i = 0; i < 16; i++) {
                 if (i != selectedIndex)
-                    BitAssert.Equality(zero, module.GetRegContent(i));
+                    BitAssert.Equality(zero, module.GetLoRegContent(i));
             }
 
             dataBus.Write(zero);
-            Enable(cs.Regs_oe);
+            Enable(cs.Regs_O);
             MakeTickAndWait();
 
             BitAssert.Equality(data, dataBus.Lanes);
@@ -97,15 +97,15 @@ namespace Tests.KPC8Tests.ModulesTests {
 
             registerSelectBus.Write(selectedRegisterAddress);
             dataBus.Write(data);
-            Enable(cs.Regs_le);
+            Enable(cs.Regs_L);
             MakeTickAndWait();
 
             var selectedIndex = selectedRegister.GetIndex();
 
-            BitAssert.Equality(zero, module.GetRegContent(selectedIndex));
+            BitAssert.Equality(zero, module.GetLoRegContent(selectedIndex));
 
             dataBus.Write(data);
-            Enable(cs.Regs_oe);
+            Enable(cs.Regs_O);
             MakeTickAndWait();
 
             BitAssert.Equality(zero, dataBus.Lanes);
