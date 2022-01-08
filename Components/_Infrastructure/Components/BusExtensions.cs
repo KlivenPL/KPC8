@@ -8,5 +8,11 @@ namespace Components._Infrastructure.Components {
                 bus.Lanes[i].Value = data[i];
             }
         }
+
+        public static void Write(this IBus bus, int skip, BitArray data) {
+            for (int i = 0; i < data.Length; i++) {
+                bus.Lanes[i + skip].Value = data[i];
+            }
+        }
     }
 }

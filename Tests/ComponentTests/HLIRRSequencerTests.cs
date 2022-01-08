@@ -15,7 +15,7 @@ namespace Tests.ComponentTests {
             var zero = BitArrayHelper.FromString("0000");
             var irrCode = BitArrayHelper.FromString("0101");
 
-            using var register = CreateSequencer(out var inputs, out var outputs, out var IRRRQ, out var RDY, out var EN, out var Irr_a, out var Irr_b, out var Ir_clr, out var shouldProcessInterrupt, out var busy);
+            using var register = CreateSequencer(out var inputs, out var outputs, out var IRRRQ, out var RDY, out var EN, out var Irr_a, out var Irr_b, out var Irr_oe, out var shouldProcessInterrupt, out var busy);
 
             Enable(Irr_b);
             inputs.Write(irrCode);
@@ -29,7 +29,7 @@ namespace Tests.ComponentTests {
             Assert.True(EN);
             BitAssert.Equality(zero, outputs);
 
-            Enable(Ir_clr);
+            Enable(Irr_oe);
             Enable(IRRRQ);
             MakeTickAndWait();
 
@@ -39,7 +39,7 @@ namespace Tests.ComponentTests {
             Assert.True(busy);
             BitAssert.Equality(irrCode, outputs);
 
-            Enable(Ir_clr);
+            Enable(Irr_oe);
             MakeTickAndWait();
 
             Assert.False(shouldProcessInterrupt);
@@ -51,7 +51,7 @@ namespace Tests.ComponentTests {
                 inputs.Write(irrCode);
                 IRRRQ.Value = true;
 
-                Enable(Ir_clr);
+                Enable(Irr_oe);
                 MakeTickAndWait();
 
                 Assert.True(shouldProcessInterrupt);
@@ -70,7 +70,7 @@ namespace Tests.ComponentTests {
                 Assert.True(busy);
 
                 for (int i = 0; i < 3; i++) {
-                    Enable(Ir_clr);
+                    Enable(Irr_oe);
                     MakeTickAndWait();
 
                     Assert.False(shouldProcessInterrupt);
@@ -89,7 +89,7 @@ namespace Tests.ComponentTests {
                 Assert.True(busy);
 
                 for (int i = 0; i < 3; i++) {
-                    Enable(Ir_clr);
+                    Enable(Irr_oe);
                     MakeTickAndWait();
 
                     Assert.False(shouldProcessInterrupt);
@@ -100,7 +100,7 @@ namespace Tests.ComponentTests {
 
                 IRRRQ.Value = false;
 
-                Enable(Ir_clr);
+                Enable(Irr_oe);
                 MakeTickAndWait();
 
                 Assert.False(shouldProcessInterrupt);
@@ -114,7 +114,7 @@ namespace Tests.ComponentTests {
         public void Interrupt_Disabled() {
             var irrCode = BitArrayHelper.FromString("0101");
 
-            using var register = CreateSequencer(out var inputs, out var outputs, out var IRRRQ, out var RDY, out var EN, out var Irr_a, out var Irr_b, out var Ir_clr, out var shouldProcessInterrupt, out var busy);
+            using var register = CreateSequencer(out var inputs, out var outputs, out var IRRRQ, out var RDY, out var EN, out var Irr_a, out var Irr_b, out var Irr_oe, out var shouldProcessInterrupt, out var busy);
 
             Enable(Irr_a);
             inputs.Write(irrCode);
@@ -127,7 +127,7 @@ namespace Tests.ComponentTests {
             Assert.False(EN);
             Assert.False(busy);
 
-            Enable(Ir_clr);
+            Enable(Irr_oe);
             Enable(IRRRQ);
             MakeTickAndWait();
 
@@ -142,7 +142,7 @@ namespace Tests.ComponentTests {
             var zero = BitArrayHelper.FromString("0000");
             var irrCode = BitArrayHelper.FromString("0101");
 
-            using var register = CreateSequencer(out var inputs, out var outputs, out var IRRRQ, out var RDY, out var EN, out var Irr_a, out var Irr_b, out var Ir_clr, out var shouldProcessInterrupt, out var busy);
+            using var register = CreateSequencer(out var inputs, out var outputs, out var IRRRQ, out var RDY, out var EN, out var Irr_a, out var Irr_b, out var Irr_oe, out var shouldProcessInterrupt, out var busy);
 
             Enable(Irr_b);
             inputs.Write(irrCode);
@@ -151,7 +151,7 @@ namespace Tests.ComponentTests {
                 inputs.Write(irrCode);
                 IRRRQ.Value = true;
 
-                Enable(Ir_clr);
+                Enable(Irr_oe);
                 MakeTickAndWait();
 
                 Assert.True(shouldProcessInterrupt);
@@ -192,7 +192,7 @@ namespace Tests.ComponentTests {
                 IRRRQ.Value = true; // other device coming in
 
                 for (int i = 0; i < 3; i++) {
-                    Enable(Ir_clr);
+                    Enable(Irr_oe);
                     MakeTickAndWait();
 
                     Assert.False(shouldProcessInterrupt);
@@ -221,7 +221,7 @@ namespace Tests.ComponentTests {
             }
         }
 
-        private HLIRRSequencer CreateSequencer(out Signal[] inputs, out Signal[] outputs, out Signal IRRRQ, out Signal RDY, out Signal EN, out Signal Irr_a, out Signal Irr_b, out Signal Ir_clr, out Signal shouldProcessInterrupt, out Signal busy) {
+        private HLIRRSequencer CreateSequencer(out Signal[] inputs, out Signal[] outputs, out Signal IRRRQ, out Signal RDY, out Signal EN, out Signal Irr_a, out Signal Irr_b, out Signal Irr_oe, out Signal shouldProcessInterrupt, out Signal busy) {
             var sequencer = new HLIRRSequencer("HLIRRSequencer");
             sequencer.MainClock.PlugIn(_testClock.Clk);
 
@@ -229,14 +229,14 @@ namespace Tests.ComponentTests {
             outputs = sequencer.CreateSignalAndPlugInOutputs().ToArray();
 
             IRRRQ = sequencer.CreateSignalAndPlugInPort(r => r.IRRRQ);
-            RDY = sequencer.RDY;
-            EN = sequencer.EN;
+            RDY = sequencer.CreateSignalAndPlugInPort(r => r.RDY);
+            EN = sequencer.CreateSignalAndPlugInPort(r => r.EN);
             Irr_a = sequencer.CreateSignalAndPlugInPort(r => r.Irr_a);
             Irr_b = sequencer.CreateSignalAndPlugInPort(r => r.Irr_b);
-            Ir_clr = sequencer.CreateSignalAndPlugInPort(r => r.Ir_clr);
+            Irr_oe = sequencer.CreateSignalAndPlugInPort(r => r.Ir_le_hi);
 
             shouldProcessInterrupt = sequencer.CreateSignalAndPlugInPort(r => r.ShouldProcessInterrupt);
-            busy = sequencer.BUSY;
+            busy = sequencer.CreateSignalAndPlugInPort(r => r.BUSY);
 
             return sequencer;
         }

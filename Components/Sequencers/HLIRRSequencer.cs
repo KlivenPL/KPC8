@@ -11,13 +11,14 @@ namespace Components.Sequencers {
 
         public int Priority => -1;
         public SignalPort IRRRQ { get; protected set; } = new SignalPort(); // gets from HW
-        public Signal RDY { get; protected set; } = Signal.Factory.Create("IRR_RDY"); // controls by itself
-        public Signal EN { get; protected set; } = Signal.Factory.Create("IRR_EN"); // controls by itself
-        public Signal BUSY { get; protected set; } = Signal.Factory.Create("IRR_BUSY"); // controls by itself
+        public SignalPort RDY { get; protected set; } = new SignalPort(); // controls by itself
+        public SignalPort EN { get; protected set; } = new SignalPort(); // controls by itself
+        public SignalPort BUSY { get; protected set; } = new SignalPort(); // controls by itself
 
         public SignalPort Irr_a { get; protected set; } = new SignalPort(); // gets from CPU
         public SignalPort Irr_b { get; protected set; } = new SignalPort(); // gets from CPU
-        public SignalPort Ir_clr { get; protected set; } = new SignalPort(); // gets from CPU
+        public SignalPort Ir_le_hi { get; protected set; } = new SignalPort(); // gets from CPU
+        public SignalPort Ir_le_lo { get; protected set; } = new SignalPort(); // gets from CPU
 
         public SignalPort ShouldProcessInterrupt { get; protected set; } = new SignalPort();
         public SignalPort MainClock { get; protected set; } = new SignalPort();
@@ -46,7 +47,7 @@ namespace Components.Sequencers {
             if (isBusyServingInterrupt) {
                 deviceAbort = true;
             } else {
-                RDY.Value = false;
+                RDY.Write(false);
             }
         }
 
@@ -55,17 +56,17 @@ namespace Components.Sequencers {
                 LoadWhole();
 
                 if (!Irr_a && Irr_b) {
-                    EN.Value = true;
+                    EN.Write(true);
                 } else if (Irr_a && !Irr_b) {
-                    EN.Value = false;
+                    EN.Write(false);
                 } else if (Irr_a && Irr_b) {
                     isBusyServingInterrupt = !isBusyServingInterrupt;
                     if (!isBusyServingInterrupt) {
                         if (deviceAbort) {
                             deviceAbort = false;
-                            RDY.Value = false;
+                            RDY.Write(false);
                         } else {
-                            RDY.Value = true;
+                            RDY.Write(true);
                         }
                     }
                 }
@@ -73,13 +74,13 @@ namespace Components.Sequencers {
                 clkEdgeRise = false;
             }
 
-            var shouldProcessInterrupt = !isBusyServingInterrupt && Ir_clr && IRRRQ && !RDY && EN;
+            var shouldProcessInterrupt = !isBusyServingInterrupt && (Ir_le_hi || Ir_le_lo) && IRRRQ && !RDY && EN;
             if (shouldProcessInterrupt) {
                 OutputWhole();
             }
 
             ShouldProcessInterrupt.Write(shouldProcessInterrupt);
-            BUSY.Value = shouldProcessInterrupt || isBusyServingInterrupt || deviceAbort || RDY;
+            BUSY.Write(shouldProcessInterrupt || isBusyServingInterrupt || deviceAbort || RDY);
         }
 
         protected virtual void Clk_OnEdgeRise() {
@@ -105,7 +106,7 @@ namespace Components.Sequencers {
         public override string ToString() {
             var sb = new StringBuilder();
             sb.AppendLine(base.ToString());
-            sb.AppendLine($"IRRRQ: {IRRRQ}, Irr_rdy: {RDY}, Irr_en: {EN}, Ir_clr: {Ir_clr}, Irr code: {IrrCode.ToPrettyBitString()}");
+            sb.AppendLine($"IRRRQ: {IRRRQ}, Irr_rdy: {RDY}, Irr_en: {EN}, Ir_le_hi_lo: {Ir_le_hi || Ir_le_lo}, Irr code: {IrrCode.ToPrettyBitString()}");
 
             return sb.ToString();
         }

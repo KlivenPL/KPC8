@@ -64,6 +64,12 @@ namespace KPC8.ControlSignals {
 
             [ControlSignal(ControlSignalType.DecB_oe)]
             public Signal DecB_oe { get; init; }
+
+            [ControlSignal(ControlSignalType.Irr_a)]
+            public Signal Irr_a { get; init; }
+
+            [ControlSignal(ControlSignalType.Irr_b)]
+            public Signal Irr_b { get; init; }
         }
 
         public class RegsPanel : ICsPanel {

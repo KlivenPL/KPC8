@@ -13,5 +13,6 @@ namespace KPC8.ControlSignals {
         public IBus FlagsBus { get; set; }
         public IBus RegisterSelectBus { get; set; }
         public IBus ControlBus { get; set; }
+        public IBus InterruptsBus { get; set; }
     }
 }

@@ -35,6 +35,42 @@ namespace Tests.KPC8Tests.ModulesTests {
         }
 
         [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(9)]
+        [InlineData(15)]
+        public void LoadInstructionToIr_Interrupt_InterruptLoadedInstead(byte romInterruptCode) {
+            var instrHiIgnored = BitArrayHelper.FromString("11111111");
+            var instrLoIgnored = BitArrayHelper.FromString("11111111");
+
+            var interruptCode = BitArrayHelper.FromByteLE(romInterruptCode).Skip(4);
+
+            var module = CreateControlModuleWithInterrupts(out var dataBus, out var registerSelectBus, out var controlBus, out var interruptsBus, out var cs);
+
+            dataBus.Write(instrHiIgnored);
+
+            Enable(cs.Irr_b);
+            interruptsBus.Lanes[0].Value = true;
+            interruptsBus.Write(4, interruptCode);
+            MakeTickAndWait();
+
+            Enable(cs.Ir_le_hi);
+            MakeTickAndWait();
+
+            Assert.True(module.GetIrrSignal(irr => irr.ShouldProcessInterrupt));
+            BitAssert.Equality(interruptCode, module.IrrRomAddress);
+
+            dataBus.Write(instrLoIgnored);
+            Enable(cs.Ir_le_lo);
+            MakeTickAndWait();
+
+            Assert.True(module.GetIrrSignal(irr => irr.ShouldProcessInterrupt));
+            BitAssert.Equality(interruptCode, module.IrrRomAddress);
+
+            BitAssert.Equality(module.GetIrrExpectedRomData(romInterruptCode), module.IrOutput);
+        }
+
+        [Theory]
         [InlineData("000000", "00000000000")] // Procedural instruction
         [InlineData("000001", "00000010000")] // Procedural instruction
         [InlineData("011101", "00111010000")] // Procedural instruction
@@ -284,7 +320,19 @@ namespace Tests.KPC8Tests.ModulesTests {
             controlBus = new HLBus("ControlBus", 32);
             flagsBus = new HLBus("FlagsBus", 4);
 
-            var control = new Control(null, _testClock.Clk, dataBus, registerSelectBus, flagsBus);
+            var control = new Control(null, _testClock.Clk, dataBus, registerSelectBus, flagsBus, new HLBus("InterruptsBus", 8));
+            csPanel = control.CreateControlPanel(controlBus);
+
+            return control;
+        }
+
+        private Control CreateControlModuleWithInterrupts(out IBus dataBus, out IBus registerSelectBus, out IBus controlBus, out IBus interruptsBus, out CsPanel.ControlPanel csPanel) {
+            dataBus = new HLBus("TestDataBus", 8);
+            registerSelectBus = new HLBus("RegisterSelectBus", 16);
+            controlBus = new HLBus("ControlBus", 32);
+            interruptsBus = new HLBus("InterruptsBus", 8);
+
+            var control = new Control(null, _testClock.Clk, dataBus, registerSelectBus, new HLBus("FlagsBus", 4), interruptsBus);
             csPanel = control.CreateControlPanel(controlBus);
 
             return control;
@@ -296,7 +344,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             controlBus = new HLBus("ControlBus", 32);
             mockControlBus = new HLBus("MockControlBus", 32);
 
-            var control = new Control(romData, _testClock.Clk, dataBus, registerSelectBus, new HLBus("Flags bus", 4));
+            var control = new Control(romData, _testClock.Clk, dataBus, registerSelectBus, new HLBus("Flags bus", 4), new HLBus("InterruptsBus", 8));
             csPanel = control.CreateControlPanel(controlBus);
             control.ConnectControlBusToControllerPorts(mockControlBus);
 

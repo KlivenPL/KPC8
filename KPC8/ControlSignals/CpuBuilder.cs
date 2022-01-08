@@ -18,6 +18,7 @@ namespace KPC8.ControlSignals {
         private IBus flagsBus;
         private IBus registerSelectBus;
         private IBus controlBus;
+        private IBus interruptsBus;
 
         private readonly Clock mainClock;
         private readonly ModulePanel modules;
@@ -44,7 +45,7 @@ namespace KPC8.ControlSignals {
                     .SetDefaultInstruction(new McProceduralInstruction("NOP", NopInstruction.Nop().ToArray(), 0x0))
                     .Build();
 
-                var control = new Control(instRomData, mainClock.ClkBar, dataBus, registerSelectBus, flagsBus);
+                var control = new Control(instRomData, mainClock.ClkBar, dataBus, registerSelectBus, flagsBus, interruptsBus);
 
                 if (connectControlBusToControllerPorts) {
                     control.ConnectControlBusToControllerPorts(controlBus);
@@ -84,6 +85,7 @@ namespace KPC8.ControlSignals {
             controlBus = new HLBus("ControlBus", 32);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
             addressBus = new HLBus("TestAddressBus", 16);
+            interruptsBus = new HLBus("TestInterruptsBus", 8);
 
             return new CsPanel {
                 Mem = createMemoryPanel?.Invoke(),
@@ -101,6 +103,8 @@ namespace KPC8.ControlSignals {
             modules.DataBus = dataBus;
             modules.FlagsBus = flagsBus;
             modules.RegisterSelectBus = registerSelectBus;
+            modules.InterruptsBus = interruptsBus;
+
             return csPanel;
         }
     }
