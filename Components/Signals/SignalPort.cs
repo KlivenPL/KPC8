@@ -7,7 +7,7 @@ namespace Components.Signals {
         private List<Signal> signals = new List<Signal>();
 
         public event Action OnEdgeRise;
-        /*public event Action OnEdgeFall;*/
+        public event Action OnEdgeFall;
 
         public bool Value {
             get {
@@ -37,9 +37,9 @@ namespace Components.Signals {
         private void Signal_OnChange(Signal signal) {
             if (signal) {
                 OnEdgeRise?.Invoke();
-            }/* else {
+            } else {
                 OnEdgeFall?.Invoke();
-            }*/
+            }
         }
 
         public static implicit operator bool(SignalPort signalPort) {
