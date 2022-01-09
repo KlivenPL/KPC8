@@ -1,8 +1,10 @@
+using _Infrastructure.BitArrays;
 using Autofac;
 using Components.Clocks;
 using Components.Signals;
 using KPC8._Infrastructure;
 using KPC8.Clocks;
+using KPC8.ControlSignals;
 using Simulation.Loops;
 using System;
 using System.Collections.Generic;
@@ -53,5 +55,8 @@ namespace Tests {
             _testSimulationLoop.Loop();
             _testSimulationLoop.Loop();
         }
+
+        protected string GetCsErrorMessage(int step, ControlSignalType expectedSignal, IEnumerable<Signal> actual)
+            => $"Failed at step: {step}\r\nExpected control signal:\t{expectedSignal}\r\nActual control signal:\t\t{ControlSignalTypeExtensions.FromBitArray(actual.ToBitArray())}\r\n";
     }
 }

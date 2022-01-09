@@ -10,5 +10,11 @@ namespace KPC8.RomProgrammers.Microcode {
 
         [McInstructionDevName("AddI")]
         AddI = 0x11,
+
+        [McInstructionDevName("Sub")]
+        Sub = 0x12,
+
+        [McInstructionDevName("SubI")]
+        SubI = 0x13,
     }
 }

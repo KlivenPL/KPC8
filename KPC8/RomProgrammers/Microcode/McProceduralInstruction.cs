@@ -1,6 +1,7 @@
 ﻿using _Infrastructure.Enums;
 using KPC8._Infrastructure.Microcode.Attributes;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Cs = KPC8.ControlSignals.ControlSignalType;
@@ -33,6 +34,7 @@ namespace KPC8.RomProgrammers.Microcode {
         public override Cs[] PreInstructionSteps => FetchInstructions().ToArray();
         public override Cs OptionalPostInstructionStep => Cs.Ic_clr;
         public override Cs[] InstructionSteps { get; }
+        public override BitArray OpCode => ((McInstructionType)RomInstructionIndex).Get6BitsOPCode();
 
         public static McInstruction CreateFromSteps(Type classType, string stepsMethodName) {
             var mi = classType.GetMethod(stepsMethodName);
