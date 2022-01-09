@@ -17,6 +17,10 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         }
 
         protected void EncodeInstruction(McInstruction instruction, Regs regDest, BitArray imm, out BitArray instructionHigh, out BitArray instructionLow) {
+            if (imm.Length != 8) {
+                throw new System.Exception("IMM value must be 8 bits long");
+            }
+
             var opCode = instruction.OpCode;
 
             instructionHigh = BitArrayHelper.FromString($"{opCode.ToBitString()}{regDest.GetEncodedAddress().Skip(2).ToBitString()}");

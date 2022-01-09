@@ -16,13 +16,26 @@ namespace Components.Adders {
         public SignalPort CarryIn { get; protected set; } = new SignalPort();
         public SignalPort CarryFlag { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
-        public SignalPort SubstractEnable { get; protected set; } = new SignalPort();
+        public SignalPort A { get; protected set; } = new SignalPort();
+        public SignalPort B { get; protected set; } = new SignalPort();
+        public SignalPort C { get; protected set; } = new SignalPort();
         public SignalPort ZeroFlag { get; protected set; } = new SignalPort();
         public SignalPort OverflowFlag { get; protected set; } = new SignalPort();
         public SignalPort NegativeFlag { get; protected set; } = new SignalPort();
 
         public SignalPort[] InputsA => Inputs.Take(inputA.Length).ToArray();
         public SignalPort[] InputsB => Inputs.TakeLast(inputA.Length).ToArray();
+
+        enum SubOperation {
+            None,
+            Subtract,
+            Not,
+            Or,
+            And,
+            Xor,
+            Sl,
+            Sr,
+        }
 
         public HLAdder(string name, int size) : base(name) {
             inputA = new(size);
@@ -38,9 +51,10 @@ namespace Components.Adders {
 
         public void Update() {
             if (OutputEnable) {
-                LoadInputs(SubstractEnable);
+                var subOperation = GetSubOperation();
+                LoadInputs(subOperation == SubOperation.Subtract);
 
-                Add(CarryIn || SubstractEnable, out var carryOut, out var isZero);
+                Operate(subOperation, CarryIn || subOperation == SubOperation.Subtract, out var carryOut, out var isZero);
                 WriteFlags(carryOut, isZero);
 
                 WriteOutput();
@@ -54,20 +68,81 @@ namespace Components.Adders {
             }
         }
 
-        private void Add(bool carryIn, out bool carryOut, out bool isZero) {
+        private void Operate(SubOperation subOperation, bool carryIn, out bool carryOut, out bool isZero) {
+            carryOut = false;
             isZero = true;
 
-            for (int i = inputA.Length - 1; i >= 0; i--) {
-                var tmp = inputA[i] ^ inputB[i] ^ carryIn;
-                carryIn = inputA[i] && inputB[i] || inputA[i] && carryIn || inputB[i] && carryIn;
-                inputA[i] = tmp;
+            if (subOperation != SubOperation.Or && subOperation != SubOperation.And && subOperation != SubOperation.Xor) {
 
-                if (tmp) {
-                    isZero = false;
+                for (int i = inputA.Length - 1; i >= 0; i--) {
+                    var tmp = inputA[i] ^ inputB[i] ^ carryIn;
+
+                    if (subOperation == SubOperation.Not) {
+                        tmp = !tmp;
+                    }
+
+                    carryIn = inputA[i] && inputB[i] || inputA[i] && carryIn || inputB[i] && carryIn;
+                    inputA[i] = tmp;
+
+                    if (tmp) {
+                        isZero = false;
+                    }
                 }
+
+                carryOut = carryIn;
             }
 
-            carryOut = carryIn;
+            switch (subOperation) {
+                case SubOperation.Or:
+                    for (int i = inputA.Length - 1; i >= 0; i--) {
+                        inputA[i] = inputA[i] | inputB[i];
+
+                        if (inputA[i])
+                            isZero = false;
+                    }
+                    return;
+                case SubOperation.And:
+                    for (int i = inputA.Length - 1; i >= 0; i--) {
+                        inputA[i] = inputA[i] & inputB[i];
+
+                        if (inputA[i])
+                            isZero = false;
+                    }
+                    return;
+                case SubOperation.Xor:
+                    for (int i = inputA.Length - 1; i >= 0; i--) {
+                        inputA[i] = inputA[i] ^ inputB[i];
+
+                        if (inputA[i])
+                            isZero = false;
+                    }
+                    return;
+                case SubOperation.Sl:
+                    bool prev = false;
+                    for (int i = inputA.Length - 1; i >= 0; i--) {
+                        var curr = inputA[i];
+                        inputA[i] = prev;
+                        prev = curr;
+
+                        if (inputA[i])
+                            isZero = false;
+                    }
+                    return;
+                case SubOperation.Sr:
+                    prev = false;
+                    for (int i = 0; i < inputA.Length; i++) {
+                        var curr = inputA[i];
+                        inputA[i] = prev;
+                        prev = curr;
+
+                        if (inputA[i])
+                            isZero = false;
+                    }
+                    return;
+
+                default:
+                    return;
+            }
         }
 
         private void WriteOutput() {
@@ -84,7 +159,7 @@ namespace Components.Adders {
             NegativeFlag.Write(inputA[0]);
 
             var overflow =
-                SubstractEnable ?
+                C ?
                     !Inputs[0] && Inputs[inputA.Length] && inputA[0] ||
                     Inputs[0] && !Inputs[inputA.Length] && !inputA[0]
                 :
@@ -93,6 +168,30 @@ namespace Components.Adders {
 
             OverflowFlag.Write(overflow);
             ZeroFlag.Write(isZero);
+        }
+
+        private SubOperation GetSubOperation() {
+            bool a = A, b = B, c = C;
+
+            if (!a && !b && !c) {
+                return SubOperation.None;
+            } else if (!a && !b && c) {
+                return SubOperation.Subtract;
+            } else if (!a && b && !c) {
+                return SubOperation.Not;
+            } else if (!a && b && c) {
+                return SubOperation.Or;
+            } else if (a && !b && !c) {
+                return SubOperation.And;
+            } else if (a && !b && c) {
+                return SubOperation.Xor;
+            } else if (a && b && !c) {
+                return SubOperation.Sl;
+            } else if (a && b && c) {
+                return SubOperation.Sr;
+            }
+
+            return SubOperation.None;
         }
 
         public void Dispose() {

@@ -32,9 +32,9 @@ namespace KPC8.ControlSignals {
         RegB_le         =       0b00000010000000000000000000000000,
         RegBToBus_oe    =       0b00000100000000000000000000000000,
         Alu_oe          =       0b00001000000000000000000000000000,
-        Alu_sube        =       0b00010000000000000000000000000000,
-        unassigned2     =       0b00100000000000000000000000000000,
-        unassigned3     =       0b01000000000000000000000000000000,
+        Alu_a           =       0b00010000000000000000000000000000,
+        Alu_b           =       0b00100000000000000000000000000000,
+        Alu_c           =       0b01000000000000000000000000000000,
         unassigned4     =       0b10000000000000000000000000000000,
     }
 
@@ -58,6 +58,18 @@ namespace KPC8.ControlSignals {
         public const ControlSignalType Irr_en = ControlSignalType.Irr_b;
         public const ControlSignalType Irr_dis = ControlSignalType.Irr_a;
         public const ControlSignalType Irr_ack_toggle = ControlSignalType.Irr_a | ControlSignalType.Irr_b;
+
+        #endregion
+
+        #region Alu
+
+        public const ControlSignalType Alu_sub = ControlSignalType.Alu_c;
+        public const ControlSignalType Alu_not = ControlSignalType.Alu_b;
+        public const ControlSignalType Alu_or = ControlSignalType.Alu_b | ControlSignalType.Alu_c;
+        public const ControlSignalType Alu_and = ControlSignalType.Alu_a;
+        public const ControlSignalType Alu_xor = ControlSignalType.Alu_a | ControlSignalType.Alu_c;
+        public const ControlSignalType Alu_sl = ControlSignalType.Alu_a | ControlSignalType.Alu_b;
+        public const ControlSignalType Alu_sr = ControlSignalType.Alu_b | ControlSignalType.Alu_b | ControlSignalType.Alu_c;
 
         #endregion
     }

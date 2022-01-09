@@ -92,7 +92,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             Enable(cs.RegB_le);
             MakeTickAndWait();
 
-            Enable(cs.Alu_sube);
+            Enable(cs.Alu_c);
             Enable(cs.Alu_oe);
             MakeTickAndWait();
 

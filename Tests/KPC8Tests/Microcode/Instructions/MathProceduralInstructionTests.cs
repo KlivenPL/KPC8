@@ -108,7 +108,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         }
 
         [Fact]
-        public void SubI_RunTwice_ThenAdd_T4ContainsSubResult() {
+        public void SubI_RunTwice_ThenSub_T4ContainsSubResult() {
             var subIInstruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.SubI));
             var subInstruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.Sub));
             var expectedT1 = BitArrayHelper.FromString($"11010100");

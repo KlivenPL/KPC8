@@ -9,6 +9,6 @@ namespace Components.Adders {
         public SignalPort OverflowFlag { get; }
         public SignalPort NegativeFlag { get; }
         public SignalPort OutputEnable { get; }
-        public SignalPort SubstractEnable { get; }
+        public SignalPort C { get; }
     }
 }

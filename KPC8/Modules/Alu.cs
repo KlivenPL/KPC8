@@ -26,8 +26,8 @@ namespace KPC8.Modules {
         public BitArray RegFlagsContent => regFlags.Content;
 
         public Alu(Signal mainClock, IBus dataBus, IBus flagsBus) {
-            adder = new HLAdder("Adder",8);
-            regA = new HLRegister(nameof(regA),8);
+            adder = new HLAdder("Adder", 8);
+            regA = new HLRegister(nameof(regA), 8);
             regB = new HLRegister(nameof(regB), 8);
             regFlags = new HLRegister(nameof(regFlags), 4);
             regAToDataBus = new HLTransciever(nameof(regAToDataBus), 8);
@@ -90,7 +90,9 @@ namespace KPC8.Modules {
                 RegA_le = controlBus.ConnectAsControlSignal(ControlSignalType.RegA_le, regA.LoadEnable),
                 RegB_le = controlBus.ConnectAsControlSignal(ControlSignalType.RegB_le, regB.LoadEnable),
                 Alu_oe = controlBus.ConnectAsControlSignal(ControlSignalType.Alu_oe, adder.OutputEnable),
-                Alu_sube = controlBus.ConnectAsControlSignal(ControlSignalType.Alu_sube, adder.SubstractEnable),
+                Alu_a = controlBus.ConnectAsControlSignal(ControlSignalType.Alu_a, adder.A),
+                Alu_b = controlBus.ConnectAsControlSignal(ControlSignalType.Alu_b, adder.B),
+                Alu_c = controlBus.ConnectAsControlSignal(ControlSignalType.Alu_c, adder.C),
             };
         }
     }

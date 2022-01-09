@@ -99,8 +99,14 @@ namespace KPC8.ControlSignals {
             [ControlSignal(ControlSignalType.Alu_oe)]
             public Signal Alu_oe { get; init; }
 
-            [ControlSignal(ControlSignalType.Alu_sube)]
-            public Signal Alu_sube { get; init; }
+            [ControlSignal(ControlSignalType.Alu_a)]
+            public Signal Alu_a { get; init; }
+
+            [ControlSignal(ControlSignalType.Alu_b)]
+            public Signal Alu_b { get; init; }
+
+            [ControlSignal(ControlSignalType.Alu_c)]
+            public Signal Alu_c { get; init; }
         }
     }
 }
