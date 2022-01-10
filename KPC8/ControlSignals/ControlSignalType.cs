@@ -35,7 +35,11 @@ namespace KPC8.ControlSignals {
         Alu_a           =       0b00010000000000000000000000000000,
         Alu_b           =       0b00100000000000000000000000000000,
         Alu_c           =       0b01000000000000000000000000000000,
-        unassigned4     =       0b10000000000000000000000000000000,
+
+        /// <summary>
+        /// Great power comes with great responsibility. Make sure that usage won't fuck things up.
+        /// </summary>
+        MODIFIER        =       0b10000000000000000000000000000000, 
     }
 
     public static class CombinedControlSignals {
@@ -69,7 +73,13 @@ namespace KPC8.ControlSignals {
         public const ControlSignalType Alu_and = ControlSignalType.Alu_a;
         public const ControlSignalType Alu_xor = ControlSignalType.Alu_a | ControlSignalType.Alu_c;
         public const ControlSignalType Alu_sl = ControlSignalType.Alu_a | ControlSignalType.Alu_b;
-        public const ControlSignalType Alu_sr = ControlSignalType.Alu_b | ControlSignalType.Alu_b | ControlSignalType.Alu_c;
+        public const ControlSignalType Alu_sr = ControlSignalType.Alu_a | ControlSignalType.Alu_b | ControlSignalType.Alu_c;
+
+        #endregion
+
+        #region Modifier
+
+        public const ControlSignalType MODIFIER_Alu_carry_en = ControlSignalType.MODIFIER;
 
         #endregion
     }

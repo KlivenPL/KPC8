@@ -1,6 +1,7 @@
 ﻿using _Infrastructure.BitArrays;
 using Components.Adders;
 using Components.Buses;
+using Components.Logic;
 using Components.Registers;
 using Components.Signals;
 using Components.Transcievers;
@@ -16,6 +17,7 @@ namespace KPC8.Modules {
         private readonly HLRegister regFlags;
         private readonly HLTransciever regAToDataBus;
         private readonly HLTransciever regBToDataBus;
+        private readonly SingleAndGate useCarryInOnModifier;
 
         private Signal regA_oe_const;
         private Signal regB_oe_const;
@@ -32,6 +34,7 @@ namespace KPC8.Modules {
             regFlags = new HLRegister(nameof(regFlags), 4);
             regAToDataBus = new HLTransciever(nameof(regAToDataBus), 8);
             regBToDataBus = new HLTransciever(nameof(regBToDataBus), 8);
+            useCarryInOnModifier = new SingleAndGate(nameof(useCarryInOnModifier), 2);
 
             ConnectInternals();
             CreateAndSetConstSignals();
@@ -57,6 +60,9 @@ namespace KPC8.Modules {
             Signal.Factory.CreateAndConnectPort("NfToRegFlags", adder.NegativeFlag, regFlags.Inputs[2]);
             Signal.Factory.CreateAndConnectPort("CfToRegFlags", adder.CarryFlag, regFlags.Inputs[1]);
             Signal.Factory.CreateAndConnectPort("OfToRegFlags", adder.OverflowFlag, regFlags.Inputs[0]);
+
+            Signal.Factory.CreateAndConnectPort("UseCarryInOnModifier_To_AdderCarryIn", useCarryInOnModifier.Output, adder.CarryIn);
+            Signal.Factory.CreateAndConnectPort("UseCarryInOnModifier_To_AdderCarryIn", adder.CarryFlag, useCarryInOnModifier.Inputs[0]);
         }
 
         protected override void CreateAndSetConstSignals() {
@@ -83,6 +89,9 @@ namespace KPC8.Modules {
 
         public override CsPanel.AluPanel CreateControlPanel(IBus controlBus) {
             regFlags.LoadEnable.PlugIn(controlBus.GetControlSignal(ControlSignalType.Alu_oe));
+
+            var modifier = controlBus.GetControlSignal(ControlSignalType.MODIFIER);
+            useCarryInOnModifier.Inputs[1].PlugIn(modifier);
 
             return new CsPanel.AluPanel {
                 RegAToBus_oe = controlBus.ConnectAsControlSignal(ControlSignalType.RegAToBus_oe, regAToDataBus.OutputEnable),

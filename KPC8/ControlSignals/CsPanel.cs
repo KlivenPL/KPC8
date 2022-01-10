@@ -8,6 +8,9 @@ namespace KPC8.ControlSignals {
         public RegsPanel Regs { get; init; }
         public AluPanel Alu { get; init; }
 
+        [ControlSignal(ControlSignalType.MODIFIER)]
+        public Signal Modifier { get; init; }
+
         public class MemoryPanel : ICsPanel {
             [ControlSignal(ControlSignalType.Pc_le_hi)]
             public Signal Pc_le_hi { get; init; }

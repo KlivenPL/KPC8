@@ -1,5 +1,6 @@
 ﻿using Components.Buses;
 using Components.Clocks;
+using KPC8._Infrastructure.Components;
 using KPC8.Microcode;
 using KPC8.Modules;
 using KPC8.RomProgrammers.Microcode;
@@ -91,7 +92,8 @@ namespace KPC8.ControlSignals {
                 Mem = createMemoryPanel?.Invoke(),
                 Ctrl = createControlPanel?.Invoke(),
                 Regs = createRegsPanel?.Invoke(),
-                Alu = createAluPanel?.Invoke()
+                Alu = createAluPanel?.Invoke(),
+                Modifier = controlBus.GetControlSignal(ControlSignalType.MODIFIER),
             };
         }
 
