@@ -25,6 +25,7 @@ namespace KPC8.Modules {
 
         public BitArray RegAContent => regA.Content;
         public BitArray RegBContent => regB.Content;
+        public BitArray AdderContent => adder.Content;
         public BitArray RegFlagsContent => regFlags.Content;
 
         public Alu(Signal mainClock, IBus dataBus, IBus flagsBus) {
@@ -62,7 +63,6 @@ namespace KPC8.Modules {
             Signal.Factory.CreateAndConnectPort("OfToRegFlags", adder.OverflowFlag, regFlags.Inputs[0]);
 
             Signal.Factory.CreateAndConnectPort("UseCarryInOnModifier_To_AdderCarryIn", useCarryInOnModifier.Output, adder.CarryIn);
-            Signal.Factory.CreateAndConnectPort("UseCarryInOnModifier_To_AdderCarryIn", adder.CarryFlag, useCarryInOnModifier.Inputs[0]);
         }
 
         protected override void CreateAndSetConstSignals() {
@@ -84,7 +84,8 @@ namespace KPC8.Modules {
 
         protected override void ConnectFlagsBus(IBus flagsBus) {
             flagsBus
-                .Connect(0, 4, regFlags.Outputs);
+                .Connect(0, 4, regFlags.Outputs)
+                .Connect(1, useCarryInOnModifier.Inputs[0]);
         }
 
         public override CsPanel.AluPanel CreateControlPanel(IBus controlBus) {

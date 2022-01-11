@@ -4,9 +4,14 @@ using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
 using Tests._Infrastructure;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests.KPC8Tests.Microcode.Instructions {
     public class MathProceduralInstructionTests : McInstructionTestBase {
+        public MathProceduralInstructionTests(ITestOutputHelper debug) : base(debug) {
+
+        }
+
         [Fact]
         public void AddI_RunOnce_T2ContainsImmediateValue() {
             var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
@@ -134,6 +139,93 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             BitAssert.Equality(expectedT1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(expectedT2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+        }
+
+        [Fact]
+        public void Sub_SameNumbers_ResultZero() {
+            var subInstruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.Sub));
+            var zero = BitArrayHelper.FromString("00000000");
+            var random = BitArrayHelper.FromString($"10101010");
+            var expectedT1 = BitArrayHelper.FromString($"11010100");
+            var expectedT2 = BitArrayHelper.FromString($"11010100");
+            var expectedResult = BitArrayHelper.FromString("00000000");
+
+            EncodeInstruction(subInstruction, Regs.T4, Regs.T1, Regs.T2, out var subInstructionHigh1, out var subInstructionLow1);
+
+            var romData = new[] {
+                subInstructionHigh1, subInstructionLow1,
+            };
+
+            var cp = BuildPcModules(romData, out var modules);
+
+            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), zero.MergeWith(expectedT1));
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(expectedT2));
+
+            modules.Registers.SetWholeRegContent(Regs.T4.GetIndex(), zero.MergeWith(random));
+
+            BitAssert.Equality(random, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            StepThroughInstruction(modules, subInstruction);
+
+            BitAssert.Equality(expectedT1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
+            BitAssert.Equality(expectedT2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
+            BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+        }
+
+        [Theory]
+        [InlineData("11111111 00000000", "00000000 11111111", "11111111 11111111")]
+        [InlineData("11111111 11111111", "00000000 00100100", "00000000 00100011")]
+        [InlineData("11111111 11011100", "10000000 00000000", "01111111 11011100")]
+        [InlineData("11111111 11011100", "01111111 11111111", "01111111 11011011")]
+        public void AddC(string aStr, string bStr, string resultStr) {
+            var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddC));
+            var aVal = BitArrayHelper.FromString(aStr);
+            var bVal = BitArrayHelper.FromString(bStr);
+            var result = BitArrayHelper.FromString(resultStr);
+
+            EncodeInstruction(instruction, Regs.T1, Regs.T2, Regs.T3, out var addCHigh, out var addCLow);
+
+            var romData = new[] {
+                addCHigh, addCLow,
+            };
+
+            var cp = BuildPcModules(romData, out var modules);
+
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), aVal);
+            modules.Registers.SetWholeRegContent(Regs.T3.GetIndex(), bVal);
+
+            StepThroughInstruction(modules, instruction);
+            BitAssert.Equality(result, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
+        }
+
+        [Theory]
+        [InlineData("00000000 00000000", "00000000 00000000")]
+        [InlineData("00000000 00000001", "11111111 11111111")]
+        [InlineData("00000000 11111111", "11111111 00000001")]
+        [InlineData("11111111 00000000", "00000001 00000000")]
+        [InlineData("00001000 01011001", "11110111 10100111")]
+        [InlineData("11111111 11011100", "00000000 00100100")]
+        public void NegC(string originalStr, string negatedStr) {
+            var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.NegC));
+            var original = BitArrayHelper.FromString(originalStr);
+            var negated = BitArrayHelper.FromString(negatedStr);
+
+            EncodeInstruction(instruction, Regs.T1, Regs.T2, Regs.Zero, out var negCHigh1, out var negCLow1);
+            EncodeInstruction(instruction, Regs.T1, Regs.T1, Regs.Zero, out var negCHigh2, out var negCLow2);
+
+            var romData = new[] {
+                negCHigh1, negCLow1,
+                negCHigh2, negCLow2,
+            };
+
+            var cp = BuildPcModules(romData, out var modules);
+
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), original);
+
+            StepThroughInstruction(modules, instruction);
+            BitAssert.Equality(negated, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
+
+            StepThroughInstruction(modules, instruction);
+            BitAssert.Equality(original, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
         }
     }
 }

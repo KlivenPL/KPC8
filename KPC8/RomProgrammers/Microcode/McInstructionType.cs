@@ -20,8 +20,11 @@ namespace KPC8.RomProgrammers.Microcode {
         [McInstructionDevName("AddC")]
         AddC = 0x14,
 
-        [McInstructionDevName("AddIC")]
-        AddIC = 0x15,
+        /*[McInstructionDevName("AddIC")]
+        AddIC = 0x15,*/
+
+        [McInstructionDevName("NegC")]
+        NegC = 0x1C,
 
         /*[McInstructionDevName("Mov")]
         Mov = 0x16,

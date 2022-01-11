@@ -19,6 +19,7 @@ namespace KPC8.Modules {
         public BitArray GetWholeRegContent(int index) => regs[index].Content;
         public BitArray GetLoRegContent(int index) => regs[index].Content.Skip(8);
         public BitArray GetHiRegContent(int index) => regs[index].Content.Take(8);
+        public void SetWholeRegContent(int index, BitArray value) => regs[index].SetContent(value);
         public bool IsRegSelected(int index) => regs[index].ChipEnable;
 
         public Registers(Signal mainClock, IBus dataBus, IBus registerSelectBus) {

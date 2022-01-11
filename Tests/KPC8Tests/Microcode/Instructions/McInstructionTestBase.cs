@@ -6,9 +6,16 @@ using KPC8.RomProgrammers.Microcode;
 using System.Collections;
 using System.Linq;
 using Tests._Infrastructure;
+using Xunit.Abstractions;
 
 namespace Tests.KPC8Tests.Microcode.Instructions {
     public abstract class McInstructionTestBase : TestBase {
+        protected ITestOutputHelper Debug { get; private set; }
+
+        public McInstructionTestBase(ITestOutputHelper debug) {
+            Debug = debug;
+        }
+
         protected void EncodeInstruction(McInstruction instruction, Regs regDest, Regs regA, Regs regB, out BitArray instructionHigh, out BitArray instructionLow) {
             var opCode = instruction.OpCode;
 
@@ -32,6 +39,8 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             for (int i = 0; i < instruction.PreAndInstructionStepsCount; i++) {
                 BitAssert.Equality(steps[i].ToBitArray(), modules.ControlBus.Lanes, GetCsErrorMessage(i, steps[i], modules.ControlBus.Lanes));
                 MakeTickAndWait();
+                Debug.WriteLine($"Done instruction {i}:\t{steps[i]}");
+                var debugDot = 1;
             }
         }
 

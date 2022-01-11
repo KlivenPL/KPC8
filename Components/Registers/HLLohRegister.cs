@@ -17,6 +17,11 @@ namespace Components.Registers {
         public SignalPort ChipEnable { get; protected set; } = new SignalPort();
 
         public BitArray Content => new(mainBuffer);
+        public void SetContent(BitArray value) {
+            for (int i = 0; i < mainBuffer.Length; i++) {
+                mainBuffer[i] = value[i];
+            }
+        }
 
         private bool clkEdgeRise = false;
         private readonly int size;
