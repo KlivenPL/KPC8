@@ -10,13 +10,15 @@ namespace Components.Clocks {
         private ClockMode mode;
         private Stopwatch sw;
 
-        private long cycles = 0;
-        public event Action<Clock> OnCycle;
+        public long Cycles { get; private set; } = 0;
+        private long halfPeriod = 0;
+        /*public event Action<Clock> OnCycle;*/
 
         public Clock(Signal clkSignal, Signal clkBarSignal, ClockMode mode, long periodInTicks) {
             sw = new Stopwatch();
             Mode = mode;
             PeriodInTicks = periodInTicks;
+            halfPeriod = PeriodInTicks / 2L;
             Clk = clkSignal;
             ClkBar = clkBarSignal;
 
@@ -75,18 +77,18 @@ namespace Components.Clocks {
         private void AutomaticUpdate() {
             timer += 1;
 
-            Clk.Value = timer <= PeriodInTicks / 2L;
+            Clk.Value = timer <= halfPeriod;
             ClkBar.Value = !Clk.Value;
 
             if (timer >= PeriodInTicks) {
-                if (++cycles % 100000 == 0) {
-                    var t = (decimal)sw.ElapsedTicks / cycles / Stopwatch.Frequency;
+                if (++Cycles % 100000 == 0) {
+                    var t = (decimal)sw.ElapsedTicks / Cycles / Stopwatch.Frequency;
                     Console.WriteLine($"Running clock in { 1L / t / 1000:f} KHz ({t * 1000000000:f}ns)");
-                    cycles = 0;
+                    Cycles = 0;
                     sw.Restart();
                 }
 
-                OnCycle?.Invoke(this);
+                /*OnCycle?.Invoke(this);*/
                 timer = 0L;
             }
         }
@@ -96,11 +98,11 @@ namespace Components.Clocks {
                 timer += 1;
             }
 
-            Clk.Value = timer <= PeriodInTicks / 2L && IsManualTickInProgress;
+            Clk.Value = timer <= halfPeriod && IsManualTickInProgress;
             ClkBar.Value = !Clk.Value;
 
             if (timer >= PeriodInTicks) {
-                OnCycle?.Invoke(this);
+                /*OnCycle?.Invoke(this);*/
                 timer = -1L;
             }
         }

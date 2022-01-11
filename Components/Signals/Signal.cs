@@ -3,7 +3,7 @@
 namespace Components.Signals {
     public sealed partial class Signal : IEquatable<Signal> {
         private readonly string name;
-        private Signal masterSignal;
+        /*private Signal masterSignal;*/
         private bool value;
 
         public void SetValueWithoutTriggeringEvents(bool value) {
@@ -58,11 +58,11 @@ namespace Components.Signals {
         }
 
         public bool Value {
-            get => masterSignal?.Value ?? value;
+            get => /*masterSignal?.Value ??*/ value;
             set {
-                if (masterSignal != null) {
+                /*if (masterSignal != null) {
                     throw new Exception("Cannot set value of slave's signal. Change the master signal instead.");
-                }
+                }*/
 
                 if (this.value == value) {
                     return;
@@ -73,13 +73,13 @@ namespace Components.Signals {
             }
         }
 
-        public void SetMaster(Signal masterSignal) {
+        /*public void SetMaster(Signal masterSignal) {
             if (this.masterSignal != null) {
                 throw new Exception("Cannot set master signal, as master is already set.");
             }
 
             this.masterSignal = masterSignal;
-        }
+        }*/
 
         public override string ToString() {
             return Value ? "1" : "0";

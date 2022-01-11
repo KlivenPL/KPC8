@@ -1,12 +1,15 @@
 ﻿using Autofac.Features.AttributeFilters;
 using Components.Clocks;
 using Components.Signals;
+using Infrastructure.BitArrays;
 using KPC8.Clocks;
 using KPC8.ControlSignals;
+using KPC8.ProgRegs;
 using Simulation.Loops;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KPC8 {
     class Application {
@@ -15,6 +18,7 @@ namespace KPC8 {
         private readonly SimulationLoop loop;
 
         private CsPanel cp;
+        private ModulePanel modules;
 
         public Application(
             [KeyFilter(ClockType.MainClock)] Clock mainClock,
@@ -32,9 +36,18 @@ namespace KPC8 {
                 MakeTickAndWait();
                 if (ShouldEscape()) break;
             }*/
-            while (true) {
-                loop.Loop();
-            }
+            var originalStr = "00001000 01011001";
+            var original = BitArrayHelper.FromString(originalStr);
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), original);
+           // while (true) {
+
+                for (int i = 0; i < 100000000; i++) {
+                    loop.Loop();
+                    /*mainClock.MakeTick();
+                    loop.Loop();*/
+                //Console.WriteLine(mainClock.Cycles +  " " + mainClock.Clk + " " + modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()).ToPrettyBitString());
+                }
+            //}
         }
 
 
@@ -45,13 +58,21 @@ namespace KPC8 {
         }
 
         private void Create(BitArray[] initialMemory = null) {
+            var instrHi = BitArrayHelper.FromString("01110000");
+            var instrlo = BitArrayHelper.FromString("01010000");
+            initialMemory = Enumerable.Range(0, ushort.MaxValue / 2).Select(i => i % 2 == 0 ? instrHi : instrlo).ToArray();
+
             cp = new CpuBuilder(mainClock)
                 .WithControlModule(null, true)
-                .WithMemoryModule(null, null)
-                .WithRegistersModule()
-                .WithAluModule()
-                .Build();
+               .WithMemoryModule(initialMemory, null)
+               .WithRegistersModule()
+               .WithAluModule()
+               .BuildWithModulesAccess(out modules);
 
+            /*loop.Loop();
+            loop.Loop();
+            loop.Loop();
+            loop.Loop();*/
         }
 
         private void MakeTickAndWait() {
