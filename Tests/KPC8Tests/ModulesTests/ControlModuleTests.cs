@@ -244,7 +244,7 @@ namespace Tests.KPC8Tests.ModulesTests {
             var totalInstruction = instrHi.MergeWith(instrLo);
 
             var decodedDecDest = new BitArray(16);
-            decodedDecDest.Set(BitArrayHelper.FromString($"01{decRegEncoded}").ToIntLE(), true);
+            decodedDecDest.Set(BitArrayHelper.FromString($"01{decRegEncoded}").GetSignedValueLE(), true);
 
             var module = CreateControlModule(out var dataBus, out var registerSelectBus, out var controlBus, out var flagsBus, out var cs);
 

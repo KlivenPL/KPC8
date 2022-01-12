@@ -18,7 +18,7 @@ namespace KPC8.ProgRegs {
         }
 
         public static BitArray GetDecodedAddress(this Regs reg) {
-            return BitArrayHelper.FromUShortLE((ushort)reg);
+            return BitArrayHelper.FromUShort((ushort)reg);
         }
     }
 }

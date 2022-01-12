@@ -56,32 +56,6 @@ namespace Infrastructure.BitArrays {
             return new BitArray(str.Select(c => c == '1').ToArray());
         }
 
-        public static BitArray FromUIntLE(uint uint32) {
-            var ba = new BitArray(32);
-            var byteArray = BitConverter.GetBytes(uint32);
-            for (int i = byteArray.Length - 1; i >= 0; i--) {
-                var tmpBa = FromByteLE(byteArray[i]);
-                for (int j = 0; j < 8; j++) {
-                    ba[8 * (byteArray.Length - i - 1) + j] = tmpBa[j];
-                }
-            }
-            return ba;
-        }
-
-        public static BitArray FromUShortLE(ushort ushort16) {
-            return new BitArray(BitConverter.GetBytes(ushort16).ToArray());
-        }
-
-        public static BitArray FromByteLE(byte @byte) {
-            var ba = new BitArray(new[] { @byte });
-            ba.Reverse();
-            return ba;
-        }
-
-        /*public static BitArray FromUIntEnumLE<TEnum>(TEnum uint32Enum) where TEnum : Enum {
-            return new BitArray(BitConverter.GetBytes((uint)(object)uint32Enum).Reverse().ToArray());
-        }*/
-
         public static string ToBitString(this BitArray bitArray) {
             if (bitArray == null)
                 return null;
@@ -156,9 +130,69 @@ namespace Infrastructure.BitArrays {
             return FromString(bitArray.ToBitString().Substring(0, bitArray.Count - skip));
         }
 
+        public static BitArray FromIntLE(int int32) {
+            var ba = new BitArray(BitConverter.GetBytes(int32));
+            ba.Reverse();
+            return ba;
+        }
+
+        public static BitArray FromUIntLE(uint uint32) {
+            var ba = new BitArray(BitConverter.GetBytes(uint32));
+            ba.Reverse();
+            return ba;
+        }
+
+        public static BitArray FromShortLE(short short16) {
+            var ba = new BitArray(BitConverter.GetBytes(short16));
+            ba.Reverse();
+            return ba;
+        }
+
+        public static BitArray FromUShortLE(ushort ushort16) {
+            var ba = new BitArray(BitConverter.GetBytes(ushort16));
+            ba.Reverse();
+            return ba;
+        }
+
+        public static BitArray FromByteLE(byte @byte) {
+            var ba = new BitArray(new[] { @byte });
+            ba.Reverse();
+            return ba;
+        }
+
+        public static BitArray FromSByteLE(sbyte @byte) {
+            var ba = new BitArray(new[] { (byte)@byte });
+            ba.Reverse();
+            return ba;
+        }
+
+        public static BitArray FromInt(int int32) {
+            return new BitArray(BitConverter.GetBytes(int32));
+        }
+
+        public static BitArray FromUInt(uint uint32) {
+            return new BitArray(BitConverter.GetBytes(uint32));
+        }
+
+        public static BitArray FromShort(short short16) {
+            return new BitArray(BitConverter.GetBytes(short16));
+        }
+
+        public static BitArray FromUShort(ushort ushort16) {
+            return new BitArray(BitConverter.GetBytes(ushort16));
+        }
+
+        public static BitArray FromByte(byte @byte) {
+            return new BitArray(new[] { @byte });
+        }
+
+        public static BitArray FromSByte(sbyte @byte) {
+            return new BitArray(new[] { (byte)@byte });
+        }
+
         public static byte ToByte(this BitArray bitArray) {
-            if (bitArray.Length > 8)
-                throw new Exception("Length must not be greater than 8");
+            if (bitArray.Length != 8)
+                throw new Exception("Length must be equal to 8");
 
             byte[] array = new byte[1];
             bitArray.CopyTo(array, 0);
@@ -166,39 +200,101 @@ namespace Infrastructure.BitArrays {
         }
 
         public static byte ToByteLE(this BitArray bitArray) {
-            if (bitArray.Length > 8)
-                throw new Exception("Length must not be greater than 8");
+            if (bitArray.Length != 8)
+                throw new Exception("Length must be equal to 8");
 
-            var copy = new BitArray(bitArray);
-            copy.Reverse();
+            int sum = 0;
+            for (int i = 7; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << 7 - i : 0;
+            }
 
-            byte[] array = new byte[1];
-            copy.CopyTo(array, 0);
-            return array[0];
+            return (byte)sum;
+        }
+
+        public static sbyte ToSByteLE(this BitArray bitArray) {
+            if (bitArray.Length != 8)
+                throw new Exception("Length must be equal to 8");
+
+            int sum = 0;
+            for (int i = 7; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << 7 - i : 0;
+            }
+
+            return (sbyte)sum;
+        }
+
+        public static short ToShortLE(this BitArray bitArray) {
+            if (bitArray.Length != 16)
+                throw new Exception("Length must be equal to 16");
+
+            int sum = 0;
+            for (int i = 15; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << 15 - i : 0;
+            }
+
+            return (short)sum;
+        }
+
+        public static ushort ToUShortLE(this BitArray bitArray) {
+            if (bitArray.Length != 16)
+                throw new Exception("Length must be equal to 16");
+
+            int sum = 0;
+            for (int i = 15; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << 15 - i : 0;
+            }
+
+            return (ushort)sum;
         }
 
         public static int ToIntLE(this BitArray bitArray) {
-            if (bitArray.Length > 32)
-                throw new Exception("Length must not be greater than 32");
+            if (bitArray.Length != 32)
+                throw new Exception("Length must be equal to 32");
 
-            var copy = new BitArray(bitArray);
-            copy.Reverse();
+            int sum = 0;
+            for (int i = 31; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << 31 - i : 0;
+            }
 
-            byte[] array = new byte[4];
-            copy.CopyTo(array, 0);
-            return BitConverter.ToInt32(array);
+            return sum;
         }
 
         public static uint ToUIntLE(this BitArray bitArray) {
+            if (bitArray.Length != 32)
+                throw new Exception("Length must be equal to 32");
+
+            int sum = 0;
+            for (int i = 31; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << 31 - i : 0;
+            }
+
+            return (uint)sum;
+        }
+
+        public static int GetSignedValueLE(this BitArray bitArray) {
             if (bitArray.Length > 32)
-                throw new Exception("Length must not be greater than 32");
+                throw new Exception("Length must be less or equal to 32");
 
-            var copy = new BitArray(bitArray);
-            copy.Reverse();
+            var lengthMinusOne = bitArray.Length - 1;
+            int sum = 0;
+            for (int i = lengthMinusOne; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << lengthMinusOne - i : 0;
+            }
 
-            byte[] array = new byte[4];
-            copy.CopyTo(array, 0);
-            return BitConverter.ToUInt32(array);
+            return sum;
+        }
+
+        public static uint GetUnsignedValueLE(this BitArray bitArray) {
+            if (bitArray.Length > 32)
+                throw new Exception("Length must be less equal to 32");
+
+            var lengthMinusOne = bitArray.Length - 1;
+            int sum = 0;
+            for (int i = lengthMinusOne; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << lengthMinusOne - i : 0;
+            }
+
+            return (uint)sum;
         }
 
         public static void Reverse(this BitArray array) {
