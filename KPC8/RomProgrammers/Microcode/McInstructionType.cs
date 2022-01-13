@@ -5,6 +5,34 @@ namespace KPC8.RomProgrammers.Microcode {
         [McInstructionName("Nop")]
         Nop = 0x0,
 
+        #region Load
+
+        [McInstructionName("Lbrom")]
+        Lbrom = 0x01,
+
+        [McInstructionName("Lbromo")]
+        Lbromo = 0x02,
+
+        [McInstructionName("Lwrom")]
+        Lwrom = 0x03,
+
+        [McInstructionName("Lwromo")]
+        Lwromo = 0x04,
+
+        [McInstructionName("Lbram")]
+        Lbram = 0x05,
+
+        [McInstructionName("Lbramo")]
+        Lbramo = 0x06,
+
+        [McInstructionName("Lwram")]
+        Lwram = 0x07,
+
+        [McInstructionName("Lwramo")]
+        Lwramo = 0x08,
+
+        #endregion
+
         #region Math
 
         [McInstructionName("Add")]

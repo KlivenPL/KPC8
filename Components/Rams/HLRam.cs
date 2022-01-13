@@ -43,7 +43,7 @@ namespace Components.Rams {
                 }
             } else {
                 for (int i = 0; i < initialMemory.Length; i++) {
-                    memory[i] = new BitArray(initialMemory[i]);
+                    memory[i] = new BitArray(initialMemory[i] ?? new BitArray(DataSize));
                 }
                 if (initialMemory.Length < MemorySizeInBytes) {
                     for (int i = initialMemory.Length; i < MemorySizeInBytes; i++) {

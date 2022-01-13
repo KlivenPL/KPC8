@@ -1,11 +1,9 @@
-﻿using _Infrastructure.BitArrays;
-using Infrastructure.BitArrays;
+﻿using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
 using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
 using System.Collections;
 using System.Linq;
-using Tests._Infrastructure;
 using Xunit.Abstractions;
 
 namespace Tests.KPC8Tests.Microcode.Instructions {
@@ -44,10 +42,10 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             }
         }
 
-        protected virtual CsPanel BuildPcModules(BitArray[] romData, out ModulePanel modules) {
+        protected virtual CsPanel BuildPcModules(BitArray[] romData, BitArray[] ramData, out ModulePanel modules) {
             var cp = new CpuBuilder(_testClock)
                .WithControlModule(null, true)
-               .WithMemoryModule(romData, null)
+               .WithMemoryModule(romData, ramData)
                .WithRegistersModule()
                .WithAluModule()
                .BuildWithModulesAccess(out modules);
@@ -55,6 +53,10 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             MakeOnlyLoops();
 
             return cp;
+        }
+
+        protected virtual CsPanel BuildPcModules(BitArray[] romData, out ModulePanel modules) {
+            return BuildPcModules(romData, null, out modules);
         }
     }
 }
