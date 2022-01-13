@@ -44,9 +44,9 @@ namespace KPC8.Microcode {
         }
 
 
-        [ProceduralInstruction(McInstructionType.AddW)]
+        [ProceduralInstruction(McInstructionType.Addw)]
         [InstructionFormat(McInstructionFormat.Register)]
-        public static IEnumerable<Cs> AddW() {
+        public static IEnumerable<Cs> Addw() {
             yield return Cs.DecA_oe | CsComb.Regs_oe_lo | Cs.RegA_le; // a = regsA_lo
             yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.RegB_le; // b = regsB_lo
             yield return Cs.Alu_oe | Cs.DecDest_oe | CsComb.Regs_le_lo; // dest_lo = regsA_lo + regsB_lo
@@ -56,9 +56,9 @@ namespace KPC8.Microcode {
         }
 
 
-        [ProceduralInstruction(McInstructionType.NegW)]
+        [ProceduralInstruction(McInstructionType.Negw)]
         [InstructionFormat(McInstructionFormat.Register, regBRestrictions: Regs.Zero)]
-        public static IEnumerable<Cs> NegW() {
+        public static IEnumerable<Cs> Negw() {
             yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.RegA_le | Cs.RegB_le; // a = 0, b = 0
             yield return CsComb.Alu_not | Cs.Alu_oe | Cs.RegB_le; // b = -1;
             yield return Cs.DecA_oe | CsComb.Regs_oe_lo | Cs.RegA_le; // a = val_lo;

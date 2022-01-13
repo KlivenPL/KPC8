@@ -19,11 +19,11 @@ namespace KPC8.RomProgrammers.Microcode {
         [McInstructionName("SubI")]
         SubI = 0x13,
 
-        [McInstructionName("AddW")]
-        AddW = 0x14,
+        [McInstructionName("Addw")]
+        Addw = 0x14,
 
-        [McInstructionName("NegW")]
-        NegW = 0x15,
+        [McInstructionName("Negw")]
+        Negw = 0x15,
 
         #endregion
 
@@ -46,6 +46,40 @@ namespace KPC8.RomProgrammers.Microcode {
 
         [McInstructionName("Srl")]
         Srl = 0x1B,
+
+        #endregion
+
+        #region Regs
+
+        [McInstructionName("Set")]
+        Set = 0x20,
+
+        [McInstructionName("SetI")]
+        SetI = 0x21,
+
+        [McInstructionName("Seth")]
+        Seth = 0x22,
+
+        [McInstructionName("SethI")]
+        SethI = 0x23,
+
+        [McInstructionName("Setw")]
+        Setw = 0x24,
+
+        [McInstructionName("Setloh")]
+        Setloh = 0x25,
+
+        [McInstructionName("Swap")]
+        Swap = 0x26,
+
+        [McInstructionName("Swaph")]
+        Swaph = 0x27,
+
+        [McInstructionName("Swapw")]
+        Swapw = 0x28,
+
+        [McInstructionName("Swaploh")]
+        Swaploh = 0x29,
 
         #endregion
 
