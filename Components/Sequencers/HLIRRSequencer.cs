@@ -17,8 +17,9 @@ namespace Components.Sequencers {
 
         public SignalPort Irr_a { get; protected set; } = new SignalPort(); // gets from CPU
         public SignalPort Irr_b { get; protected set; } = new SignalPort(); // gets from CPU
-        public SignalPort Ir_le_hi { get; protected set; } = new SignalPort(); // gets from CPU
-        public SignalPort Ir_le_lo { get; protected set; } = new SignalPort(); // gets from CPU
+
+        public SignalPort Ic_clr { get; protected set; } = new SignalPort(); // gets from CPU
+        public SignalPort Ir_le { get; protected set; } = new SignalPort(); // gets from CPU
 
         public SignalPort ShouldProcessInterrupt { get; protected set; } = new SignalPort();
         public SignalPort MainClock { get; protected set; } = new SignalPort();
@@ -28,6 +29,7 @@ namespace Components.Sequencers {
         private bool clkEdgeRise = false;
         private bool isBusyServingInterrupt = false;
         private bool deviceAbort = false;
+        private bool icCleared = false;
         private const int Size = 4;
 
         public HLIRRSequencer(string name) : base(name) {
@@ -41,6 +43,11 @@ namespace Components.Sequencers {
 
             MainClock.OnEdgeRise += Clk_OnEdgeRise;
             IRRRQ.OnEdgeFall += IRRRQ_OnEdgeFall;
+            Ic_clr.OnEdgeRise += Ic_clr_OnEdgeRise;
+        }
+
+        private void Ic_clr_OnEdgeRise() {
+            icCleared = true;
         }
 
         private void IRRRQ_OnEdgeFall() {
@@ -55,12 +62,15 @@ namespace Components.Sequencers {
             if (clkEdgeRise) {
                 LoadWhole();
 
-                if (!Irr_a && Irr_b) {
+                bool irr_a = Irr_a, irr_b = Irr_b;
+
+                if (!irr_a && irr_b) {
                     EN.Write(true);
-                } else if (Irr_a && !Irr_b) {
+                } else if (irr_a && !irr_b) {
                     EN.Write(false);
-                } else if (Irr_a && Irr_b) {
+                } else if (irr_a && irr_b) {
                     isBusyServingInterrupt = !isBusyServingInterrupt;
+                    icCleared = false;
                     if (!isBusyServingInterrupt) {
                         if (deviceAbort) {
                             deviceAbort = false;
@@ -74,7 +84,7 @@ namespace Components.Sequencers {
                 clkEdgeRise = false;
             }
 
-            var shouldProcessInterrupt = !isBusyServingInterrupt && (Ir_le_hi || Ir_le_lo) && IRRRQ && !RDY && EN;
+            var shouldProcessInterrupt = icCleared && !isBusyServingInterrupt && Ir_le && IRRRQ && !RDY && EN;
             if (shouldProcessInterrupt) {
                 OutputWhole();
             }
@@ -106,7 +116,7 @@ namespace Components.Sequencers {
         public override string ToString() {
             var sb = new StringBuilder();
             sb.AppendLine(base.ToString());
-            sb.AppendLine($"IRRRQ: {IRRRQ}, Irr_rdy: {RDY}, Irr_en: {EN}, Ir_le_hi_lo: {Ir_le_hi || Ir_le_lo}, Irr code: {IrrCode.ToPrettyBitString()}");
+            sb.AppendLine($"IRRRQ: {IRRRQ}, Irr_rdy: {RDY}, Irr_en: {EN}, Ir_le {Ir_le}, Irr code: {IrrCode.ToPrettyBitString()}");
 
             return sb.ToString();
         }

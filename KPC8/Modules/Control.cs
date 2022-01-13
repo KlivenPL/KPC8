@@ -211,8 +211,9 @@ namespace KPC8.Modules {
             ir.LoadEnableHigh.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));
             ir.LoadEnableLow.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
 
-            irr.Ir_le_hi.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));
-            irr.Ir_le_hi.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
+            irr.Ic_clr.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ic_clr));
+            irr.Ir_le.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));
+            irr.Ir_le.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
 
             return new CsPanel.ControlPanel {
                 Ir_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Ir_le_hi, ir_leHi_leLo_to_le.Inputs[0]),

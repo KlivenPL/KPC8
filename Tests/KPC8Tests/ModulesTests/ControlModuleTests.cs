@@ -49,9 +49,10 @@ namespace Tests.KPC8Tests.ModulesTests {
 
             dataBus.Write(instrHiIgnored);
 
-            Enable(cs.Irr_b);
             interruptsBus.Lanes[0].Value = true;
             interruptsBus.Write(4, interruptCode);
+            Enable(cs.Irr_b);
+            Enable(cs.Ic_clr);
             MakeTickAndWait();
 
             Enable(cs.Ir_le_hi);
