@@ -176,8 +176,8 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         [InlineData("11111111 11111111", "00000000 00100100", "00000000 00100011")]
         [InlineData("11111111 11011100", "10000000 00000000", "01111111 11011100")]
         [InlineData("11111111 11011100", "01111111 11111111", "01111111 11011011")]
-        public void AddC(string aStr, string bStr, string resultStr) {
-            var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddC));
+        public void AddW(string aStr, string bStr, string resultStr) {
+            var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddW));
             var aVal = BitArrayHelper.FromString(aStr);
             var bVal = BitArrayHelper.FromString(bStr);
             var result = BitArrayHelper.FromString(resultStr);
@@ -204,8 +204,8 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         [InlineData("11111111 00000000", "00000001 00000000")]
         [InlineData("00001000 01011001", "11110111 10100111")]
         [InlineData("11111111 11011100", "00000000 00100100")]
-        public void NegC(string originalStr, string negatedStr) {
-            var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.NegC));
+        public void NegW(string originalStr, string negatedStr) {
+            var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.NegW));
             var original = BitArrayHelper.FromString(originalStr);
             var negated = BitArrayHelper.FromString(negatedStr);
 

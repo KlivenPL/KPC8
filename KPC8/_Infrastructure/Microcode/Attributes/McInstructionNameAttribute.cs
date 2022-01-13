@@ -2,10 +2,10 @@
 
 namespace KPC8._Infrastructure.Microcode.Attributes {
     [AttributeUsage(AttributeTargets.Field)]
-    public class McInstructionDevNameAttribute : Attribute {
+    public class McInstructionNameAttribute : Attribute {
         public string DevName { get; }
 
-        public McInstructionDevNameAttribute(string devName) {
+        public McInstructionNameAttribute(string devName) {
             DevName = devName.ToUpper();
         }
     }

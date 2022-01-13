@@ -52,7 +52,7 @@ namespace KPC8.RomProgrammers.Microcode {
                       .Select(m => ((IEnumerable<ControlSignalType>)m.Invoke(null, null), (ProceduralInstructionAttribute)m.GetCustomAttribute(typeof(ProceduralInstructionAttribute), false))).ToList();
 
             foreach (var (steps, attribute) in stepsWithAttributes) {
-                var devNameAttribute = attribute.McInstructionType.GetCustomAttribute<McInstructionDevNameAttribute>();
+                var devNameAttribute = attribute.McInstructionType.GetCustomAttribute<McInstructionNameAttribute>();
                 var instruction = new McProceduralInstruction(devNameAttribute.DevName, steps.ToArray(), (uint)attribute.McInstructionType);
                 AddInstruction(instruction);
             }

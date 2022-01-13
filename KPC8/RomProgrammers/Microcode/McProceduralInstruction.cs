@@ -39,7 +39,7 @@ namespace KPC8.RomProgrammers.Microcode {
         public static McInstruction CreateFromSteps(Type classType, string stepsMethodName) {
             var mi = classType.GetMethod(stepsMethodName);
             var attribute = mi.GetCustomAttributes(true).OfType<ProceduralInstructionAttribute>().First();
-            var devNameAttribute = attribute.McInstructionType.GetCustomAttribute<McInstructionDevNameAttribute>();
+            var devNameAttribute = attribute.McInstructionType.GetCustomAttribute<McInstructionNameAttribute>();
             var instruction = new McProceduralInstruction(devNameAttribute.DevName, ((IEnumerable<Cs>)mi.Invoke(null, null)).ToArray(), (uint)attribute.McInstructionType);
             return instruction;
         }
