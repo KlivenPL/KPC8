@@ -33,6 +33,7 @@ namespace KPC8.Modules {
 
         public BitArray PcContent => pc.Content;
         public BitArray MarContent => mar.Content;
+        public BitArray GetRamAt(ushort address) => ram.Content[address];
 
         public Memory(BitArray[] romData, BitArray[] ramData, Signal mainClock, IBus dataBus, IBus addressBus) {
             pc = new HLHiLoCounter(nameof(pc), 16);

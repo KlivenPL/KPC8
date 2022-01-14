@@ -42,6 +42,34 @@ namespace KPC8.RomProgrammers.Microcode {
 
         #endregion
 
+        #region Store
+
+        [McInstructionName("Sbram")]
+        Sbram = 0x0C,
+
+        [McInstructionName("SbramI")]
+        SbramI = 0x0D,
+
+        [McInstructionName("Sbramo")]
+        Sbramo = 0x0E,
+
+        [McInstructionName("Swram")]
+        Swram = 0x0F,
+
+        [McInstructionName("Swramo")]
+        Swramo = 0x10,
+
+        [McInstructionName("Pushb")]
+        Pushb = 0x11,
+
+        [McInstructionName("Pushw")]
+        Pushw = 0x12,
+
+        [McInstructionName("Sbext")]
+        Sbext = 0x13,
+
+        #endregion
+
         #region Math
 
         [McInstructionName("Add")]
