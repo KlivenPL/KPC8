@@ -98,5 +98,53 @@ namespace KPC8.Microcode {
             yield return Cs.Ram_oe | Cs.DecDest_oe | CsComb.Regs_le_hi | Cs.Mar_ce;
             yield return Cs.Ram_oe | Cs.DecDest_oe | CsComb.Regs_le_lo;
         }
+
+
+        [ProceduralInstruction(McInstructionType.Popb)]
+        [InstructionFormat(McInstructionFormat.Register, customRegDestRestr: Regs.Zero)]
+        public static IEnumerable<Cs> Popb() {
+            yield return CsComb.Alu_not | Cs.Alu_oe | Cs.RegB_le; // b = -1
+
+            yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.Mar_le_lo | Cs.RegA_le; // mar = addr_lo, a = addr_lo
+            yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.Mar_le_hi;
+            yield return Cs.Ram_oe | Cs.DecA_oe | CsComb.Regs_le_lo;
+
+            yield return Cs.Alu_oe | Cs.DecB_oe | CsComb.Regs_le_lo; // addr_lo = addr_lo - 1
+            yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.RegA_le; // a = addr_hi
+            yield return CsComb.MODIFIER_Alu_carry_en | Cs.Alu_oe | Cs.DecB_oe | CsComb.Regs_le_hi; // addr_hi = addr_hi - 1 + optional carry
+        }
+
+
+        [ProceduralInstruction(McInstructionType.Popw)]
+        [InstructionFormat(McInstructionFormat.Register, customRegDestRestr: Regs.Zero)]
+        public static IEnumerable<Cs> Popw() {
+            yield return CsComb.Alu_not | Cs.Alu_oe | Cs.RegB_le; // b = -1
+
+            yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.Mar_le_lo | Cs.RegA_le; // a = addr_lo
+            yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.Mar_le_hi;
+            yield return Cs.Ram_oe | Cs.DecA_oe | CsComb.Regs_le_hi | Cs.Mar_ce;
+            yield return Cs.Ram_oe | Cs.DecA_oe | CsComb.Regs_le_lo;
+
+            yield return Cs.Alu_oe | Cs.DecB_oe | CsComb.Regs_le_lo; // addr_lo = addr_lo - 1
+            yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.RegA_le; // a = addr_hi
+            yield return CsComb.MODIFIER_Alu_carry_en | Cs.Alu_oe | Cs.DecB_oe | CsComb.Regs_le_hi; // addr_hi = addr_hi - 1 + optional carry
+
+            yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.RegA_le;
+            yield return Cs.Alu_oe | Cs.DecB_oe | CsComb.Regs_le_lo; // addr_hi = addr_hi - 1 + optional carry
+
+            yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.RegA_le;
+            yield return CsComb.MODIFIER_Alu_carry_en | Cs.Alu_oe | Cs.DecB_oe | CsComb.Regs_le_hi; // addr_hi = addr_hi - 1 + optional carry
+        }
+
+
+        [ProceduralInstruction(McInstructionType.Lbext)]
+        [InstructionFormat(McInstructionFormat.Register, customRegDestRestr: Regs.Zero)]
+        public static IEnumerable<Cs> Lbext() {
+            yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.Mar_le_lo;
+            yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.Mar_le_hi;
+            yield return Cs.MarToBus_oe | Cs.MODIFIER;
+            yield return Cs.None;
+            yield return Cs.DecA_oe | CsComb.Regs_le_lo;
+        }
     }
 }

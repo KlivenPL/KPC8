@@ -262,5 +262,71 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
             BitAssert.Equality(offset, modules.Registers.GetWholeRegContent(Regs.T3.GetIndex()));
         }
+
+        [Theory]
+        [InlineData(12, 0x00FF)]
+        [InlineData(1, 0xFF00)]
+        [InlineData(255, 0xFFFF)]
+        public void Popb(byte valStr, ushort addrStr) {
+            var instruction = McProceduralInstruction.CreateFromSteps(typeof(LoadProceduralInstructions), nameof(LoadProceduralInstructions.Popb));
+
+            var val = BitArrayHelper.FromByteLE(valStr);
+            var addr = BitArrayHelper.FromUShortLE(addrStr);
+            var addrMinusOne = BitArrayHelper.FromUShortLE((ushort)(addrStr - 1));
+
+            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
+
+            var romData = new[] {
+                instructionHigh, instructionLow
+            };
+
+            var ramData = new BitArray[0xFFFF + 1];
+            ramData[addrStr] = val;
+
+            var cp = BuildPcModules(romData, ramData, out var modules);
+
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), addr);
+
+            StepThroughInstruction(modules, instruction);
+
+            BitAssert.Equality(val, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
+            BitAssert.Equality(addrMinusOne, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
+        }
+
+        [Theory]
+        [InlineData(12, 0x00FF)]
+        [InlineData(1, 0xFF00)]
+        [InlineData(255, 0xFFFD)]
+        [InlineData(2137, 0x453)]
+        [InlineData(2137, 0xFFFE)]
+        [InlineData(16001, 0xFF)]
+        [InlineData(21, 0x37)]
+        [InlineData(21, 257)]
+        public void Popw(ushort valStr, ushort addrStr) {
+            var instruction = McProceduralInstruction.CreateFromSteps(typeof(LoadProceduralInstructions), nameof(LoadProceduralInstructions.Popw));
+
+            var val = BitArrayHelper.FromUShortLE(valStr);
+            var addr = BitArrayHelper.FromUShortLE(addrStr);
+            var addrMinusTwo = BitArrayHelper.FromUShortLE((ushort)(addrStr - 2));
+
+            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
+
+            var romData = new[] {
+                instructionHigh, instructionLow
+            };
+
+            var ramData = new BitArray[0xFFFF + 1];
+            ramData[addrStr] = val.Take(8);
+            ramData[addrStr + 1] = val.Skip(8);
+
+            var cp = BuildPcModules(romData, ramData, out var modules);
+
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), addr);
+
+            StepThroughInstruction(modules, instruction);
+
+            BitAssert.Equality(val, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
+            BitAssert.Equality(addrMinusTwo, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
+        }
     }
 }

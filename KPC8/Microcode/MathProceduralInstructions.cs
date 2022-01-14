@@ -59,12 +59,11 @@ namespace KPC8.Microcode {
         [ProceduralInstruction(McInstructionType.Negw)]
         [InstructionFormat(McInstructionFormat.Register, regBRestrictions: Regs.Zero)]
         public static IEnumerable<Cs> Negw() {
-            yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.RegA_le | Cs.RegB_le; // a = 0, b = 0
             yield return CsComb.Alu_not | Cs.Alu_oe | Cs.RegB_le; // b = -1;
-            yield return Cs.DecA_oe | CsComb.Regs_oe_lo | Cs.RegA_le; // a = val_lo;
-            yield return Cs.Alu_oe | CsComb.Alu_not | Cs.DecDest_oe | CsComb.Regs_le_lo; // dest_lo = val_lo inv
-            yield return Cs.DecA_oe | CsComb.Regs_oe_hi | Cs.RegA_le; // a = val_hi;
-            yield return Cs.Alu_oe | CsComb.Alu_not | CsComb.MODIFIER_Alu_carry_en | Cs.DecDest_oe | CsComb.Regs_le_hi; // dest_hi = val_hi inv
+            yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.RegA_le; // a = val_lo;
+            yield return Cs.Alu_oe | CsComb.Alu_not | Cs.DecA_oe | CsComb.Regs_le_lo; // dest_lo = val_lo inv
+            yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.RegA_le; // a = val_hi;
+            yield return Cs.Alu_oe | CsComb.Alu_not | CsComb.MODIFIER_Alu_carry_en | Cs.DecA_oe | CsComb.Regs_le_hi; // dest_hi = val_hi inv
         }
     }
 }

@@ -31,49 +31,58 @@ namespace KPC8.RomProgrammers.Microcode {
         [McInstructionName("Lwramo")]
         Lwramo = 0x08,
 
+        [McInstructionName("Popb")]
+        Popb = 0x09,
+
+        [McInstructionName("Popw")]
+        Popw = 0x0A,
+
+        [McInstructionName("Lbext")]
+        Lbext = 0x0B,
+
         #endregion
 
         #region Math
 
         [McInstructionName("Add")]
-        Add = 0x10,
+        Add = 0x14,
 
         [McInstructionName("AddI")]
-        AddI = 0x11,
+        AddI = 0x15,
 
         [McInstructionName("Sub")]
-        Sub = 0x12,
+        Sub = 0x16,
 
         [McInstructionName("SubI")]
-        SubI = 0x13,
+        SubI = 0x17,
 
         [McInstructionName("Addw")]
-        Addw = 0x14,
+        Addw = 0x18,
 
         [McInstructionName("Negw")]
-        Negw = 0x15,
+        Negw = 0x19,
 
         #endregion
 
         #region Logic
 
         [McInstructionName("Not")]
-        Not = 0x16,
+        Not = 0x1A,
 
         [McInstructionName("Or")]
-        Or = 0x17,
+        Or = 0x1B,
 
         [McInstructionName("And")]
-        And = 0x18,
+        And = 0x1C,
 
         [McInstructionName("Xor")]
-        Xor = 0x19,
+        Xor = 0x1D,
 
         [McInstructionName("Sll")]
-        Sll = 0x1A,
+        Sll = 0x1E,
 
         [McInstructionName("Srl")]
-        Srl = 0x1B,
+        Srl = 0x1F,
 
         #endregion
 

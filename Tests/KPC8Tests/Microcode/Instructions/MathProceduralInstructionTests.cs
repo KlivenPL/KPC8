@@ -176,6 +176,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         [InlineData("11111111 11111111", "00000000 00100100", "00000000 00100011")]
         [InlineData("11111111 11011100", "10000000 00000000", "01111111 11011100")]
         [InlineData("11111111 11011100", "01111111 11111111", "01111111 11011011")]
+        [InlineData("00000001 00000001", "11111111 11111110", "00000000 11111111")]
         public void Addw(string aStr, string bStr, string resultStr) {
             var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.Addw));
             var aVal = BitArrayHelper.FromString(aStr);
@@ -204,13 +205,15 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         [InlineData("11111111 00000000", "00000001 00000000")]
         [InlineData("00001000 01011001", "11110111 10100111")]
         [InlineData("11111111 11011100", "00000000 00100100")]
+        [InlineData("00000001 00000001", "11111110 11111111")]
+        [InlineData("00000001 00000000", "11111111 00000000")]
         public void Negw(string originalStr, string negatedStr) {
             var instruction = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.Negw));
             var original = BitArrayHelper.FromString(originalStr);
             var negated = BitArrayHelper.FromString(negatedStr);
 
-            EncodeInstruction(instruction, Regs.T1, Regs.T2, Regs.Zero, out var negCHigh1, out var negCLow1);
-            EncodeInstruction(instruction, Regs.T1, Regs.T1, Regs.Zero, out var negCHigh2, out var negCLow2);
+            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var negCHigh1, out var negCLow1);
+            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T1, out var negCHigh2, out var negCLow2);
 
             var romData = new[] {
                 negCHigh1, negCLow1,

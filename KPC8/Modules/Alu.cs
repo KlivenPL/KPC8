@@ -94,6 +94,10 @@ namespace KPC8.Modules {
             var modifier = controlBus.GetControlSignal(ControlSignalType.MODIFIER);
             useCarryInOnModifier.Inputs[1].PlugIn(modifier);
 
+            var ic_clr = controlBus.GetControlSignal(ControlSignalType.Ic_clr);
+            regA.Clear.PlugIn(ic_clr);
+            regB.Clear.PlugIn(ic_clr);
+
             return new CsPanel.AluPanel {
                 RegAToBus_oe = controlBus.ConnectAsControlSignal(ControlSignalType.RegAToBus_oe, regAToDataBus.OutputEnable),
                 RegBToBus_oe = controlBus.ConnectAsControlSignal(ControlSignalType.RegBToBus_oe, regBToDataBus.OutputEnable),
