@@ -29,6 +29,8 @@ namespace KPC8.Modules {
         private readonly SingleAndGate pc_leHi_and_leLo_to_addressBusSelect;
         private readonly SingleAndGate mar_leHi_and_leLo_to_addressBusSelect;
 
+        private readonly HLHiLoTransciever addrBusToDataBus;
+
         private Signal mar_oe_const;
 
         public BitArray PcContent => pc.Content;
@@ -47,6 +49,7 @@ namespace KPC8.Modules {
             busSelectMar = new HLSingleSwitch2NToNMux(nameof(busSelectMar), 16);
             pc_leHi_and_leLo_to_addressBusSelect = new SingleAndGate(nameof(pc_leHi_and_leLo_to_addressBusSelect), 2);
             mar_leHi_and_leLo_to_addressBusSelect = new SingleAndGate(nameof(mar_leHi_and_leLo_to_addressBusSelect), 2);
+            addrBusToDataBus = new HLHiLoTransciever(nameof(addrBusToDataBus), 16);
 
             ConnectInternals();
             CreateAndSetConstSignals();
@@ -95,7 +98,10 @@ namespace KPC8.Modules {
                 .Connect(0, 8, ram.DataInputs)
                 .Connect(0, 8, ram.Outputs)
 
-                .Connect(0, 8, rom.Outputs);
+                .Connect(0, 8, rom.Outputs)
+
+                .Connect(0, 8, addrBusToDataBus.Outputs.Take(8))
+                .Connect(0, 8, addrBusToDataBus.Outputs.TakeLast(8));
         }
 
         protected override void ConnectAddressBus(IBus addressBus) {
@@ -106,7 +112,9 @@ namespace KPC8.Modules {
 
                 //.Connect(0, 16, mar.Inputs)
                 .Connect(0, 16, busSelectMar.InputsB)
-                .Connect(0, 16, marToAddressBus.Outputs);
+                .Connect(0, 16, marToAddressBus.Outputs)
+
+                .Connect(0, 16, addrBusToDataBus.Inputs);
         }
 
         public override CsPanel.MemoryPanel CreateControlPanel(IBus controlBus) {
@@ -137,6 +145,9 @@ namespace KPC8.Modules {
                 Ram_oe = controlBus.ConnectAsControlSignal(ControlSignalType.Ram_oe, ram.OutputEnable),
 
                 Rom_oe = controlBus.ConnectAsControlSignal(ControlSignalType.Rom_oe, rom.OutputEnable),
+
+                AddrToData_hi = controlBus.ConnectAsControlSignal(ControlSignalType.AddrToData_hi, addrBusToDataBus.OutputEnableHi),
+                AddrToData_lo = controlBus.ConnectAsControlSignal(ControlSignalType.AddrToData_lo, addrBusToDataBus.OutputEnableLo),
             };
         }
     }

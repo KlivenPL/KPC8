@@ -318,7 +318,7 @@ namespace Tests.KPC8Tests.ModulesTests {
         private Control CreateControlModule(out IBus dataBus, out IBus registerSelectBus, out IBus controlBus, out IBus flagsBus, out CsPanel.ControlPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
-            controlBus = new HLBus("ControlBus", 32);
+            controlBus = new HLBus("ControlBus", 40);
             flagsBus = new HLBus("FlagsBus", 4);
 
             var control = new Control(null, _testClock.Clk, dataBus, registerSelectBus, flagsBus, new HLBus("InterruptsBus", 8));
@@ -330,7 +330,7 @@ namespace Tests.KPC8Tests.ModulesTests {
         private Control CreateControlModuleWithInterrupts(out IBus dataBus, out IBus registerSelectBus, out IBus controlBus, out IBus interruptsBus, out CsPanel.ControlPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
-            controlBus = new HLBus("ControlBus", 32);
+            controlBus = new HLBus("ControlBus", 40);
             interruptsBus = new HLBus("InterruptsBus", 8);
 
             var control = new Control(null, _testClock.Clk, dataBus, registerSelectBus, new HLBus("FlagsBus", 4), interruptsBus);
@@ -342,8 +342,8 @@ namespace Tests.KPC8Tests.ModulesTests {
         private Control CreateControlModuleWithMockControlBus(BitArray[] romData, out IBus dataBus, out IBus registerSelectBus, out IBus controlBus, out IBus mockControlBus, out CsPanel.ControlPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
-            controlBus = new HLBus("ControlBus", 32);
-            mockControlBus = new HLBus("MockControlBus", 32);
+            controlBus = new HLBus("ControlBus", 40);
+            mockControlBus = new HLBus("MockControlBus", 40);
 
             var control = new Control(romData, _testClock.Clk, dataBus, registerSelectBus, new HLBus("Flags bus", 4), new HLBus("InterruptsBus", 8));
             csPanel = control.CreateControlPanel(controlBus);

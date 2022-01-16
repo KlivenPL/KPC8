@@ -44,6 +44,12 @@ namespace KPC8.ControlSignals {
 
             [ControlSignal(ControlSignalType.Rom_oe)]
             public Signal Rom_oe { get; init; }
+
+            [ControlSignal(ControlSignalType.AddrToData_hi)]
+            public Signal AddrToData_hi { get; init; }
+
+            [ControlSignal(ControlSignalType.AddrToData_lo)]
+            public Signal AddrToData_lo { get; init; }
         }
 
         public class ControlPanel : ICsPanel {

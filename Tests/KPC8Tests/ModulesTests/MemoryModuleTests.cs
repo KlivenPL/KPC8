@@ -140,10 +140,30 @@ namespace Tests.KPC8Tests.ModulesTests {
             BitAssert.Equality(ramAddress, module.MarContent);
         }
 
+        [Fact]
+        public void AddressBusToDataBus() {
+            var zero = BitArrayHelper.FromString("00000000 00000000");
+            var address = BitArrayHelper.FromString("01000100 10000010");
+
+            var module = CreateMemoryModule(CreateTestRomData().ToArray(), null, out var dataBus, out var addressBus, out var cs);
+
+            addressBus.Write(address);
+            Enable(cs.AddrToData_hi);
+            MakeTickAndWait();
+
+            BitAssert.Equality(address.Take(8), dataBus.Lanes);
+
+            addressBus.Write(address);
+            Enable(cs.AddrToData_lo);
+            MakeTickAndWait();
+
+            BitAssert.Equality(address.Skip(8).Take(8), dataBus.Lanes);
+        }
+
         private Memory CreateMemoryModule(BitArray[] romData, BitArray[] ramData, out IBus dataBus, out IBus addressBus, out CsPanel.MemoryPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             addressBus = new HLBus("TestAddressBus", 16);
-            var controlBus = new HLBus("ControlBus", 32);
+            var controlBus = new HLBus("ControlBus", 40);
 
             var memory = new Memory(romData, ramData, _testClock.Clk, dataBus, addressBus);
             csPanel = memory.CreateControlPanel(controlBus);

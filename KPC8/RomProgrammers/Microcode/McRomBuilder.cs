@@ -17,7 +17,6 @@ namespace KPC8.RomProgrammers.Microcode {
         }
 
         public McInstruction[] GetInstructions => instructions;
-        public McInstruction GetDefaultInstruction => defaultInstruction;
 
         public McRomBuilder SetDefaultInstruction(McInstruction defaultInstruction) {
             if (this.defaultInstruction != null) {

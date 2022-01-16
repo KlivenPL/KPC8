@@ -29,7 +29,7 @@ namespace Tests.KPC8Tests.Microcode {
                 .FindAndAddAllProceduralInstructions();
 
             var romData = builder.Build();
-            Assert.Equal(64 * 16 * 32, romData.Sum(r => r.Length));
+            Assert.Equal(64 * 16 * 40, romData.Sum(r => r.Length));
         }
 
         private McInstruction GetDefaultInstruction() {

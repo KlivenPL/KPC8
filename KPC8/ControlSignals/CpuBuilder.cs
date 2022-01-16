@@ -83,7 +83,7 @@ namespace KPC8.ControlSignals {
         public CsPanel Build() {
             dataBus = new HLBus("TestDataBus", 8);
             flagsBus = new HLBus("FlagsBus", 4);
-            controlBus = new HLBus("ControlBus", 32);
+            controlBus = new HLBus("ControlBus", 40);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
             addressBus = new HLBus("TestAddressBus", 16);
             interruptsBus = new HLBus("TestInterruptsBus", 8);

@@ -165,7 +165,7 @@ namespace Tests.KPC8Tests.ModulesTests {
         private Alu CreateAluModule(out IBus dataBus, out IBus flagsBus, out IBus controlBus, out CsPanel.AluPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             flagsBus = new HLBus("FlagsBus", 4);
-            controlBus = new HLBus("ControlBus", 32);
+            controlBus = new HLBus("ControlBus", 40);
 
             var alu = new Alu(_testClock.Clk, dataBus, flagsBus);
             csPanel = alu.CreateControlPanel(controlBus);

@@ -70,7 +70,7 @@ namespace KPC8.Modules {
         public Control(BitArray[] instrData, Signal mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus, IBus interruptsBus) {
             ir = new HLHiLoRegister(nameof(ir), 16);
             ic = new HLCounter(nameof(ic), 4);
-            instRom = new HLRom(nameof(instRom), 32, 11, InstRomSize, instrData);
+            instRom = new HLRom(nameof(instRom), 40, 11, InstRomSize, instrData);
             decDest = new HLDecoder(nameof(decDest), DestRegEncodedLength + 2);
             decA = new HLDecoder(nameof(decA), ARegEncodedSize);
             decB = new HLDecoder(nameof(decB), BRegEncodedSize);

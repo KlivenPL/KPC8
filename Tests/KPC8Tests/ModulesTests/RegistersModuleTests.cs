@@ -114,7 +114,7 @@ namespace Tests.KPC8Tests.ModulesTests {
         private Registers CreateControlModule(out IBus dataBus, out IBus registerSelectBus, out IBus controlBus, out CsPanel.RegsPanel csPanel) {
             dataBus = new HLBus("TestDataBus", 8);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
-            controlBus = new HLBus("ControlBus", 32);
+            controlBus = new HLBus("ControlBus", 40);
 
             var control = new Registers(_testClock.Clk, dataBus, registerSelectBus);
             csPanel = control.CreateControlPanel(controlBus);

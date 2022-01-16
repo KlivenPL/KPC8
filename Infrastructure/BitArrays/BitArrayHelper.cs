@@ -8,14 +8,18 @@ namespace Infrastructure.BitArrays {
     public static class BitArrayHelper {
 
         public static BitArray MergeWith(this BitArray bitArray, BitArray otherBitArray) {
-            byte[] mergedBytes;
+            var totLength = bitArray.Length + otherBitArray.Length;
+            var merged = new BitArray(totLength);
 
-            using (MemoryStream ms = new MemoryStream()) {
-                bitArray.WriteBytesToMemStream(ms);
-                otherBitArray.WriteBytesToMemStream(ms);
-                mergedBytes = ms.ToArray();
+            for (int i = 0; i < bitArray.Length; i++) {
+                merged[i] = bitArray[i];
             }
-            return new BitArray(mergedBytes);
+
+            for (int i = 0; i < otherBitArray.Length; i++) {
+                merged[i + bitArray.Length] = otherBitArray[i];
+            }
+
+            return merged;
         }
 
         public static byte[] ToBytes(this BitArray bitArray) {
@@ -123,11 +127,23 @@ namespace Infrastructure.BitArrays {
         }
 
         public static BitArray Slice(this BitArray bitArray, int skip, int take) {
-            return bitArray.Skip(skip).Take(take);
+            return FromString(bitArray.ToBitString().Substring(skip, take));
         }
 
         public static BitArray SkipLast(this BitArray bitArray, int skip) {
             return FromString(bitArray.ToBitString().Substring(0, bitArray.Count - skip));
+        }
+
+        public static BitArray FromLongLE(long long64) {
+            var ba = new BitArray(BitConverter.GetBytes(long64));
+            ba.Reverse();
+            return ba;
+        }
+
+        public static BitArray FromULongLE(ulong ulong64) {
+            var ba = new BitArray(BitConverter.GetBytes(ulong64));
+            ba.Reverse();
+            return ba;
         }
 
         public static BitArray FromIntLE(int int32) {
@@ -295,6 +311,32 @@ namespace Infrastructure.BitArrays {
             }
 
             return (uint)sum;
+        }
+
+        public static long GetSignedLongValueLE(this BitArray bitArray) {
+            if (bitArray.Length > 64)
+                throw new Exception("Length must be less or equal to 64");
+
+            var lengthMinusOne = bitArray.Length - 1;
+            long sum = 0;
+            for (int i = lengthMinusOne; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << lengthMinusOne - i : 0;
+            }
+
+            return sum;
+        }
+
+        public static ulong GetUnsignedLongValueLE(this BitArray bitArray) {
+            if (bitArray.Length > 64)
+                throw new Exception("Length must be less equal to 64");
+
+            var lengthMinusOne = bitArray.Length - 1;
+            long sum = 0;
+            for (int i = lengthMinusOne; i >= 0; i--) {
+                sum += bitArray[i] ? 1 << lengthMinusOne - i : 0;
+            }
+
+            return (ulong)sum;
         }
 
         public static void Reverse(this BitArray array) {

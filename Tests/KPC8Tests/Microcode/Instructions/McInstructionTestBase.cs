@@ -4,6 +4,7 @@ using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
 using System.Collections;
 using System.Linq;
+using Tests._Infrastructure;
 using Xunit.Abstractions;
 
 namespace Tests.KPC8Tests.Microcode.Instructions {
@@ -35,10 +36,12 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         protected void StepThroughInstruction(ModulePanel modules, McInstruction instruction) {
             var steps = instruction.BuildTotalSteps().ToArray();
             for (int i = 0; i < instruction.PreAndInstructionStepsCount; i++) {
-                //BitAssert.Equality(steps[i].ToBitArray(), modules.ControlBus.Lanes, GetCsErrorMessage(i, steps[i], modules.ControlBus.Lanes));
+                BitAssert.Equality(steps[i].ToBitArray(), modules.ControlBus.Lanes, GetCsErrorMessage(i, steps[i], modules.ControlBus.Lanes));
                 MakeTickAndWait();
                 Debug.WriteLine($"Done instruction {i}:\t{steps[i]}");
+#pragma warning disable CS0219 // Variable is assigned but its value is never used
                 var debugDot = 1;
+#pragma warning restore CS0219 // Variable is assigned but its value is never used
             }
         }
 
