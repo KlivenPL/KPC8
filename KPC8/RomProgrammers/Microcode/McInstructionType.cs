@@ -148,6 +148,25 @@ namespace KPC8.RomProgrammers.Microcode {
 
         #endregion
 
+        #region Jumps procedural
+
+        [McInstructionName("Jr")]
+        Jr = 0x2A,
+
+        [McInstructionName("Jro")]
+        Jro = 0x2B,
+
+        [McInstructionName("Jas")]
+        Jas = 0x2C,
+
+        [McInstructionName("JpcaddI")]
+        JpcaddI = 0x2D,
+
+        [McInstructionName("JpcsubI")]
+        JpcsubI = 0x2E,
+
+        #endregion
+
         /*[McInstructionDevName("Mov")]
         Mov = 0x16,
 
