@@ -52,7 +52,7 @@ namespace KPC8.Microcode {
 
         [ConditionalInstruction(McInstructionType.Jwnotn)]
         [InstructionFormat(McInstructionFormat.Register, customRegDestRestr: Regs.Zero)]
-        public static IEnumerable<Cs> Jwp(CpuFlag flags) {
+        public static IEnumerable<Cs> Jwnotn(CpuFlag flags) {
             yield return Cs.DecA_oe | CsComb.Regs_oe_hi | Cs.RegA_le;
             yield return CsComb.Alu_or | Cs.Alu_oe;
 

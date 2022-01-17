@@ -45,7 +45,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
 
             var cp = BuildPcModules(romData, out var modules);
 
-            var instRomDump = string.Join("\r\n", modules.Control.DumpInstrRomToControlSignals());
+            // var instRomDump = string.Join("\r\n", modules.Control.DumpInstrRomToControlSignals());
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), value);
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), addr);
@@ -69,151 +69,170 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
         }
 
         [Theory]
-        [InlineData(0x00FF, 0x00)]
-        [InlineData(0x00FF, 0xEF)]
-        [InlineData(0x21, 0x37)]
-        public void Jro(ushort addrStr, ushort offsetStr) {
-            var instruction = McProceduralInstruction.CreateFromSteps(typeof(JumpProceduralInstructions), nameof(JumpProceduralInstructions.Jro));
-            var addTestInstr = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
+        [InlineData(0x2137, 0xFF00)]
+        [InlineData(0x0, 0x233)]
+        [InlineData(0x911, 0x2137)]
+        [InlineData(0x0, 0xFF00)]
+        public void Jwnotz(ushort valueStr, ushort addrStr) {
+            var instruction = McConditionalInstruction.CreateFromSteps(typeof(JumpConditionalInstructions), nameof(JumpConditionalInstructions.Jwnotz));
+            var positiveTestInstr = McProceduralInstruction.CreateFromSteps(typeof(RegsProceduralInstructions), nameof(RegsProceduralInstructions.SetI));
+            var negativeTestInstr = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
 
+            var value = BitArrayHelper.FromUShortLE(valueStr);
             var addr = BitArrayHelper.FromUShortLE(addrStr);
-            var offset = BitArrayHelper.FromUShortLE(offsetStr);
-            var addrPlusOffset = BitArrayHelper.FromUShortLE((ushort)(addrStr + offsetStr));
-            var one = BitArrayHelper.FromByteLE(1);
+            var one = BitArrayHelper.FromByteLE(231);
+            var five = BitArrayHelper.FromByteLE(5);
+            var skipAddress = BitArrayHelper.FromShortLE(2);
 
             EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(positiveTestInstr, Regs.T4, one, out var positiveTestInstrHigh, out var positiveTestInstrLow);
+            EncodeInstruction(negativeTestInstr, Regs.T4, five, out var negativeTestInstrHigh, out var negativeTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = instructionHigh;
             romData[1] = instructionLow;
-            romData[addrStr + offsetStr] = addTestInstrHigh;
-            romData[addrStr + offsetStr + 1] = addTestInstrLow;
+
+            romData[2] = negativeTestInstrHigh;
+            romData[3] = negativeTestInstrLow;
+
+            romData[addrStr] = positiveTestInstrHigh;
+            romData[addrStr + 1] = positiveTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
 
-            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), addr);
-            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), offset);
+            // var instRomDump = string.Join("\r\n", modules.Control.DumpInstrRomToControlSignals());
 
-            StepThroughProceduralInstruction(modules, instruction);
-            BitAssert.Equality(addrPlusOffset, modules.Memory.PcContent);
-            BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
+            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), value);
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), addr);
 
-            StepThroughProceduralInstruction(modules, addTestInstr);
+            StepThroughConditionalInstruction(modules, instruction);
 
-            BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
-            BitAssert.Equality(offset, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(value, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
+            BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
+
+            if (valueStr != 0) {
+                BitAssert.Equality(addr, modules.Memory.PcContent);
+                StepThroughProceduralInstruction(modules, positiveTestInstr);
+
+                BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            } else {
+                BitAssert.Equality(skipAddress, modules.Memory.PcContent);
+                StepThroughProceduralInstruction(modules, negativeTestInstr);
+
+                BitAssert.Equality(five, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            }
         }
 
         [Theory]
-        [InlineData(0x37)]
-        [InlineData(0x00FF)]
-        [InlineData(0xFF00)]
-        public void Jas(ushort addrStr) {
-            var instruction = McProceduralInstruction.CreateFromSteps(typeof(JumpProceduralInstructions), nameof(JumpProceduralInstructions.Jas));
-            var addTestInstr = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
+        [InlineData(-2137, 0xFF00)]
+        [InlineData(15, 0x233)]
+        [InlineData(-15, 0x2137)]
+        [InlineData(2137, 0xFF00)]
+        [InlineData(0, 0xFF00)]
+        public void Jwn(short valueStr, ushort addrStr) {
+            var instruction = McConditionalInstruction.CreateFromSteps(typeof(JumpConditionalInstructions), nameof(JumpConditionalInstructions.Jwn));
+            var positiveTestInstr = McProceduralInstruction.CreateFromSteps(typeof(RegsProceduralInstructions), nameof(RegsProceduralInstructions.SetI));
+            var negativeTestInstr = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
 
+            var value = BitArrayHelper.FromShortLE(valueStr);
             var addr = BitArrayHelper.FromUShortLE(addrStr);
-            var one = BitArrayHelper.FromByteLE(1);
-            var savedPcAddr = BitArrayHelper.FromUShortLE(2);
+            var one = BitArrayHelper.FromByteLE(231);
+            var five = BitArrayHelper.FromByteLE(5);
+            var skipAddress = BitArrayHelper.FromShortLE(2);
 
-            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.Ra, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
-
-            var romData = new BitArray[0xFFFF + 1];
-            romData[0] = instructionHigh;
-            romData[1] = instructionLow;
-            romData[addrStr] = addTestInstrHigh;
-            romData[addrStr + 1] = addTestInstrLow;
-
-            var cp = BuildPcModules(romData, out var modules);
-
-            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), addr);
-
-            StepThroughProceduralInstruction(modules, instruction);
-            BitAssert.Equality(addr, modules.Memory.PcContent);
-            BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
-
-            StepThroughProceduralInstruction(modules, addTestInstr);
-
-            BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
-            BitAssert.Equality(savedPcAddr, modules.Registers.GetWholeRegContent(Regs.Ra.GetIndex()));
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
-        }
-
-        [Theory]
-        [InlineData(0x00)]
-        [InlineData(0xFD)]
-        [InlineData(0xFF)]
-        public void JpcaddI(byte offsetStr) {
-            var instruction = McProceduralInstruction.CreateFromSteps(typeof(JumpProceduralInstructions), nameof(JumpProceduralInstructions.JpcaddI));
-            var addTestInstr = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
-
-            var offset = BitArrayHelper.FromByteLE(offsetStr);
-            var pcPlusOffset = BitArrayHelper.FromUShortLE((ushort)(2 + offsetStr));
-            var one = BitArrayHelper.FromByteLE(1);
-
-            EncodeInstruction(instruction, Regs.Zero, offset, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
+            EncodeInstruction(positiveTestInstr, Regs.T4, one, out var positiveTestInstrHigh, out var positiveTestInstrLow);
+            EncodeInstruction(negativeTestInstr, Regs.T4, five, out var negativeTestInstrHigh, out var negativeTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = instructionHigh;
             romData[1] = instructionLow;
-            romData[2 + offsetStr] = addTestInstrHigh;
-            romData[2 + offsetStr + 1] = addTestInstrLow;
+
+            romData[2] = negativeTestInstrHigh;
+            romData[3] = negativeTestInstrLow;
+
+            romData[addrStr] = positiveTestInstrHigh;
+            romData[addrStr + 1] = positiveTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
 
-            StepThroughProceduralInstruction(modules, instruction);
-            BitAssert.Equality(pcPlusOffset, modules.Memory.PcContent);
+            // var instRomDump = string.Join("\r\n", modules.Control.DumpInstrRomToControlSignals());
 
-            StepThroughProceduralInstruction(modules, addTestInstr);
+            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), value);
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), addr);
 
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            StepThroughConditionalInstruction(modules, instruction);
+
+            BitAssert.Equality(value, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
+            BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
+
+            if (valueStr < 0) {
+                BitAssert.Equality(addr, modules.Memory.PcContent);
+                StepThroughProceduralInstruction(modules, positiveTestInstr);
+
+                BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            } else {
+                BitAssert.Equality(skipAddress, modules.Memory.PcContent);
+                StepThroughProceduralInstruction(modules, negativeTestInstr);
+
+                BitAssert.Equality(five, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            }
         }
 
         [Theory]
-        [InlineData(0x21)]
-        [InlineData(0xFD)]
-        [InlineData(0xFF)]
-        public void JpcsubI(byte offsetStr) {
-            var instruction = McProceduralInstruction.CreateFromSteps(typeof(JumpProceduralInstructions), nameof(JumpProceduralInstructions.JpcsubI));
-            var primaryJumpInstr = McProceduralInstruction.CreateFromSteps(typeof(JumpProceduralInstructions), nameof(JumpProceduralInstructions.Jr));
-            var addTestInstr = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
+        [InlineData(-2137, 0xFF00)]
+        [InlineData(15, 0x233)]
+        [InlineData(-15, 0x2137)]
+        [InlineData(2137, 0xFF00)]
+        [InlineData(0, 0xFF00)]
+        public void Jwnotn(short valueStr, ushort addrStr) {
+            var instruction = McConditionalInstruction.CreateFromSteps(typeof(JumpConditionalInstructions), nameof(JumpConditionalInstructions.Jwnotn));
+            var positiveTestInstr = McProceduralInstruction.CreateFromSteps(typeof(RegsProceduralInstructions), nameof(RegsProceduralInstructions.SetI));
+            var negativeTestInstr = McProceduralInstruction.CreateFromSteps(typeof(MathProceduralInstructions), nameof(MathProceduralInstructions.AddI));
 
-            var offset = BitArrayHelper.FromByteLE(offsetStr);
-            var pcPlusOffset = BitArrayHelper.FromUShortLE((ushort)(0xFFFF - offsetStr));
-            var one = BitArrayHelper.FromByteLE(1);
-            var primaryJumpAddr = BitArrayHelper.FromUShortLE(0xFFFD);
+            var value = BitArrayHelper.FromShortLE(valueStr);
+            var addr = BitArrayHelper.FromUShortLE(addrStr);
+            var one = BitArrayHelper.FromByteLE(231);
+            var five = BitArrayHelper.FromByteLE(5);
+            var skipAddress = BitArrayHelper.FromShortLE(2);
 
-            EncodeInstruction(primaryJumpInstr, Regs.Zero, Regs.Zero, Regs.T1, out var primaryJumpInstrHigh, out var primaryJumpInstrLow);
-            EncodeInstruction(instruction, Regs.Zero, offset, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
+            EncodeInstruction(positiveTestInstr, Regs.T4, one, out var positiveTestInstrHigh, out var positiveTestInstrLow);
+            EncodeInstruction(negativeTestInstr, Regs.T4, five, out var negativeTestInstrHigh, out var negativeTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
-            romData[0] = primaryJumpInstrHigh;
-            romData[1] = primaryJumpInstrLow;
+            romData[0] = instructionHigh;
+            romData[1] = instructionLow;
 
-            romData[0xFFFD] = instructionHigh;
-            romData[0xFFFD + 1] = instructionLow;
+            romData[2] = negativeTestInstrHigh;
+            romData[3] = negativeTestInstrLow;
 
-            romData[0xFFFF - offsetStr] = addTestInstrHigh;
-            romData[0xFFFF - offsetStr + 1] = addTestInstrLow;
+            romData[addrStr] = positiveTestInstrHigh;
+            romData[addrStr + 1] = positiveTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
 
-            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), primaryJumpAddr);
-            StepThroughProceduralInstruction(modules, primaryJumpInstr);
+            // var instRomDump = string.Join("\r\n", modules.Control.DumpInstrRomToControlSignals());
 
-            BitAssert.Equality(primaryJumpAddr, modules.Memory.PcContent);
+            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), value);
+            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), addr);
 
-            StepThroughProceduralInstruction(modules, instruction);
-            BitAssert.Equality(pcPlusOffset, modules.Memory.PcContent);
+            StepThroughConditionalInstruction(modules, instruction);
 
-            StepThroughProceduralInstruction(modules, addTestInstr);
+            BitAssert.Equality(value, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
+            BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
 
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            if (valueStr >= 0) {
+                BitAssert.Equality(addr, modules.Memory.PcContent);
+                StepThroughProceduralInstruction(modules, positiveTestInstr);
+
+                BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            } else {
+                BitAssert.Equality(skipAddress, modules.Memory.PcContent);
+                StepThroughProceduralInstruction(modules, negativeTestInstr);
+
+                BitAssert.Equality(five, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            }
         }
     }
 }
