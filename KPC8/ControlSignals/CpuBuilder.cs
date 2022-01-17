@@ -41,8 +41,9 @@ namespace KPC8.ControlSignals {
         public CpuBuilder WithControlModule(BitArray[] customInstRomData, bool connectControlBusToControllerPorts) {
             createControlPanel = () => {
 
-                var instRomData = customInstRomData ?? new McRomBuilder(64)
+                var instRomData = customInstRomData ?? new McRomBuilder(64 + 8)
                     .FindAndAddAllProceduralInstructions()
+                    .FindAndAddAllConditionalInstructions()
                     .SetDefaultInstruction(new McProceduralInstruction("NOP", NopInstruction.Nop().ToArray(), 0x0))
                     .Build();
 

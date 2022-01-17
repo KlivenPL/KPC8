@@ -22,7 +22,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(instructionLow, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
         }
@@ -42,8 +42,8 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
 
             var cp = BuildPcModules(romData, out var modules);
 
-            StepThroughInstruction(modules, instruction);
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedSum, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
         }
@@ -66,9 +66,9 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
 
             var cp = BuildPcModules(romData, out var modules);
 
-            StepThroughInstruction(modules, addIInstruction);
-            StepThroughInstruction(modules, addIInstruction);
-            StepThroughInstruction(modules, addInstruction);
+            StepThroughProceduralInstruction(modules, addIInstruction);
+            StepThroughProceduralInstruction(modules, addIInstruction);
+            StepThroughProceduralInstruction(modules, addInstruction);
 
             BitAssert.Equality(addIInstructionLow1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(addIInstructionLow2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
@@ -86,7 +86,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
         }
@@ -106,8 +106,8 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
 
             var cp = BuildPcModules(romData, out var modules);
 
-            StepThroughInstruction(modules, instruction);
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
         }
@@ -132,9 +132,9 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
 
             var cp = BuildPcModules(romData, out var modules);
 
-            StepThroughInstruction(modules, subIInstruction);
-            StepThroughInstruction(modules, subIInstruction);
-            StepThroughInstruction(modules, subInstruction);
+            StepThroughProceduralInstruction(modules, subIInstruction);
+            StepThroughProceduralInstruction(modules, subIInstruction);
+            StepThroughProceduralInstruction(modules, subInstruction);
 
             BitAssert.Equality(expectedT1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(expectedT2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
@@ -164,7 +164,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T4.GetIndex(), zero.MergeWith(random));
 
             BitAssert.Equality(random, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
-            StepThroughInstruction(modules, subInstruction);
+            StepThroughProceduralInstruction(modules, subInstruction);
 
             BitAssert.Equality(expectedT1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(expectedT2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
@@ -194,7 +194,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), aVal);
             modules.Registers.SetWholeRegContent(Regs.T3.GetIndex(), bVal);
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
             BitAssert.Equality(result, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
         }
 
@@ -224,10 +224,10 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
 
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), original);
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
             BitAssert.Equality(negated, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
             BitAssert.Equality(original, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
         }
     }

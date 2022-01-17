@@ -66,6 +66,7 @@ namespace KPC8.Modules {
         public bool GetIrrSignal(Func<HLIRRSequencer, SignalPort> selector) => selector(irr);
         public BitArray IrrRomAddress => irrRom.AddressInputs.ToBitArray();
         public BitArray GetIrrExpectedRomData(int row) => GetIrrRomData().ToArray()[row];
+        public ControlSignalType[] DumpInstrRomToControlSignals() => instRom.Content.Select(ba => ControlSignalTypeExtensions.FromBitArray(ba)).ToArray();
 
         public Control(BitArray[] instrData, Signal mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus, IBus interruptsBus) {
             ir = new HLHiLoRegister(nameof(ir), 16);
@@ -210,6 +211,8 @@ namespace KPC8.Modules {
         public override CsPanel.ControlPanel CreateControlPanel(IBus controlBus) {
             ir.LoadEnableHigh.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));
             ir.LoadEnableLow.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
+
+            //ir.OutputEnable.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
 
             irr.Ic_clr.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ic_clr));
             irr.Ir_le.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_hi));

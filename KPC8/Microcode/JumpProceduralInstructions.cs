@@ -41,7 +41,7 @@ namespace KPC8.Microcode {
 
 
         [ProceduralInstruction(McInstructionType.JpcaddI)]
-        [InstructionFormat(McInstructionFormat.Immediate)]
+        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.Zero)]
         public static IEnumerable<Cs> JpcaddI() {
             yield return Cs.RegAToBus_oe | Cs.Mar_le_lo; // mar_lo = 0
 
@@ -56,7 +56,7 @@ namespace KPC8.Microcode {
 
 
         [ProceduralInstruction(McInstructionType.JpcsubI)]
-        [InstructionFormat(McInstructionFormat.Immediate)]
+        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.Zero)]
         public static IEnumerable<Cs> JpcsubI() {
             yield return CsComb.Alu_not | Cs.Alu_oe | Cs.Mar_le_lo; // mar_lo = -1
 

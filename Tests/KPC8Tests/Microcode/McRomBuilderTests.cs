@@ -6,6 +6,13 @@ using Xunit;
 namespace Tests.KPC8Tests.Microcode {
     public class McRomBuilderTests : TestBase {
 
+        private const int ProceduralInstructionsCount = 56;
+        private const int ConditionalInstructionsCount = 8;
+        private const int WastedInstructions = 8;
+
+        private int TotalInstructions => ProceduralInstructionsCount + ConditionalInstructionsCount + WastedInstructions;
+        private int TotalLength => (ProceduralInstructionsCount + WastedInstructions) * 16 * 40 + ConditionalInstructionsCount * 8 * 16 * 40;
+
         [Fact]
         public void BuildMcRomBuilder() {
             var mcRomBuilder = new McRomBuilder(64);
@@ -24,12 +31,33 @@ namespace Tests.KPC8Tests.Microcode {
 
         [Fact]
         public void FindAllProceduralInstructions() {
-            var builder = new McRomBuilder(64)
+            var builder = new McRomBuilder(ProceduralInstructionsCount)
                 .SetDefaultInstruction(GetDefaultInstruction())
                 .FindAndAddAllProceduralInstructions();
 
             var romData = builder.Build();
-            Assert.Equal(64 * 16 * 40, romData.Sum(r => r.Length));
+            Assert.Equal(56 * 16 * 40, romData.Sum(r => r.Length));
+        }
+
+        [Fact]
+        public void FindAllConditionalInstructions() {
+            var builder = new McRomBuilder(TotalInstructions)
+                .SetDefaultInstruction(GetDefaultInstruction())
+                .FindAndAddAllConditionalInstructions();
+
+            var romData = builder.Build();
+            Assert.Equal(TotalLength, romData.Sum(r => r.Length));
+        }
+
+        [Fact]
+        public void FindAllInstructions() {
+            var builder = new McRomBuilder(TotalInstructions)
+                .SetDefaultInstruction(GetDefaultInstruction())
+                .FindAndAddAllProceduralInstructions()
+                .FindAndAddAllConditionalInstructions();
+
+            var romData = builder.Build();
+            Assert.Equal(TotalLength, romData.Sum(r => r.Length));
         }
 
         private McInstruction GetDefaultInstruction() {

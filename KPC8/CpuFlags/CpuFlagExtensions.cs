@@ -10,5 +10,9 @@ namespace KPC8.CpuFlags {
         public static BitArray To8BitArray(this CpuFlag flag) {
             return BitArrayHelper.FromByteLE((byte)flag);
         }
+
+        public static CpuFlag From8BitArray(BitArray ba) {
+            return (CpuFlag) BitArrayHelper.ToByteLE(ba);
+        }
     }
 }

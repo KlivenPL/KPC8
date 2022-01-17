@@ -167,10 +167,32 @@ namespace KPC8.RomProgrammers.Microcode {
 
         #endregion
 
-        /*[McInstructionDevName("Mov")]
-        Mov = 0x16,
+        #region Jumps conditional
 
-        [McInstructionDevName("MovI")]
-        MovI = 0x17,*/
+        [McInstructionName("Jwz")]
+        Jwz = 0x38,
+
+        [McInstructionName("Jwnotz")]
+        Jwnotz = 0x39,
+
+        [McInstructionName("Jwn")]
+        Jwn = 0x3A,
+
+        [McInstructionName("Jwnotn")]
+        Jwnotn = 0x3B,
+
+        [McInstructionName("Jzf")]
+        Jzf = 0x3C,
+
+        [McInstructionName("Jnf")]
+        Jnf = 0x3D,
+
+        [McInstructionName("Jcf")]
+        Jcf = 0x3E,
+
+        [McInstructionName("Jof")]
+        Jof = 0x3F,
+
+        #endregion
     }
 }

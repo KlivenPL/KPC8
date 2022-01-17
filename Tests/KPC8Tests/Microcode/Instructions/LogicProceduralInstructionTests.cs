@@ -35,7 +35,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(valA));
             modules.Registers.SetWholeRegContent(Regs.T3.GetIndex(), zero.MergeWith(valB));
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
         }
@@ -63,7 +63,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(valA));
             modules.Registers.SetWholeRegContent(Regs.T3.GetIndex(), zero.MergeWith(valB));
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
         }
@@ -91,7 +91,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(valA));
             modules.Registers.SetWholeRegContent(Regs.T3.GetIndex(), zero.MergeWith(valB));
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
         }
@@ -119,7 +119,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(valA));
             modules.Registers.SetWholeRegContent(Regs.T3.GetIndex(), zero.MergeWith(valB));
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
         }
@@ -147,7 +147,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(valA));
             modules.Registers.SetWholeRegContent(Regs.T3.GetIndex(), zero.MergeWith(valB));
 
-            StepThroughInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
         }

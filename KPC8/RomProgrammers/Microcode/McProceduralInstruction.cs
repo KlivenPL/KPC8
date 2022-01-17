@@ -33,10 +33,11 @@ namespace KPC8.RomProgrammers.Microcode {
         public override uint RomInstructionIndex { get; }
         public override Cs[] PreInstructionSteps => FetchInstructions().ToArray();
         public override Cs OptionalPostInstructionStep => Cs.Ic_clr;
-        public override Cs[] InstructionSteps { get; }
+        public int PreAndInstructionStepsCount => PreInstructionSteps.Length + InstructionSteps.Length;
+        public Cs[] InstructionSteps { get; }
         public override BitArray OpCode => ((McInstructionType)RomInstructionIndex).Get6BitsOPCode();
 
-        public static McInstruction CreateFromSteps(Type classType, string stepsMethodName) {
+        public static McProceduralInstruction CreateFromSteps(Type classType, string stepsMethodName) {
             var mi = classType.GetMethod(stepsMethodName);
             var attribute = mi.GetCustomAttributes(true).OfType<ProceduralInstructionAttribute>().First();
             var devNameAttribute = attribute.McInstructionType.GetCustomAttribute<McInstructionNameAttribute>();
@@ -48,6 +49,28 @@ namespace KPC8.RomProgrammers.Microcode {
             yield return Cs.Pc_oe | Cs.Mar_le_hi | Cs.Mar_le_lo;
             yield return Cs.Pc_ce | Cs.Rom_oe | Cs.Ir_le_hi;
             yield return Cs.Pc_ce | Cs.Mar_ce | Cs.Rom_oe | Cs.Ir_le_lo;
+        }
+
+        public override IEnumerable<Cs> BuildTotalSteps() {
+            int currentLength = 0;
+            foreach (var step in PreInstructionSteps) {
+                currentLength++;
+                yield return step;
+            }
+
+            for (int i = 0; i < InstructionSteps.Length; i++) {
+                currentLength++;
+                if (i == InstructionSteps.Length - 1) {
+                    yield return InstructionSteps[i] | OptionalPostInstructionStep;
+                } else {
+                    yield return InstructionSteps[i];
+                }
+            }
+
+
+            for (int i = currentLength; i < MaxTotalStepsCount; i++) {
+                yield return OptionalPostInstructionStep;
+            }
         }
     }
 }
