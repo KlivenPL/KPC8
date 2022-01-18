@@ -15,6 +15,7 @@ namespace Components.Roms {
 
         private readonly BitArray[] memory;
 
+        public int Priority => -2;
         public BitArray[] Content => memory;
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
 

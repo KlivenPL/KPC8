@@ -84,7 +84,6 @@ namespace KPC8.RomProgrammers.Microcode {
                 for (int i = 0; i < instructionSteps.Length; i++) {
                     currentLength++;
                     if (i == instructionSteps.Length - 1) {
-
                         if (currentLength == MaxTotalStepsCount) {
                             yield return instructionSteps[i] | OptionalPostInstructionStep;
                         } else {
