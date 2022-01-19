@@ -167,6 +167,22 @@ namespace KPC8.RomProgrammers.Microcode {
 
         #endregion
 
+        #region Interrupts
+
+        [McInstructionName("Irrex")]
+        Irrex = 0x34,
+
+        [McInstructionName("Irret")]
+        Irret = 0x35,
+
+        [McInstructionName("Irren")]
+        Irren = 0x36,
+
+        [McInstructionName("Irrdis")]
+        Irrdis = 0x37,
+
+        #endregion
+
         #region Jumps conditional
 
         [McInstructionName("Jwz")]
