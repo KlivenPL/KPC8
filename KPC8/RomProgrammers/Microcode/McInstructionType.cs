@@ -172,8 +172,8 @@ namespace KPC8.RomProgrammers.Microcode {
         [McInstructionName("Irrex")]
         Irrex = 0x34,
 
-        [McInstructionName("Irret")]
-        Irret = 0x35,
+        [McInstructionName("Irrret")]
+        Irrret = 0x35,
 
         [McInstructionName("Irren")]
         Irren = 0x36,
