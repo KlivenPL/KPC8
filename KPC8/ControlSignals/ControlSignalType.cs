@@ -37,6 +37,8 @@ namespace KPC8.ControlSignals {
         Alu_c           =       0b0000000001000000000000000000000000000000,
         AddrToData_hi   =       0b0000000010000000000000000000000000000000,
         AddrToData_lo   =       0b0000000100000000000000000000000000000000,
+        Ext_in          =       0b0000001000000000000000000000000000000000,
+        Ext_out         =       0b0000010000000000000000000000000000000000,
         /// <summary>
         /// Great power comes with great responsibility. Make sure that usage won't fuck things up.
         /// </summary>

@@ -3,11 +3,11 @@
 namespace Simulation.Updates {
     public static class UpdateRegistratorExtension {
         public static void RegisterUpdate<T>(this T update) where T : IUpdate {
-            SimulationLoop.RegisterUpdate(update);
+            SimulationLoopBuilder.Current.AddUpdate(update);
         }
 
         public static void UnregisterUpdate<T>(this T update) where T : IUpdate {
-            SimulationLoop.UnregisterUpdate(update);
+            // SimulationLoop.Default.UnregisterUpdate(update);
         }
     }
 }

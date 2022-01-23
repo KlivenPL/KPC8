@@ -163,12 +163,14 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
 
             StepThroughProceduralInstruction(modules, irrex);
             BitAssert.Equality(five, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
+            Assert.True(modules.InterruptsBus.Lanes[3]);
 
             StepThroughProceduralInstruction(modules, add);
             BitAssert.Equality(eight, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
 
             StepThroughProceduralInstruction(modules, irrret);
             BitAssert.Equality(five, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
+            Assert.True(modules.InterruptsBus.Lanes[1]);
 
             StepThroughProceduralInstruction(modules, add);
             BitAssert.Equality(ten, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));

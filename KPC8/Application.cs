@@ -1,5 +1,4 @@
-﻿using Autofac.Features.AttributeFilters;
-using Components.Clocks;
+﻿using Components.Clocks;
 using Components.Signals;
 using Infrastructure.BitArrays;
 using KPC8.Clocks;
@@ -14,40 +13,24 @@ using System.Linq;
 namespace KPC8 {
     class Application {
 
-        private readonly Clock mainClock;
-        private readonly SimulationLoop loop;
+        private Clock mainClock;
+        private SimulationLoop mainLoop;
 
         private CsPanel cp;
         private ModulePanel modules;
 
-        public Application(
-            [KeyFilter(ClockType.MainClock)] Clock mainClock,
-            SimulationLoop loop) {
-
-            this.mainClock = mainClock;
-            this.loop = loop;
-
+        public Application() {
             Create();
         }
 
         public void Run() {
-            /*while (true) {
-
-                MakeTickAndWait();
-                if (ShouldEscape()) break;
-            }*/
             var originalStr = "00001000 01011001";
             var original = BitArrayHelper.FromString(originalStr);
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), original);
-           // while (true) {
 
-                for (int i = 0; i < 100000000; i++) {
-                    loop.Loop();
-                    /*mainClock.MakeTick();
-                    loop.Loop();*/
-                //Console.WriteLine(mainClock.Cycles +  " " + mainClock.Clk + " " + modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()).ToPrettyBitString());
-                }
-            //}
+            for (int i = 0; i < 100000000; i++) {
+                mainLoop.Loop();
+            }
         }
 
 
@@ -62,40 +45,22 @@ namespace KPC8 {
             var instrlo = BitArrayHelper.FromString("01010000");
             initialMemory = Enumerable.Range(0, ushort.MaxValue / 2).Select(i => i % 2 == 0 ? instrHi : instrlo).ToArray();
 
-            cp = new CpuBuilder(mainClock)
-                .WithControlModule(null, true)
-               .WithMemoryModule(initialMemory, null)
-               .WithRegistersModule()
-               .WithAluModule()
-               .BuildWithModulesAccess(out modules);
+            var clk = Signal.Factory.Create("MainClock");
+            var clkBar = Signal.Factory.Create("MainClockBar");
+            var clkParameters = ClockType.MainClock.GetClockParameters();
 
-            /*loop.Loop();
-            loop.Loop();
-            loop.Loop();
-            loop.Loop();*/
-        }
+            using (var loopBuilder = new SimulationLoopBuilder("MainSimulation")) {
+                mainClock = new Clock(clk, clkBar, clkParameters.ClockMode, clkParameters.PeriodInTicks);
+                cp = new CpuBuilder(mainClock)
+                   .WithControlModule(null, true)
+                   .WithMemoryModule(initialMemory, null)
+                   .WithRegistersModule()
+                   .WithAluModule()
+                   .BuildWithModulesAccess(out modules);
 
-        private void MakeTickAndWait() {
-            loop.Loop();
-            mainClock.MakeTick();
-            while (mainClock.IsManualTickInProgress) {
-                loop.Loop();
+                mainLoop = loopBuilder.Build();
             }
 
-            foreach (var sig in cycleSignals) {
-                sig.Value = false;
-            }
-
-            cycleSignals.Clear();
-
-            /*Console.WriteLine($"#{cycleNumber++}");
-            Console.WriteLine($"PC:\t{pc.Content.ToBitStringWithDecAndHexLE()}");
-            Console.WriteLine($"Bus:\t{dataBus.PeakAll().ToBitStringWithDecAndHexLE()}");
-            Console.WriteLine($"MAR:\t{mar.Content.ToBitStringWithDecAndHexLE()} -> RAM: \t{ram.Content[mar.Content.ToIntLE()].ToBitStringWithDecAndHexLE()}");
-            Console.WriteLine($"A:\t{regA.Content.ToBitStringWithDecAndHexLE()}");
-            Console.WriteLine($"B:\t{regB.Content.ToBitStringWithDecAndHexLE()}");
-            Console.WriteLine($"ALU:\t{aluAdder.Content.ToBitStringWithDecAndHexLE()}");
-            Console.WriteLine();*/
         }
 
         private static bool ShouldEscape() {

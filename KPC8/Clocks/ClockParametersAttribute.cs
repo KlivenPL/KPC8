@@ -2,7 +2,7 @@
 using System;
 
 namespace KPC8.Clocks {
-    class ClockParametersAttribute : Attribute {
+    public class ClockParametersAttribute : Attribute {
         public ClockParametersAttribute(long periodInTicks, ClockMode clockMode) {
             PeriodInTicks = periodInTicks;
             ClockMode = clockMode;

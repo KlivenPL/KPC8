@@ -1,30 +1,29 @@
 using _Infrastructure.BitArrays;
-using Autofac;
 using Components.Clocks;
 using Components.Signals;
-using KPC8._Infrastructure;
 using KPC8.Clocks;
 using KPC8.ControlSignals;
 using Simulation.Loops;
-using System;
 using System.Collections.Generic;
 
 namespace Tests {
-    public abstract class TestBase : IDisposable {
+    public abstract class TestBase {
         private readonly List<Signal> cycleSignals = new List<Signal>();
-        protected readonly ILifetimeScope _containerTestScope;
         protected readonly Clock _testClock;
-        protected readonly SimulationLoop _testSimulationLoop;
+        private SimulationLoop _testSimulationLoop;
+        private readonly SimulationLoopBuilder _simulationLoopBuilder = new SimulationLoopBuilder("Test");
+        private SimulationLoop TestSimulationLoop => _testSimulationLoop ??= _simulationLoopBuilder.Build();
+
+        private static ClockParametersAttribute testClockParameters;
+        private static ClockParametersAttribute TestClockParameters => testClockParameters ??= ClockType.TestManualClock.GetClockParameters();
 
         public TestBase() {
-            _containerTestScope = CompositionRoot.BeginLifetimeScope();
+            var clk = Signal.Factory.Create("TestClock");
+            var clkBar = Signal.Factory.Create("TestClockBar");
 
-            _testClock = _containerTestScope.ResolveKeyed<Clock>(ClockType.TestManualClock);
-            _testSimulationLoop = _containerTestScope.Resolve<SimulationLoop>();
-        }
+            var clkParameters = TestClockParameters;
 
-        public void Dispose() {
-            _containerTestScope.Dispose();
+            _testClock = new Clock(clk, clkBar, clkParameters.ClockMode, clkParameters.PeriodInTicks);
         }
 
         protected void Enable(Signal signal) {
@@ -33,13 +32,13 @@ namespace Tests {
         }
 
         public void MakeTickAndWait() {
-            _testSimulationLoop.Loop();
+            TestSimulationLoop.Loop();
             _testClock.MakeTick();
             while (_testClock.IsManualTickInProgress) {
                 _testSimulationLoop.Loop();
             }
 
-            _testSimulationLoop.Loop();
+            TestSimulationLoop.Loop();
 
             foreach (var sig in cycleSignals) {
                 sig.Value = false;
@@ -50,10 +49,10 @@ namespace Tests {
 
 
         public void MakeOnlyLoops() {
-            _testSimulationLoop.Loop();
-            _testSimulationLoop.Loop();
-            _testSimulationLoop.Loop();
-            _testSimulationLoop.Loop();
+            TestSimulationLoop.Loop();
+            TestSimulationLoop.Loop();
+            TestSimulationLoop.Loop();
+            TestSimulationLoop.Loop();
         }
 
         protected string GetCsErrorMessage(int step, ControlSignalType expectedSignal, IEnumerable<Signal> actual)
