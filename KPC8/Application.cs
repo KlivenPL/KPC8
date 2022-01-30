@@ -1,8 +1,10 @@
 ﻿using Components.Clocks;
 using Components.Signals;
+using ExternalDevices.HID;
 using Infrastructure.BitArrays;
 using KPC8.Clocks;
 using KPC8.ControlSignals;
+using KPC8.ExternalModules;
 using KPC8.ProgRegs;
 using Simulation.Loops;
 using System;
@@ -18,6 +20,7 @@ namespace KPC8 {
 
         private CsPanel cp;
         private ModulePanel modules;
+        private KPad kpad;
 
         public Application() {
             Create();
@@ -49,18 +52,20 @@ namespace KPC8 {
             var clkBar = Signal.Factory.Create("MainClockBar");
             var clkParameters = ClockType.MainClock.GetClockParameters();
 
-            using (var loopBuilder = new SimulationLoopBuilder("MainSimulation")) {
+            using (var loopBuilder = SimulationLoopBuilder.CreateAsCurrent().SetName("MainSimulation")) {
+
                 mainClock = new Clock(clk, clkBar, clkParameters.ClockMode, clkParameters.PeriodInTicks);
                 cp = new CpuBuilder(mainClock)
                    .WithControlModule(null, true)
                    .WithMemoryModule(initialMemory, null)
                    .WithRegistersModule()
                    .WithAluModule()
+                   .AddKPad("KPad1", 0x00, out var kPadModule, out var getKPadSimLoop)
                    .BuildWithModulesAccess(out modules);
 
                 mainLoop = loopBuilder.Build();
+                SimulationLoopRunner.RunInNewThread(getKPadSimLoop(), out var kPad1Thread);
             }
-
         }
 
         private static bool ShouldEscape() {

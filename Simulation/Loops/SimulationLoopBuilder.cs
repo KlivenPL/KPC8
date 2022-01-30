@@ -7,29 +7,35 @@ namespace Simulation.Loops {
     public class SimulationLoopBuilder : IDisposable {
         [ThreadStatic] private static Stack<SimulationLoopBuilder> buildersStack;
         private readonly List<IUpdate> newUpdates;
-        private readonly string loopName;
-        //private static object lockObj;
+        private string loopName;
 
-        public SimulationLoopBuilder(string loopName) {
-            //lockObj = new object();
-            this.loopName = loopName;
+        private SimulationLoopBuilder() {
             newUpdates = new List<IUpdate>();
-            //  lock (lockObj) {
-            buildersStack ??= new Stack<SimulationLoopBuilder>();
-            buildersStack.Push(this);
-            //  }
         }
 
-        public static SimulationLoopBuilder Current {
-            get {
-                // lock (lockObj) {
-                return buildersStack.Peek();
-                // }
-            }
+        public static SimulationLoopBuilder Create() {
+            return new SimulationLoopBuilder();
         }
+
+        public static SimulationLoopBuilder CreateAsCurrent() {
+            return new SimulationLoopBuilder().SetAsCurrent();
+        }
+
+        public static SimulationLoopBuilder Current => buildersStack.Peek();
 
         public SimulationLoopBuilder AddUpdate(IUpdate update) {
             newUpdates.Add(update);
+            return this;
+        }
+
+        public SimulationLoopBuilder SetName(string loopName) {
+            this.loopName = loopName;
+            return this;
+        }
+
+        public SimulationLoopBuilder SetAsCurrent() {
+            buildersStack ??= new Stack<SimulationLoopBuilder>();
+            buildersStack.Push(this);
             return this;
         }
 
@@ -38,13 +44,13 @@ namespace Simulation.Loops {
         }
 
         public void Dispose() {
-            //lock (lockObj) {
-            if (buildersStack.Peek() == this) {
-                buildersStack.Pop();
-            } else {
-                throw new Exception("Invalid order of simulation loop builders");
+            if (buildersStack != null) {
+                if (buildersStack.Peek() == this) {
+                    buildersStack.Pop();
+                } else {
+                    throw new Exception("Invalid order of simulation loop builders");
+                }
             }
-            // }
         }
     }
 }

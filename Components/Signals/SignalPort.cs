@@ -1,17 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Components.Signals {
     public class SignalPort {
-        private List<Signal> signals = new List<Signal>();
+        public SignalPort() {
+            signals = Array.Empty<Signal>();
+        }
+
+        public SignalPort(params Signal[] signals) : this() {
+            foreach (var sig in signals) {
+                PlugIn(sig);
+            }
+        }
+
+        private Signal[] signals;
 
         public event Action OnEdgeRise;
         public event Action OnEdgeFall;
 
         public bool Value {
             get {
-                for (int i = 0; i < signals.Count; i++) {
+                for (int i = 0; i < signals.Length; i++) {
                     if (signals[i].Value)
                         return true;
                 }
@@ -20,18 +29,9 @@ namespace Components.Signals {
             }
         }
         public void PlugIn(Signal signal) {
-            signals.Add(signal);
+            signals = signals.Append(signal).ToArray();
 
             signal.OnChange += Signal_OnChange;
-        }
-
-        public void UnplugAll() {
-            if (!signals.Any()) {
-                throw new Exception("This signal port was not occupied.");
-            }
-
-            signals.ForEach(s => s.OnChange -= Signal_OnChange);
-            signals.Clear();
         }
 
         private void Signal_OnChange(Signal signal) {
@@ -47,7 +47,7 @@ namespace Components.Signals {
         }
 
         public void Write(bool value) {
-            for (int i = 0; i < signals.Count; i++) {
+            for (int i = 0; i < signals.Length; i++) {
                 signals[i].Value = value;
             }
         }

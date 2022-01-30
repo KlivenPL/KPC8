@@ -1,18 +1,23 @@
 ﻿using Components.Buses;
 using Components.Clocks;
 using KPC8._Infrastructure.Components;
+using KPC8.ExternalModules;
 using KPC8.Microcode;
 using KPC8.Modules;
 using KPC8.RomProgrammers.Microcode;
+using Simulation.Loops;
+using System;
 using System.Collections;
 using System.Linq;
 
 namespace KPC8.ControlSignals {
     public class CpuBuilder {
-        private System.Func<CsPanel.MemoryPanel> createMemoryPanel;
-        private System.Func<CsPanel.ControlPanel> createControlPanel;
-        private System.Func<CsPanel.RegsPanel> createRegsPanel;
-        private System.Func<CsPanel.AluPanel> createAluPanel;
+        private Func<CsPanel.MemoryPanel> createMemoryPanel;
+        private Func<CsPanel.ControlPanel> createControlPanel;
+        private Func<CsPanel.RegsPanel> createRegsPanel;
+        private Func<CsPanel.AluPanel> createAluPanel;
+        private Action postBuildActions;
+        private bool isBaseBuilt = false;
 
         private IBus dataBus;
         private IBus addressBus;
@@ -81,21 +86,111 @@ namespace KPC8.ControlSignals {
             return this;
         }
 
+        public CpuBuilder PostBuild(Func<PostBuildActionsBuilder, PostBuildActionsBuilder> postBuildActionsBuilder) {
+            postBuildActions += () => {
+                postBuildActionsBuilder(new PostBuildActionsBuilder(this)).Execute();
+            };
+
+            return this;
+        }
+
+        public CpuBuilder InNewSimulationLoop(out Func<SimulationLoop> getSimulationLoop, Func<SimulationLoopBuilder, SimulationLoopBuilder> newLoopBuilder, Func<PostBuildActionsBuilder, PostBuildActionsBuilder> postBuildActionsBuilder) {
+            var simLoopBuilder = newLoopBuilder(SimulationLoopBuilder.Create());
+            getSimulationLoop = () => {
+                if (!isBaseBuilt) {
+                    throw new Exception("Cannot get simulation loop as given builder has not built CPU yet");
+                }
+                return simLoopBuilder.Build();
+            };
+
+            postBuildActions += () => {
+                if (SimulationLoopBuilder.Current == simLoopBuilder) {
+                    throw new Exception("Simulation loop builder in this context should not be set as current manually.");
+                }
+
+                using (simLoopBuilder.SetAsCurrent()) {
+                    postBuildActionsBuilder(new PostBuildActionsBuilder(this)).Execute();
+                }
+            };
+
+            return this;
+        }
+
+        public class PostBuildActionsBuilder {
+            private readonly CpuBuilder cpuBuilder;
+            private Action additionalActions;
+
+            public PostBuildActionsBuilder(CpuBuilder cpuBuilder) {
+                if (!cpuBuilder.isBaseBuilt) {
+                    throw new Exception("Cannot create as given builder has not built CPU yet");
+                }
+
+                this.cpuBuilder = cpuBuilder;
+            }
+
+            public PostBuildActionsBuilder Connect(Action<IBus, IBus> connectToDataAndAddressBus) {
+                additionalActions += () => {
+                    connectToDataAndAddressBus(cpuBuilder.dataBus, cpuBuilder.addressBus);
+                };
+
+                return this;
+            }
+
+            /*public PostBuildActionsBuilder ConnectExternalDevice(IExternalDevice externalDevice, Signal chipSelect) {
+                additionalActions += () => {
+                    var extIn = cpuBuilder.controlBus.GetControlSignal(ControlSignalType.Ext_in);
+                    var extOut = cpuBuilder.controlBus.GetControlSignal(ControlSignalType.Ext_out);
+
+                    externalDevice.ConnectAsExternalDevice(cpuBuilder.dataBus, cpuBuilder.addressBus, extIn, extOut, chipSelect);
+                };
+
+                return this;
+            }
+
+            public PostBuildActionsBuilder ConnectExternalDevice(IExternalDevice externalDevice, AddressMapper addressMapper) {
+                return ConnectExternalDevice(externalDevice, addressMapper.IsMatch);
+            }*/
+
+            public PostBuildActionsBuilder ConnectExternalModule(ExternalModuleBase externalModule) {
+                additionalActions += () => {
+                    var extIn = cpuBuilder.controlBus.GetControlSignal(ControlSignalType.Ext_in);
+                    var extOut = cpuBuilder.controlBus.GetControlSignal(ControlSignalType.Ext_out);
+
+                    externalModule.InitializeAndConnect(cpuBuilder.dataBus, cpuBuilder.addressBus, cpuBuilder.interruptsBus, extIn, extOut);
+                };
+
+                return this;
+            }
+
+            public void Execute() {
+                additionalActions?.Invoke();
+            }
+        }
+
         public CsPanel Build() {
-            dataBus = new HLBus("TestDataBus", 8);
+            if (isBaseBuilt) {
+                throw new Exception("This builder has already been used.");
+            }
+
+            dataBus = new HLBus("DataBus", 8);
             flagsBus = new HLBus("FlagsBus", 4);
             controlBus = new HLBus("ControlBus", 40);
             registerSelectBus = new HLBus("RegisterSelectBus", 16);
-            addressBus = new HLBus("TestAddressBus", 16);
-            interruptsBus = new HLBus("TestInterruptsBus", 8);
+            addressBus = new HLBus("AddressBus", 16);
+            interruptsBus = new HLBus("InterruptsBus", 8);
 
-            return new CsPanel {
+            var csPanel = new CsPanel {
                 Mem = createMemoryPanel?.Invoke(),
                 Ctrl = createControlPanel?.Invoke(),
                 Regs = createRegsPanel?.Invoke(),
                 Alu = createAluPanel?.Invoke(),
                 Modifier = controlBus.GetControlSignal(ControlSignalType.MODIFIER),
             };
+
+            isBaseBuilt = true;
+            postBuildActions?.Invoke();
+
+            return csPanel;
         }
 
         public CsPanel BuildWithModulesAccess(out ModulePanel modules) {
