@@ -4,35 +4,29 @@ using KPC8.ControlSignals;
 using KPC8.CpuFlags;
 using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
+using System;
 using System.Collections;
 using System.Linq;
 using Tests._Infrastructure;
 using Xunit.Abstractions;
 
-namespace Tests.KPC8Tests.Microcode.Instructions {
-    public abstract class McInstructionTestBase : TestBase {
+namespace Tests.KPC8Tests.Integration.ExternalModules {
+    public abstract class ExternalModuleTestBase : TestBase {
+        private readonly TestInstructionEncoder instructionEncoder;
+
         protected ITestOutputHelper Debug { get; private set; }
 
-        public McInstructionTestBase(ITestOutputHelper debug) {
+        public ExternalModuleTestBase(ITestOutputHelper debug) {
             Debug = debug;
+            instructionEncoder = new TestInstructionEncoder();
         }
 
         protected void EncodeInstruction(McInstruction instruction, Regs regDest, Regs regA, Regs regB, out BitArray instructionHigh, out BitArray instructionLow) {
-            var opCode = instruction.OpCode;
-
-            instructionHigh = BitArrayHelper.FromString($"{opCode.ToBitString()}{regDest.GetEncodedAddress().Skip(2).ToBitString()}");
-            instructionLow = BitArrayHelper.FromString($"{regA.GetEncodedAddress().ToBitString()}{regB.GetEncodedAddress().ToBitString()}");
+            instructionEncoder.EncodeInstruction(instruction, regDest, regA, regB, out instructionHigh, out instructionLow);
         }
 
         protected void EncodeInstruction(McInstruction instruction, Regs regDest, BitArray imm, out BitArray instructionHigh, out BitArray instructionLow) {
-            if (imm.Length != 8) {
-                throw new System.Exception("IMM value must be 8 bits long");
-            }
-
-            var opCode = instruction.OpCode;
-
-            instructionHigh = BitArrayHelper.FromString($"{opCode.ToBitString()}{regDest.GetEncodedAddress().Skip(2).ToBitString()}");
-            instructionLow = imm;
+            instructionEncoder.EncodeInstruction(instruction, regDest, imm, out instructionHigh, out instructionLow);
         }
 
         protected void StepThroughProceduralInstruction(ModulePanel modules, McProceduralInstruction instruction) {
@@ -40,7 +34,7 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             for (int i = 0; i < instruction.PreAndInstructionStepsCount; i++) {
                 BitAssert.Equality(steps[i].ToBitArray(), modules.ControlBus.Lanes, GetCsErrorMessage(i, steps[i], modules.ControlBus.Lanes));
                 MakeTickAndWait();
-                Debug.WriteLine($"Done instruction {i}:\t{steps[i]}");
+                Debug.WriteLine($"Done instruction {i}:\t{steps[i]}, dataBus: {modules.DataBus}, addressBus: {modules.AddressBus}");
                 //  Debug.WriteLine($"Done instruction {i}:\t{ControlSignalTypeExtensions.FromBitArray(modules.ControlBus.Lanes.ToBitArray())}");
 #pragma warning disable CS0219 // Variable is assigned but its value is never used
                 var debugDot = 1;
@@ -72,21 +66,23 @@ namespace Tests.KPC8Tests.Microcode.Instructions {
             }
         }
 
-        protected virtual CsPanel BuildPcModules(BitArray[] romData, BitArray[] ramData, out ModulePanel modules) {
-            var cp = new CpuBuilder(_testClock)
+        protected virtual CsPanel BuildPcModules(Func<CpuBuilder, CpuBuilder> connectExternalModuleFunc, BitArray[] romData, BitArray[] ramData, out ModulePanel modules) {
+            var cpuBuilder = new CpuBuilder(_testClock)
                .WithControlModule(null, true)
                .WithMemoryModule(romData, ramData)
                .WithRegistersModule()
-               .WithAluModule()
-               .BuildWithModulesAccess(out modules);
+               .WithAluModule();
+
+            connectExternalModuleFunc(cpuBuilder);
+
+            var cp = cpuBuilder.BuildWithModulesAccess(out modules);
 
             MakeOnlyLoops();
-
             return cp;
         }
 
-        protected virtual CsPanel BuildPcModules(BitArray[] romData, out ModulePanel modules) {
-            return BuildPcModules(romData, null, out modules);
+        protected virtual CsPanel BuildPcModules(Func<CpuBuilder, CpuBuilder> connectExternalModuleFunc, BitArray[] romData, out ModulePanel modules) {
+            return BuildPcModules(connectExternalModuleFunc, romData, null, out modules);
         }
     }
 }

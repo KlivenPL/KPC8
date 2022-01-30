@@ -7,7 +7,7 @@ using KPC8.ProgRegs;
 using Tests._Infrastructure;
 using Xunit;
 
-namespace Tests.KPC8Tests.ModulesTests {
+namespace Tests.KPC8Tests.Modules {
     public class RegistersModuleTests : TestBase {
 
         [Theory]

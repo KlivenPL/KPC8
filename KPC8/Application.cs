@@ -64,7 +64,7 @@ namespace KPC8 {
                    .BuildWithModulesAccess(out modules);
 
                 mainLoop = loopBuilder.Build();
-                SimulationLoopRunner.RunInNewThread(getKPadSimLoop(), out var kPad1Thread);
+                //SimulationLoopRunner.RunInNewThread(getKPadSimLoop(), out var kPad1Thread); todo poprawic oguyem
             }
         }
 

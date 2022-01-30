@@ -16,6 +16,7 @@ namespace ExternalDevices.HID {
         public SignalPort ExtIn { get; set; }
         public SignalPort ExtOut { get; set; }
         public KPadButtons SimulatedButtons { get; set; } = KPadButtons.None;
+        public int Priority => -2;
 
         public KPad(string name) : base(name) {
             mainBuffer = new(Size);
@@ -34,11 +35,9 @@ namespace ExternalDevices.HID {
         }
 
         private void ChipEnable_OnEdgeRise() {
-            for (int i = 0; i < Size; i++) {
-                Outputs[i].Write(mainBuffer[i]);
-            }
 
-            mainBuffer.SetAll(false);
+
+            //mainBuffer.SetAll(false);
         }
 
         public virtual void Update() {
@@ -117,6 +116,12 @@ namespace ExternalDevices.HID {
             if (buttons != KPadButtons.None) {
                 Console.WriteLine(buttons);
                 mainBuffer = BitArrayHelper.FromByteLE((byte)buttons);
+            }
+
+            if (ChipSelect) {
+                for (int i = 0; i < Size; i++) {
+                    Outputs[i].Write(mainBuffer[i]);
+                }
             }
         }
 

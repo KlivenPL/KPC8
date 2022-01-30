@@ -7,7 +7,7 @@ using KPC8.Modules;
 using Tests._Infrastructure;
 using Xunit;
 
-namespace Tests.KPC8Tests.ModulesTests {
+namespace Tests.KPC8Tests.Modules {
     public class AluModuleTests : TestBase {
 
         [Theory]

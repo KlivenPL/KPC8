@@ -21,7 +21,15 @@ namespace Tests.Adapters {
             }
         }
 
-        public static Signal CreateSignalAndPlugInPort<T>(this T device, Func<T, SignalPort> portSelector) where T : IIODevice {
+        public static IEnumerable<Signal> CreateSignalAndPlugIn<T>(this T device, Func<T, IEnumerable<SignalPort>> signalPortsSelector) {
+            foreach (var output in signalPortsSelector(device)) {
+                Signal signal = CreateTestSignal();
+                output.PlugIn(signal);
+                yield return signal;
+            }
+        }
+
+        public static Signal CreateSignalAndPlugInPort<T>(this T device, Func<T, SignalPort> portSelector) {
             var signal = CreateTestSignal();
             portSelector(device).PlugIn(signal);
             return signal;

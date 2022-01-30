@@ -3,7 +3,7 @@ using KPC8.RomProgrammers.Microcode;
 using System.Linq;
 using Xunit;
 
-namespace Tests.KPC8Tests.Microcode {
+namespace Tests.MiscTests {
     public class McRomBuilderTests : TestBase {
 
         private const int ProceduralInstructionsCount = 56;

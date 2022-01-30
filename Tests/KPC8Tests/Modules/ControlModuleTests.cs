@@ -12,7 +12,7 @@ using System.Linq;
 using Tests._Infrastructure;
 using Xunit;
 
-namespace Tests.KPC8Tests.ModulesTests {
+namespace Tests.KPC8Tests.Modules {
     public class ControlModuleTests : TestBase {
 
         [Fact]

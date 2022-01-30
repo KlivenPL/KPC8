@@ -7,7 +7,7 @@ using Tests._Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Tests.KPC8Tests.Microcode.Instructions {
+namespace Tests.KPC8Tests.Integration.Instructions {
     public class LoadProceduralInstructionTests : McInstructionTestBase {
         public LoadProceduralInstructionTests(ITestOutputHelper debug) : base(debug) {
 
