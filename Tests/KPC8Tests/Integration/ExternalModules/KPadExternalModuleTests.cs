@@ -62,7 +62,6 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             var simulatedButtons1 = KPadButtons.A | KPadButtons.Right;
             var simulatedButtonsVal1 = BitArrayHelper.FromByteLE((byte)simulatedButtons1);
 
-
             var kPadAddress2 = BitArrayHelper.FromUShortLE(kPadAddressStr2);
             var simulatedButtons2 = KPadButtons.B | KPadButtons.Left;
             var simulatedButtonsVal2 = BitArrayHelper.FromByteLE((byte)simulatedButtons2);
