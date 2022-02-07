@@ -1,32 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Assembler.Readers {
     public sealed class CodeReader : IDisposable {
         private readonly StreamReader reader;
-        private readonly MemoryStream ms;
-        private readonly Stack<long> checkpoints;
+
+        private readonly StringBuilder lastLineBuilder;
+        public string LineText => lastLineBuilder.ToString();
 
         public bool EndOfCode => reader.EndOfStream;
         public char Current { get; private set; }
         public char LowerCurrent => char.ToLower(Current);
 
+        public int Position { get; private set; }
+        public int Line { get; private set; }
+
         public CodeReader(MemoryStream ms) {
-            this.ms = ms;
             reader = new StreamReader(ms);
-            checkpoints = new Stack<long>();
+            lastLineBuilder = new StringBuilder();
         }
 
         public bool Read() {
             if (!reader.EndOfStream) {
                 Current = (char)reader.Read();
+                Position++;
+                lastLineBuilder.Append(Current);
+
+                if (Current == '\n') {
+                    Line++;
+                    Position = 0;
+                    lastLineBuilder.Clear();
+                }
+
                 return true;
             }
             return false;
         }
 
-        public bool Peek(out char c) {
+        public bool TryPeek(out char c) {
             c = (char)0;
             var tmp = reader.Peek();
             if (tmp == -1)
@@ -35,15 +47,12 @@ namespace Assembler.Readers {
             return true;
         }
 
-        public void CreateCheckpoint() {
-            checkpoints.Push(ms.Position);
-        }
-
-        public void GoBack() {
-            if (checkpoints.Count == 0) {
-                throw new Exception("No checkpoints to go back");
+        public void SkipToNextLine() {
+            while (Read()) {
+                if (Current == '\n') {
+                    return;
+                }
             }
-            ms.Position = checkpoints.Pop();
         }
 
         public void Dispose() {

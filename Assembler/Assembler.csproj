@@ -9,4 +9,8 @@
     <ProjectReference Include="..\KPC8\KPC8.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Parsers\" />
+  </ItemGroup>
+
 </Project>
