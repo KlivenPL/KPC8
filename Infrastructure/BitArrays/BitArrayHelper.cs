@@ -54,7 +54,7 @@ namespace Infrastructure.BitArrays {
             str = str.Replace(" ", "");
 
             if (str.Any(c => c != '0' && c != '1')) {
-                throw new Exception("This string does not represent valid bit array");
+                throw new Exception($"String: \"{str}\" does not represent valid bit array");
             }
 
             return new BitArray(str.Select(c => c == '1').ToArray());

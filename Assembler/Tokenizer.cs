@@ -27,19 +27,22 @@ namespace Assembler {
         }
 
         private IToken CreateToken(CodeReader reader) {
+            var position = reader.Position;
+            var line = reader.Line;
+
             if (char.IsDigit(reader.Current) || reader.Current == '-') {
-                return new NumberToken();
+                return new NumberToken().AddDebugData(position, line);
             } else if (char.IsLetter(reader.Current)) {
-                return new OperationToken();
+                return new IdentifierToken().AddDebugData(position, line);
             }
 
             return reader.Current switch {
-                '$' => new RegisterToken(),
-                ':' => new LabelToken(),
-                '*' => new RegionToken(),
-                '.' => new CommandToken(),
-                '\'' => new CharToken(),
-                '"' => new StringToken(),
+                '$' => new RegisterToken().AddDebugData(position, line),
+                ':' => new LabelToken().AddDebugData(position, line),
+                '*' => new RegionToken().AddDebugData(position, line),
+                '.' => new CommandToken().AddDebugData(position, line),
+                '\'' => new CharToken().AddDebugData(position, line),
+                '"' => new StringToken().AddDebugData(position, line),
                 _ => throw TokenizerException.Create($"Unexpected character: {reader.Current}", reader)
             };
         }

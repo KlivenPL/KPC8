@@ -5,10 +5,15 @@ using System;
 namespace KPC8._Infrastructure.Microcode.Attributes {
     [AttributeUsage(AttributeTargets.Method)]
     public class InstructionFormatAttribute : Attribute {
+        public const Regs DefaultRegDestRestrictions = Regs.T1 | Regs.T2 | Regs.T3 | Regs.T4;
+        public const Regs DefaultRegARestrictions = Regs.None;
+        public const Regs DefaultRegBRestrictions = Regs.None;
+
         public McInstructionFormat InstructionFormat { get; }
-        public Regs RegDestRestrictions { get; } = Regs.T1 | Regs.T2 | Regs.T3 | Regs.T4;
-        public Regs RegARestrictions { get; } = Regs.None;
-        public Regs RegBRestrictions { get; } = Regs.None;
+        public Regs RegDestRestrictions { get; } = DefaultRegDestRestrictions;
+        public Regs RegARestrictions { get; } = DefaultRegARestrictions;
+        public Regs RegBRestrictions { get; } = DefaultRegBRestrictions;
+        public byte? ImmediateValue { get; } = null;
 
         public InstructionFormatAttribute(McInstructionFormat instructionFormat) {
             InstructionFormat = instructionFormat;
@@ -18,7 +23,8 @@ namespace KPC8._Infrastructure.Microcode.Attributes {
                 McInstructionFormat instructionFormat,
                 Regs customRegDestRestr = Regs.None,
                 Regs regARestrictions = Regs.None,
-                Regs regBRestrictions = Regs.None) {
+                Regs regBRestrictions = Regs.None,
+                short immediateValue = short.MaxValue) {
 
             InstructionFormat = instructionFormat;
             RegDestRestrictions = customRegDestRestr;
@@ -29,6 +35,10 @@ namespace KPC8._Infrastructure.Microcode.Attributes {
 
             RegARestrictions = regARestrictions;
             RegBRestrictions = regBRestrictions;
+
+            if (immediateValue != short.MaxValue) {
+                ImmediateValue = (byte)immediateValue;
+            }
         }
     }
 }

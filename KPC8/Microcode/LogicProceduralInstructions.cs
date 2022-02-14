@@ -35,7 +35,7 @@ namespace KPC8.Microcode {
 
 
         [ProceduralInstruction(McInstructionType.Xor)]
-        [InstructionFormat(McInstructionFormat.Immediate)]
+        [InstructionFormat(McInstructionFormat.Register)]
         public static IEnumerable<Cs> Xor() {
             yield return Cs.DecA_oe | CsComb.Regs_oe_lo | Cs.RegA_le;
             yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.RegB_le;

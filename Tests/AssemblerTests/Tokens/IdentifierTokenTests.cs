@@ -1,22 +1,22 @@
 ﻿using Assembler.Readers;
 using Assembler.Tokens;
-using KPC8.RomProgrammers.Microcode;
 using System.IO;
 using System.Text;
 using Xunit;
 
 namespace Tests.AssemblerTests.Tokens {
-    public class OperationTokenTests {
+    public class IdentifierTokenTests {
 
         [Theory]
-        [InlineData("nop", McInstructionType.Nop)]
-        [InlineData("ADD", McInstructionType.Add)]
-        [InlineData("aDdi", McInstructionType.AddI)]
-        public void TryAccept_InputAccepted(string input, McInstructionType expectedValue) {
+        [InlineData("nop", "nop")]
+        [InlineData("ADD", "ADD")]
+        [InlineData("aDdi xd", "aDdi")]
+        [InlineData("label_name-pig", "label_name")]
+        public void TryAccept_InputAccepted(string input, string expectedValue) {
             using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));
             using var reader = CreateReader(ms);
 
-            var token = new OperationToken();
+            var token = new IdentifierToken();
             var result = token.TryAccept(reader);
 
             Assert.True(result);
@@ -32,11 +32,11 @@ namespace Tests.AssemblerTests.Tokens {
             using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));
             using var reader = CreateReader(ms);
 
-            var token = new OperationToken();
+            var token = new IdentifierToken();
             var result = token.TryAccept(reader);
 
             Assert.False(result);
-            Assert.Equal(McInstructionType.Nop, token.Value);
+            Assert.Null(token.Value);
         }
 
         private static CodeReader CreateReader(MemoryStream ms) {

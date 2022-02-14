@@ -31,7 +31,7 @@ namespace KPC8.Microcode {
         }
 
         [ProceduralInstruction(McInstructionType.Irrret)]
-        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1)]
+        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1, immediateValue: 0)]
         public static IEnumerable<Cs> Irrret() {
             // mar = 0xFF00
             yield return Cs.RegAToBus_oe | Cs.Mar_le_lo; // mar_lo = 0x00;
@@ -49,13 +49,13 @@ namespace KPC8.Microcode {
         }
 
         [ProceduralInstruction(McInstructionType.Irren)]
-        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1)]
+        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1, immediateValue: 0)]
         public static IEnumerable<Cs> Irren() {
             yield return CsComb.Irr_en;
         }
 
         [ProceduralInstruction(McInstructionType.Irrdis)]
-        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1)]
+        [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1, immediateValue: 0)]
         public static IEnumerable<Cs> Irrdis() {
             yield return CsComb.Irr_dis;
         }

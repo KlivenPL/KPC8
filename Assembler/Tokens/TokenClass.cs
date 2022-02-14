@@ -4,7 +4,7 @@ namespace Assembler.Tokens {
     [Flags]
     public enum TokenClass : uint {
         None = 0,
-        Operation = 1,      // mov SUBI AdDW
+        Identifier = 1,      // mov SUBI AdDW label
         Register = 1 << 1,  // $t1, $t2, $0, $15
         Number = 1 << 2,    // 0, 1, -2, 2137
         Char = 1 << 3,      // 'a', 'b', '\0', '\t', '''
