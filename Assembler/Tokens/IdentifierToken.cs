@@ -1,4 +1,5 @@
-﻿using Assembler.Readers;
+﻿using Assembler.Pseudoinstructions;
+using Assembler.Readers;
 using KPC8.RomProgrammers.Microcode;
 using System;
 using System.Text;
@@ -12,7 +13,7 @@ namespace Assembler.Tokens {
             if (char.IsLetter(reader.Current)) {
                 var sb = new StringBuilder(reader.Current.ToString());
 
-                while (reader.Read() && (char.IsLetterOrDigit(reader.Current) || reader.Current == '_')) {
+                while (reader.Read() && (char.IsLetterOrDigit(reader.Current) || reader.Current == '_' || reader.Current == '.')) {
                     sb.Append(reader.Current);
                 }
 
@@ -24,6 +25,13 @@ namespace Assembler.Tokens {
 
         public bool IsInstruction(out McInstructionType instructionType) {
             if (Enum.TryParse(Value, true, out instructionType)) {
+                return true;
+            }
+            return false;
+        }
+
+        public bool IsPseudoinstruction(out PseudoinstructionType pseudoinstructionType) {
+            if (Enum.TryParse(Value, true, out pseudoinstructionType)) {
                 return true;
             }
             return false;

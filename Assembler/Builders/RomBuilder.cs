@@ -1,0 +1,98 @@
+﻿using Infrastructure.BitArrays;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Assembler.Builders {
+    class RomBuilder {
+        private const ushort MaxAddress = ushort.MaxValue;
+        private readonly List<BitArray> compiled;
+        private readonly bool[] reservedAddresses;
+        private ushort nextAddress;
+        public ushort NextAddress {
+            get => nextAddress;
+            set {
+                overflow = false;
+                nextAddress = value;
+            }
+        }
+
+        private bool overflow = false;
+
+        public RomBuilder() {
+            compiled = new List<BitArray>();
+            for (int i = 0; i <= MaxAddress; i++) {
+                compiled.Add(null);
+            }
+            reservedAddresses = new bool[MaxAddress + 1];
+        }
+
+        public RomBuilder AddInstruction(BitArray instructionHigh, BitArray instructionLow) {
+            AddByte(instructionHigh);
+            AddByte(instructionLow);
+            return this;
+        }
+
+        public RomBuilder AddPseudoinstruction(BitArray[] instructions) {
+            foreach (var instruction in instructions) {
+                AddByte(instruction);
+            }
+            return this;
+        }
+
+        public RomBuilder AddShort(BitArray @short) {
+            if (@short.Length != 16) {
+                throw new System.Exception($"Value {@short.ToBitString()} has {@short.Length} instead of 16 bits");
+            }
+
+            AddByte(@short.Take(8));
+            AddByte(@short.Skip(8));
+            return this;
+        }
+
+        public RomBuilder AddByte(BitArray @byte) {
+            if (overflow) {
+                throw new System.Exception("Out of memory");
+            }
+
+            if (@byte.Length != 8) {
+                throw new System.Exception($"Value {@byte.ToBitString()} has {@byte.Length} instead of 8 bits");
+            }
+
+            if (!IsAddressFree(NextAddress)) {
+                throw new System.Exception($"Address {NextAddress} is occupied");
+            }
+
+            compiled[NextAddress++] = @byte;
+            overflow = NextAddress == 0;
+
+            return this;
+        }
+
+        public void Reserve(int size) {
+            for (int i = 0; i < size; i++) {
+                reservedAddresses[nextAddress + i] = true;
+            }
+        }
+
+        public void Unreserve(int size) {
+            for (int i = 0; i < size; i++) {
+                reservedAddresses[nextAddress + i] = false;
+            }
+        }
+
+        public bool IsAddressFree(ushort address) {
+            return compiled[address] == null && reservedAddresses[address] == false;
+        }
+
+        public BitArray[] Build() {
+            for (int i = 0; i < compiled.Count; i++) {
+                if (compiled[i] == null) {
+                    compiled[i] = new BitArray(8);
+                }
+            }
+
+            return compiled.ToArray();
+        }
+    }
+}

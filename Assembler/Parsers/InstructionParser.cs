@@ -66,7 +66,7 @@ namespace Assembler.Parsers {
                     _ => throw ParserException.Create($"Expected Number or Char token, got {reader.Current.Class}", reader.Current),
                 };
             } else {
-                throw ParserException.Create($"Expected Number or Char token", reader.Current);
+                throw ParserException.Create($"Too few arguments. Expected Number or Char token", reader.Current);
             }
 
             instructionEncoder.Encode(instructionType, regDest, number, out instructionHigh, out instructionLow);

@@ -1,20 +1,29 @@
 ﻿using Assembler.Readers;
 using Assembler.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Assembler.Contexts {
     class LabelsContext {
-        public const string GlobalRegion = "@global";
-        private readonly Dictionary<string, List<(string name, ushort? address)>> regionedLabels;
+        private class LabelInfo {
+            public LabelInfo(string name, ushort? address) {
+                Name = name;
+                Address = address;
+            }
 
-        /* public string CurrentRegion { get; private set; }
-         public string CurrentLabel { get; private set; }*/
+            public string Name { get; set; }
+            public ushort? Address { get; set; }
+        }
+
+        public const string GlobalRegion = "@global";
+        private readonly Dictionary<string, List<LabelInfo>> regionedLabels;
+
+        public string CurrentRegion { get; set; }
 
         public LabelsContext() {
-            regionedLabels = new Dictionary<string, List<(string name, ushort? address)>>();
-            regionedLabels.Add(GlobalRegion, new List<(string name, ushort? address)>());
-            //TryStartRegion(GlobalRegion);
+            regionedLabels = new Dictionary<string, List<LabelInfo>>();
+            regionedLabels.Add(GlobalRegion, new List<LabelInfo>());
         }
 
         public bool TryParseAllRegionsAndLabels(TokenReader reader) {
@@ -32,16 +41,16 @@ namespace Assembler.Contexts {
                         return false;
                     }
 
-                    regionedLabels.Add(regionToken.Value, new List<(string name, ushort? address)>());
+                    regionedLabels.Add(regionToken.Value, new List<LabelInfo>());
                     currentRegion = regionToken.Value;
                     currentLabel = null;
                 } else if (reader.Current is LabelToken labelToken) {
                     var prevLabels = regionedLabels[currentRegion];
-                    if (prevLabels.Select(l => l.name).Contains(labelToken.Value)) {
+                    if (prevLabels.Select(l => l.Name).Contains(labelToken.Value)) {
                         return false;
                     }
 
-                    prevLabels.Add((labelToken.Value, null));
+                    prevLabels.Add(new LabelInfo(labelToken.Value, null));
                     currentLabel = labelToken.Value;
                 }
             }
@@ -49,30 +58,38 @@ namespace Assembler.Contexts {
             return true;
         }
 
-        /*        public bool TryStartRegion(string newRegion) {
-                    if (regionedLabels.ContainsKey(newRegion)) {
-                        CurrentRegion = newRegion;
-                        CurrentLabel = null;
-                        return true;
-                    }
-
-                    return false;
-                }
-
-                public bool TryStartLabel(string label) {
-                    var currentLabels = regionedLabels[CurrentRegion];
-                    if (currentLabels.Contains(label)) {
-                        CurrentLabel = label;
-                        return true;
-                    }
-                    return false;
-                }*/
-
         public bool TryFindLabel(string identifier, out ushort? address) {
             address = null;
-            var split = identifier.Split(new string[] { "." }, System.StringSplitOptions.RemoveEmptyEntries);
-            var region = GlobalRegion;
-            string label;
+
+            if (!TryGetRegionAndLabel(identifier, out var region, out var label)) {
+                return false;
+            }
+
+            if (regionedLabels.TryGetValue(region, out var labels)) {
+                var tuple = labels.FirstOrDefault(l => l.Name == label);
+                if (tuple != default) {
+                    address = tuple.Address;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void ResolveLabel(string labelDef, ushort address) {
+            if (!TryFindLabel(labelDef, out var oldAddress)) {
+                throw new Exception("Label not found");
+            } else if (oldAddress.HasValue) {
+                throw new Exception("Label already resolved");
+            }
+
+            regionedLabels[CurrentRegion].First(x => x.Name == labelDef).Address = address;
+        }
+
+        private bool TryGetRegionAndLabel(string identifier, out string region, out string label) {
+            var split = identifier.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+            region = CurrentRegion;
+            label = null;
 
             if (split.Length == 1) {
                 label = split[0];
@@ -83,15 +100,7 @@ namespace Assembler.Contexts {
                 return false;
             }
 
-            if (regionedLabels.TryGetValue(region, out var labels)) {
-                var tuple = labels.FirstOrDefault(l => l.name == label);
-                if (tuple != default) {
-                    address = tuple.address;
-                    return true;
-                }
-            }
-
-            return false;
+            return true;
         }
     }
 }
