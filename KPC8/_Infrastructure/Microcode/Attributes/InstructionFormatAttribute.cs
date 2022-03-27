@@ -5,7 +5,7 @@ using System;
 namespace KPC8._Infrastructure.Microcode.Attributes {
     [AttributeUsage(AttributeTargets.Method)]
     public class InstructionFormatAttribute : Attribute {
-        public const Regs DefaultRegDestRestrictions = Regs.T1 | Regs.T2 | Regs.T3 | Regs.T4;
+        public const Regs DefaultRegDestRestrictions = Regs.T1 | Regs.T2 | Regs.T3 | Regs.Ass;
         public const Regs DefaultRegARestrictions = Regs.None;
         public const Regs DefaultRegBRestrictions = Regs.None;
 

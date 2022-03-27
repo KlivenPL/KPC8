@@ -11,9 +11,9 @@ namespace KPC8.ProgRegs {
         Zero = 1,
 
         /// <summary>
-        /// Reserved for assembler
+        /// Temporary 4
         /// </summary>
-        Ass = 1 << 1,
+        T4 = 1 << 1,
 
         /// <summary>
         /// Stack pointer
@@ -41,9 +41,9 @@ namespace KPC8.ProgRegs {
         T3 = 1 << 6,
 
         /// <summary>
-        /// Temporary 4
+        /// Reserved for assembler
         /// </summary>
-        T4 = 1 << 7,
+        Ass = 1 << 7,
 
         /// <summary>
         /// Saved 1

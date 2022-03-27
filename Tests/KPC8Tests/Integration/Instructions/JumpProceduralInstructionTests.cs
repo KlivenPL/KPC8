@@ -25,7 +25,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var one = BitArrayHelper.FromByteLE(1);
 
             EncodeInstruction(instruction, Regs.Zero, Regs.Zero, Regs.T1, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(addTestInstr, Regs.Ass, one, out var addTestInstrHigh, out var addTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = instructionHigh;
@@ -44,7 +44,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             StepThroughProceduralInstruction(modules, addTestInstr);
 
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
 
         [Theory]
@@ -61,7 +61,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var one = BitArrayHelper.FromByteLE(1);
 
             EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(addTestInstr, Regs.Ass, one, out var addTestInstrHigh, out var addTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = instructionHigh;
@@ -82,7 +82,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(offset, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
 
         [Theory]
@@ -98,7 +98,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var savedPcAddr = BitArrayHelper.FromUShortLE(2);
 
             EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.Ra, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(addTestInstr, Regs.Ass, one, out var addTestInstrHigh, out var addTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = instructionHigh;
@@ -118,7 +118,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(savedPcAddr, modules.Registers.GetWholeRegContent(Regs.Ra.GetIndex()));
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
 
         [Theory]
@@ -134,7 +134,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var one = BitArrayHelper.FromByteLE(1);
 
             EncodeInstruction(instruction, Regs.Zero, offset, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(addTestInstr, Regs.Ass, one, out var addTestInstrHigh, out var addTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = instructionHigh;
@@ -149,7 +149,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             StepThroughProceduralInstruction(modules, addTestInstr);
 
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
 
         [Theory]
@@ -168,7 +168,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             EncodeInstruction(primaryJumpInstr, Regs.Zero, Regs.Zero, Regs.T1, out var primaryJumpInstrHigh, out var primaryJumpInstrLow);
             EncodeInstruction(instruction, Regs.Zero, offset, out var instructionHigh, out var instructionLow);
-            EncodeInstruction(addTestInstr, Regs.T4, one, out var addTestInstrHigh, out var addTestInstrLow);
+            EncodeInstruction(addTestInstr, Regs.Ass, one, out var addTestInstrHigh, out var addTestInstrLow);
 
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = primaryJumpInstrHigh;
@@ -192,7 +192,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             StepThroughProceduralInstruction(modules, addTestInstr);
 
-            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
     }
 }

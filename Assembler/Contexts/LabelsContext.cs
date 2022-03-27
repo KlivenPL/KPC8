@@ -19,17 +19,17 @@ namespace Assembler.Contexts {
         public const string GlobalRegion = "@global";
         private readonly Dictionary<string, List<LabelInfo>> regionedLabels;
 
-        public string CurrentRegion { get; set; }
+        public string CurrentRegion { get; set; } = GlobalRegion;
 
         public LabelsContext() {
             regionedLabels = new Dictionary<string, List<LabelInfo>>();
-            regionedLabels.Add(GlobalRegion, new List<LabelInfo>());
+            ClearRegionedLabels();
         }
 
         public bool TryParseAllRegionsAndLabels(TokenReader reader) {
             string currentRegion = GlobalRegion;
             string currentLabel = null;
-            regionedLabels.Clear();
+            ClearRegionedLabels();
 
             while (reader.Read()) {
                 if (reader.Current is RegionToken regionToken) {
@@ -101,6 +101,11 @@ namespace Assembler.Contexts {
             }
 
             return true;
+        }
+
+        private void ClearRegionedLabels() {
+            regionedLabels.Clear();
+            regionedLabels.Add(GlobalRegion, new List<LabelInfo>());
         }
     }
 }

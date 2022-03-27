@@ -16,8 +16,8 @@ namespace Assembler.Pseudoinstructions {
         public override PseudoinstructionType Type => PseudoinstructionType.Jl;
 
         protected override IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader) {
-            ParseParameters(reader, out var parsedTokens, TokenClass.Identifier);
-            throw new LabelNotResolvedException((IdentifierToken)parsedTokens[0], SizeInBytes, ParseLabel);
+            ParseParameters<IdentifierToken>(reader, out var identifierToken);
+            throw new LabelNotResolvedException(identifierToken, SizeInBytes, ParseLabel);
         }
 
         private BitArray[] ParseLabel(ushort labelAddress) {
@@ -25,8 +25,10 @@ namespace Assembler.Pseudoinstructions {
         }
 
         private IEnumerable<IEnumerable<BitArray>> ParseLabelInner(ushort labelAddress) {
-            yield return InstructionEncoder.Encode(McInstructionType.SetI, Regs.Ass, (byte)(labelAddress & 0x00FF));
-            yield return InstructionEncoder.Encode(McInstructionType.SethI, Regs.Ass, (byte)(labelAddress & 0xFF00));
+            SplitWord(labelAddress, out var lower, out var higher);
+
+            yield return InstructionEncoder.Encode(McInstructionType.SetI, Regs.Ass, lower);
+            yield return InstructionEncoder.Encode(McInstructionType.SethI, Regs.Ass, higher);
             yield return InstructionEncoder.Encode(McInstructionType.Jr, Regs.Zero, Regs.Zero, Regs.Ass);
         }
     }

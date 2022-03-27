@@ -56,7 +56,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             EncodeInstruction(addIInstruction, Regs.T1, BitArrayHelper.FromString($"00101100"), out var addIInstructionHigh1, out var addIInstructionLow1);
             EncodeInstruction(addIInstruction, Regs.T2, BitArrayHelper.FromString($"01000011"), out var addIInstructionHigh2, out var addIInstructionLow2);
-            EncodeInstruction(addInstruction, Regs.T4, Regs.T1, Regs.T2, out var addInstructionHigh3, out var addInstructionLow3);
+            EncodeInstruction(addInstruction, Regs.Ass, Regs.T1, Regs.T2, out var addInstructionHigh3, out var addInstructionLow3);
 
             var romData = new[] {
                 addIInstructionHigh1, addIInstructionLow1,
@@ -72,7 +72,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             BitAssert.Equality(addIInstructionLow1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(addIInstructionLow2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
-            BitAssert.Equality(expectedSum, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(expectedSum, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
 
         [Fact]
@@ -122,7 +122,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             EncodeInstruction(subIInstruction, Regs.T1, BitArrayHelper.FromString($"00101100"), out var subIInstructionHigh1, out var subIInstructionLow1);
             EncodeInstruction(subIInstruction, Regs.T2, BitArrayHelper.FromString($"00000111"), out var subIInstructionHigh2, out var subIInstructionLow2);
-            EncodeInstruction(subInstruction, Regs.T4, Regs.T1, Regs.T2, out var subInstructionHigh3, out var subInstructionLow3);
+            EncodeInstruction(subInstruction, Regs.Ass, Regs.T1, Regs.T2, out var subInstructionHigh3, out var subInstructionLow3);
 
             var romData = new[] {
                 subIInstructionHigh1, subIInstructionLow1,
@@ -138,7 +138,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             BitAssert.Equality(expectedT1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(expectedT2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
-            BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
 
         [Fact]
@@ -150,7 +150,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var expectedT2 = BitArrayHelper.FromString($"11010100");
             var expectedResult = BitArrayHelper.FromString("00000000");
 
-            EncodeInstruction(subInstruction, Regs.T4, Regs.T1, Regs.T2, out var subInstructionHigh1, out var subInstructionLow1);
+            EncodeInstruction(subInstruction, Regs.Ass, Regs.T1, Regs.T2, out var subInstructionHigh1, out var subInstructionLow1);
 
             var romData = new[] {
                 subInstructionHigh1, subInstructionLow1,
@@ -161,14 +161,14 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), zero.MergeWith(expectedT1));
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(expectedT2));
 
-            modules.Registers.SetWholeRegContent(Regs.T4.GetIndex(), zero.MergeWith(random));
+            modules.Registers.SetWholeRegContent(Regs.Ass.GetIndex(), zero.MergeWith(random));
 
-            BitAssert.Equality(random, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(random, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
             StepThroughProceduralInstruction(modules, subInstruction);
 
             BitAssert.Equality(expectedT1, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(expectedT2, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
-            BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.T4.GetIndex()));
+            BitAssert.Equality(expectedResult, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
 
         [Theory]

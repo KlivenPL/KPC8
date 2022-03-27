@@ -67,7 +67,7 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             var simulatedButtonsVal2 = BitArrayHelper.FromByteLE((byte)simulatedButtons2);
 
             EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh1, out var instructionLow1);
-            EncodeInstruction(instruction, Regs.Zero, Regs.T2, Regs.T4, out var instructionHigh2, out var instructionLow2);
+            EncodeInstruction(instruction, Regs.Zero, Regs.T2, Regs.Ass, out var instructionHigh2, out var instructionLow2);
 
             var romData = new BitArray[] { instructionHigh1, instructionLow1, instructionHigh2, instructionLow2 };
 
@@ -82,7 +82,7 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             using var kPadSimRunner2 = SimulationLoopRunner.RunInNewThread(simLoop2);
 
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), kPadAddress1);
-            modules.Registers.SetWholeRegContent(Regs.T4.GetIndex(), kPadAddress2);
+            modules.Registers.SetWholeRegContent(Regs.Ass.GetIndex(), kPadAddress2);
             kPadExternalModule1.SimulateButtons(simulatedButtons1);
             kPadExternalModule2.SimulateButtons(simulatedButtons2);
 

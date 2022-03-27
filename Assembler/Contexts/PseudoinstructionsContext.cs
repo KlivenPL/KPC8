@@ -11,7 +11,7 @@ namespace Assembler.Contexts {
             pseudoinstructions = typeof(PseudoinstructionBase).Assembly.GetTypes()
                  .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(PseudoinstructionBase)))
                  .Select(x => new { type = x, instance = Activator.CreateInstance(x) })
-                 .ToDictionary(x => (PseudoinstructionType)x.type.GetProperty("PseudoinstructionType").GetValue(x.instance), x => (PseudoinstructionBase)x.instance);
+                 .ToDictionary(x => (PseudoinstructionType)x.type.GetProperty("Type").GetValue(x.instance), x => (PseudoinstructionBase)x.instance);
         }
 
         public PseudoinstructionBase GetPseudoinstruction(PseudoinstructionType instructionType) {

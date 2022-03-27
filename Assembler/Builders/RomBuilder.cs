@@ -34,6 +34,9 @@ namespace Assembler.Builders {
         }
 
         public RomBuilder AddPseudoinstruction(BitArray[] instructions) {
+            if (instructions.Length % 2 != 0) {
+                throw new System.Exception("Pseudoinstructions must be of length 2N");
+            }
             foreach (var instruction in instructions) {
                 AddByte(instruction);
             }
@@ -60,7 +63,7 @@ namespace Assembler.Builders {
             }
 
             if (!IsAddressFree(NextAddress)) {
-                throw new System.Exception($"Address {NextAddress} is occupied");
+                throw new System.Exception($"Address {NextAddress} is occupied or reserved");
             }
 
             compiled[NextAddress++] = @byte;
@@ -86,6 +89,10 @@ namespace Assembler.Builders {
         }
 
         public BitArray[] Build() {
+            if (reservedAddresses?.Any(x => x) == true) {
+                throw new System.Exception("There should be no reserved addresses by now.");
+            }
+
             for (int i = 0; i < compiled.Count; i++) {
                 if (compiled[i] == null) {
                     compiled[i] = new BitArray(8);
