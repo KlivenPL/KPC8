@@ -264,8 +264,13 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         }
 
         [Theory]
+        [InlineData(12, 0x00FE)]
         [InlineData(12, 0x00FF)]
+        [InlineData(12, 0x0100)]
+        [InlineData(1, 0xFEFF)]
         [InlineData(1, 0xFF00)]
+        [InlineData(1, 0xFF01)]
+        [InlineData(255, 0xFFFE)]
         [InlineData(255, 0xFFFF)]
         public void Popb(byte valStr, ushort addrStr) {
             var instruction = McProceduralInstruction.CreateFromSteps(typeof(LoadProceduralInstructions), nameof(LoadProceduralInstructions.Popb));
@@ -281,7 +286,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var ramData = new BitArray[0xFFFF + 1];
-            ramData[addrStr] = val;
+            ramData[addrStr - 1] = val;
 
             var cp = BuildPcModules(romData, ramData, out var modules);
 
@@ -316,8 +321,8 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var ramData = new BitArray[0xFFFF + 1];
-            ramData[addrStr] = val.Take(8);
-            ramData[addrStr + 1] = val.Skip(8);
+            ramData[addrStr - 2] = val.Take(8);
+            ramData[addrStr - 1] = val.Skip(8);
 
             var cp = BuildPcModules(romData, ramData, out var modules);
 

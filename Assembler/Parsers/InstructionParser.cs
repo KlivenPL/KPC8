@@ -51,6 +51,7 @@ namespace Assembler.Parsers {
                 regDest = instructionFormat.RegDestRestrictions;
             } else {
                 if (reader.Read() && reader.Current is RegisterToken registerToken) {
+                    ValidateIsRegisterAllowed(instructionFormat.RegDestRestrictions, registerToken, instructionType);
                     regDest = registerToken.Value;
                 } else {
                     throw ParserException.Create($"Expected register, got {reader.Current.Class}", reader.Current);
@@ -96,16 +97,19 @@ namespace Assembler.Parsers {
 
             var originalRegsToResolveCount = regsToResolveCount;
 
-            while (reader.Read() && regsToResolveCount-- > 0) {
+            while (regsToResolveCount-- > 0 && reader.Read()) {
                 if (reader.Current is not RegisterToken registerToken) {
                     throw ParserException.Create($"Expected register token, got {reader.Current.Class}", reader.Current);
                 }
 
                 if (regDest == Regs.None) {
+                    ValidateIsRegisterAllowed(instructionFormat.RegDestRestrictions, registerToken, instructionType);
                     regDest = registerToken.Value;
                 } else if (regA == Regs.None) {
+                    ValidateIsRegisterAllowed(instructionFormat.RegARestrictions, registerToken, instructionType);
                     regA = registerToken.Value;
                 } else if (regB == Regs.None) {
+                    ValidateIsRegisterAllowed(instructionFormat.RegBRestrictions, registerToken, instructionType);
                     regB = registerToken.Value;
                 } else {
                     throw new Exception("This situation should not have happened");
@@ -117,6 +121,12 @@ namespace Assembler.Parsers {
             }
 
             instructionEncoder.Encode(instructionType, regDest, regA, regB, out instructionHigh, out instructionLow);
+        }
+
+        private void ValidateIsRegisterAllowed(Regs restrictions, RegisterToken registerToken, McInstructionType instructionType) {
+            if (restrictions != Regs.None && !restrictions.HasFlag(registerToken.Value)) {
+                throw ParserException.Create($"Invalid register in instruction {instructionType}, got {registerToken.Value}, expected {restrictions}", registerToken);
+            }
         }
     }
 }

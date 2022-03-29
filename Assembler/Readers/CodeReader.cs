@@ -14,7 +14,7 @@ namespace Assembler.Readers {
         public char LowerCurrent => char.ToLower(Current);
 
         public int Position { get; private set; }
-        public int Line { get; private set; }
+        public int Line { get; private set; } = 1;
 
         public CodeReader(MemoryStream ms) {
             reader = new StreamReader(ms);

@@ -167,6 +167,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         }
 
         [Theory]
+        [InlineData(3, 0)]
         [InlineData(12, 0x00FF)]
         [InlineData(1, 0xFF00)]
         [InlineData(255, 0xFFFF)]
@@ -178,7 +179,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var addr = BitArrayHelper.FromUShortLE(addrStr);
             var addrPlusOne = BitArrayHelper.FromUShortLE((ushort)(addrStr + 1));
 
-            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
+            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.Sp, out var instructionHigh, out var instructionLow);
 
             var romData = new[] {
                 instructionHigh, instructionLow
@@ -187,13 +188,13 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var cp = BuildPcModules(romData, out var modules);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), zero.MergeWith(val));
-            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), addr);
+            modules.Registers.SetWholeRegContent(Regs.Sp.GetIndex(), addr);
 
             StepThroughProceduralInstruction(modules, instruction);
 
             BitAssert.Equality(val, modules.Memory.GetRamAt(addrStr));
             BitAssert.Equality(val, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
-            BitAssert.Equality(addrPlusOne, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
+            BitAssert.Equality(addrPlusOne, modules.Registers.GetWholeRegContent(Regs.Sp.GetIndex()));
         }
 
         [Theory]

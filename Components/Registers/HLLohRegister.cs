@@ -117,7 +117,7 @@ namespace Components.Registers {
         public override string ToString() {
             var sb = new StringBuilder();
             sb.AppendLine(base.ToString());
-            sb.AppendLine($"LE: {(L ? "1" : "0")}, Content: {Content.ToPrettyBitString()}");
+            sb.AppendLine($"LE: {(L ? "1" : "0")}, Content: {Content.ToPrettyBitString()} ({BitArrayHelper.ToShortLE(Content)})");
 
             return sb.ToString();
         }

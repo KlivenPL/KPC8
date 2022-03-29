@@ -12,7 +12,7 @@ namespace Tests.AssemblerTests {
 
         [Theory]
         [InlineData("add $t1 $t2 $t3", TokenClass.Identifier, TokenClass.Register, TokenClass.Register, TokenClass.Register)]
-        [InlineData("add, \r\n $t1, \r\n //ignore ignore \n\t\t   $t2 ,\n \t //ignore me $t4 \r\n\t$t3",
+        [InlineData("add // comment, \r\n $t1, \r\n //ignore ignore \n\t\t   $t2 ,\n \t //ignore me $t4 \r\n\t$t3",
             TokenClass.Identifier, TokenClass.Register, TokenClass.Register, TokenClass.Register)]
         [InlineData(
             ".address *region :label $t1 'c' \"string\" set dupa -1 2137",

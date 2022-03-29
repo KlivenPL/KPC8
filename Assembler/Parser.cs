@@ -78,7 +78,7 @@ namespace Assembler {
                 instructionParser.Parse(reader, out var instructionHigh, out var instructionLow);
                 romBuilder.AddInstruction(instructionHigh, instructionLow);
             } catch (ParserException) {
-                if (reader.CastCurrent<IdentifierToken>().IsPseudoinstruction(out _)) {
+                if (readerClone.CastCurrent<IdentifierToken>().IsPseudoinstruction(out _)) {
                     try {
                         var pseudoinstruction = pseudoinstructionParser.Parse(readerClone);
                         romBuilder.AddPseudoinstruction(pseudoinstruction);
