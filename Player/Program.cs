@@ -1,3 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
+using Player._Configuration;
+
 namespace Player {
     internal static class Program {
         /// <summary>
@@ -5,10 +8,16 @@ namespace Player {
         /// </summary>
         [STAThread]
         static void Main() {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-            Application.Run(new Form1());
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+
+            var services = new ServiceCollection();
+            services.InstallAll();
+
+            using ServiceProvider serviceProvider = services.BuildServiceProvider();
+            var player = serviceProvider.GetRequiredService<KPC8Player>();
+            Application.Run(player);
         }
     }
 }
