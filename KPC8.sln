@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31613.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPC8", "KPC8\KPC8.csproj", "{CBD64178-3894-459D-8676-487DD0C2B9CB}"
 EndProject
@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_Infrastructure", "Infrastr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExternalDevices", "ExternalDevices\ExternalDevices.csproj", "{16BCBEC0-917B-41A9-8FA5-A36BC46AAC9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembler", "Assembler\Assembler.csproj", "{D3DB37E1-6B9C-4161-8C0F-45B13E1B4F25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Assembler", "Assembler\Assembler.csproj", "{D3DB37E1-6B9C-4161-8C0F-45B13E1B4F25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player", "Player\Player.csproj", "{99BBFC70-3CA0-42C2-89EB-4EF7CCCDE4BF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{D3DB37E1-6B9C-4161-8C0F-45B13E1B4F25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3DB37E1-6B9C-4161-8C0F-45B13E1B4F25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3DB37E1-6B9C-4161-8C0F-45B13E1B4F25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99BBFC70-3CA0-42C2-89EB-4EF7CCCDE4BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99BBFC70-3CA0-42C2-89EB-4EF7CCCDE4BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99BBFC70-3CA0-42C2-89EB-4EF7CCCDE4BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99BBFC70-3CA0-42C2-89EB-4EF7CCCDE4BF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
