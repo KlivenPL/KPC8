@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <Folder Include="Gui\" />
+    <Folder Include="Pc\" />
   </ItemGroup>
 
   <ItemGroup>

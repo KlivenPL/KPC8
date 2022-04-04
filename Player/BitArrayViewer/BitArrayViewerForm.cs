@@ -41,7 +41,7 @@ namespace Player.BitArrayViewer {
 
         private void MemoryView_CellValueNeeded(object? sender, DataGridViewCellValueEventArgs e) {
             if (e.ColumnIndex == 0) {
-                e.Value = e.RowIndex.ToString("X4");
+                e.Value = (e.RowIndex * 16).ToString("X4");
                 return;
             }
 
