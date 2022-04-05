@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="_Assets\Buttons\debug.png" />
+    <None Remove="_Assets\Buttons\play.png" />
+    <None Remove="_Assets\Buttons\stepInto.png" />
+    <None Remove="_Assets\Buttons\stepOver.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -24,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Gui\" />
     <Folder Include="Pc\" />
   </ItemGroup>
 
@@ -34,6 +40,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure\_Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="_Assets\Buttons\debug.png" />
+    <Resource Include="_Assets\Buttons\play.png" />
+    <Resource Include="_Assets\Buttons\stepInto.png" />
+    <Resource Include="_Assets\Buttons\stepOver.png" />
   </ItemGroup>
 
 </Project>

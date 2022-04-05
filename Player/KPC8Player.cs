@@ -1,15 +1,36 @@
 using Infrastructure.BitArrays;
 using Microsoft.Extensions.DependencyInjection;
 using Player.BitArrayViewer;
+using Player.Gui.Renderers;
 using System.Collections;
 
 namespace Player {
     public partial class KPC8Player : Form {
         private readonly IServiceProvider provider;
-
         public KPC8Player(IServiceProvider provider) {
             InitializeComponent();
             this.provider = provider;
+            mnuToolBar.Renderer = new CustomToolStripRenderer();
+
+            new Thread(() => {
+                Random random = new Random();
+                Bitmap bitmap = new Bitmap(250, 120);
+                //pictureBox1.Image = bitmap;
+                while (true) {
+
+                    lock (bitmap) {
+
+                        for (int y = 0; y < bitmap.Height; y++) {
+                            for (int x = 0; x < bitmap.Width; x++) {
+                                bitmap.SetPixel(x, y, Color.FromArgb(random.Next(1, 255), random.Next(1, 255), random.Next(1, 255)));
+                            }
+                        }
+                        pictureBox1.Image?.Dispose();
+                        pictureBox1.Image = (Bitmap)bitmap.Clone();
+                    }
+                    Thread.Sleep(1000 / 120);
+                }
+            }).Start();
         }
 
         private void loadRomBtn_Click(object sender, EventArgs e) {
@@ -70,5 +91,14 @@ namespace Player {
             return bas;
         }
 
+        Image testImg;
+        System.Windows.Forms.Timer timer;
+        private void pictureBox1_Click(object sender, EventArgs e) {
+
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e) {
+            throw new NotImplementedException();
+        }
     }
 }
