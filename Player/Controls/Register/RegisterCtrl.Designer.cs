@@ -1,4 +1,4 @@
-﻿namespace Player.Controls {
+﻿namespace Player.Controls.Register {
     partial class RegisterCtrl {
         /// <summary> 
         /// Required designer variable.
@@ -31,7 +31,6 @@
             // 
             // regLbl
             // 
-            this.regLbl.ForeColor = System.Drawing.Color.White;
             this.regLbl.Location = new System.Drawing.Point(3, 2);
             this.regLbl.Name = "regLbl";
             this.regLbl.Size = new System.Drawing.Size(57, 23);
@@ -41,8 +40,6 @@
             // 
             // valueBinTxt
             // 
-            this.valueBinTxt.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(52)))), ((int)(((byte)(64)))));
-            this.valueBinTxt.ForeColor = System.Drawing.Color.White;
             this.valueBinTxt.Location = new System.Drawing.Point(66, 3);
             this.valueBinTxt.Name = "valueBinTxt";
             this.valueBinTxt.ReadOnly = true;
@@ -52,8 +49,6 @@
             // 
             // valueHexTxt
             // 
-            this.valueHexTxt.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(52)))), ((int)(((byte)(64)))));
-            this.valueHexTxt.ForeColor = System.Drawing.Color.White;
             this.valueHexTxt.Location = new System.Drawing.Point(182, 3);
             this.valueHexTxt.Name = "valueHexTxt";
             this.valueHexTxt.ReadOnly = true;
@@ -63,8 +58,6 @@
             // 
             // valueDecTxt
             // 
-            this.valueDecTxt.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(52)))), ((int)(((byte)(64)))));
-            this.valueDecTxt.ForeColor = System.Drawing.Color.White;
             this.valueDecTxt.Location = new System.Drawing.Point(263, 3);
             this.valueDecTxt.Name = "valueDecTxt";
             this.valueDecTxt.ReadOnly = true;
@@ -76,7 +69,6 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.Controls.Add(this.valueDecTxt);
             this.Controls.Add(this.valueHexTxt);
             this.Controls.Add(this.valueBinTxt);

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Player.BitArrayViewer {
+namespace Player.InternalForms.BitArrayViewer {
     public class BitArrayViewerFormParameters {
 
 #nullable disable

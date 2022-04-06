@@ -1,4 +1,4 @@
-﻿namespace Player {
+﻿namespace Player.MainForm {
     partial class KPC8Player {
         /// <summary>
         ///  Required designer variable.
@@ -40,36 +40,34 @@
             this.mnuStepIntoBtn = new System.Windows.Forms.ToolStripButton();
             this.rightPnl = new System.Windows.Forms.Panel();
             this.regsPnl = new System.Windows.Forms.FlowLayoutPanel();
-            this.reg1 = new Player.Controls.RegisterCtrl();
-            this.reg2 = new Player.Controls.RegisterCtrl();
-            this.reg3 = new Player.Controls.RegisterCtrl();
-            this.reg4 = new Player.Controls.RegisterCtrl();
-            this.reg5 = new Player.Controls.RegisterCtrl();
-            this.reg6 = new Player.Controls.RegisterCtrl();
-            this.reg7 = new Player.Controls.RegisterCtrl();
-            this.reg8 = new Player.Controls.RegisterCtrl();
-            this.reg9 = new Player.Controls.RegisterCtrl();
-            this.reg10 = new Player.Controls.RegisterCtrl();
-            this.reg11 = new Player.Controls.RegisterCtrl();
-            this.reg12 = new Player.Controls.RegisterCtrl();
-            this.reg13 = new Player.Controls.RegisterCtrl();
-            this.reg14 = new Player.Controls.RegisterCtrl();
-            this.reg15 = new Player.Controls.RegisterCtrl();
-            this.reg16 = new Player.Controls.RegisterCtrl();
+            this.reg1 = new Player.Controls.Register.RegisterCtrl();
+            this.reg2 = new Player.Controls.Register.RegisterCtrl();
+            this.reg3 = new Player.Controls.Register.RegisterCtrl();
+            this.reg4 = new Player.Controls.Register.RegisterCtrl();
+            this.reg5 = new Player.Controls.Register.RegisterCtrl();
+            this.reg6 = new Player.Controls.Register.RegisterCtrl();
+            this.reg7 = new Player.Controls.Register.RegisterCtrl();
+            this.reg8 = new Player.Controls.Register.RegisterCtrl();
+            this.reg9 = new Player.Controls.Register.RegisterCtrl();
+            this.reg10 = new Player.Controls.Register.RegisterCtrl();
+            this.reg11 = new Player.Controls.Register.RegisterCtrl();
+            this.reg12 = new Player.Controls.Register.RegisterCtrl();
+            this.reg13 = new Player.Controls.Register.RegisterCtrl();
+            this.reg14 = new Player.Controls.Register.RegisterCtrl();
+            this.reg15 = new Player.Controls.Register.RegisterCtrl();
+            this.reg16 = new Player.Controls.Register.RegisterCtrl();
             this.panel1 = new System.Windows.Forms.Panel();
             this.regsLbl = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.mnuToolBar.SuspendLayout();
             this.rightPnl.SuspendLayout();
             this.regsPnl.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // mnuToolBar
             // 
             this.mnuToolBar.AutoSize = false;
-            this.mnuToolBar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(62)))), ((int)(((byte)(74)))));
+            this.mnuToolBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.mnuToolBar.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.mnuToolBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuFileDrop,
@@ -101,8 +99,6 @@
             // 
             // mnuFileLoadRomBtn
             // 
-            this.mnuFileLoadRomBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(62)))), ((int)(((byte)(74)))));
-            this.mnuFileLoadRomBtn.ForeColor = System.Drawing.Color.White;
             this.mnuFileLoadRomBtn.Name = "mnuFileLoadRomBtn";
             this.mnuFileLoadRomBtn.Size = new System.Drawing.Size(130, 22);
             this.mnuFileLoadRomBtn.Text = "Load ROM";
@@ -120,10 +116,10 @@
             this.mnuPlayBtn.Name = "mnuPlayBtn";
             this.mnuPlayBtn.Size = new System.Drawing.Size(53, 35);
             this.mnuPlayBtn.Text = "Play";
+            this.mnuPlayBtn.Click += new System.EventHandler(this.mnuPlayBtn_Click);
             // 
             // mnuDbgBtn
             // 
-            this.mnuDbgBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(62)))), ((int)(((byte)(74)))));
             this.mnuDbgBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuDbgPlayBtn,
             this.mnuDbgStepIntoBtn});
@@ -135,8 +131,6 @@
             // 
             // mnuDbgPlayBtn
             // 
-            this.mnuDbgPlayBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(62)))), ((int)(((byte)(74)))));
-            this.mnuDbgPlayBtn.ForeColor = System.Drawing.Color.White;
             this.mnuDbgPlayBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuDbgPlayBtn.Image")));
             this.mnuDbgPlayBtn.Name = "mnuDbgPlayBtn";
             this.mnuDbgPlayBtn.Size = new System.Drawing.Size(121, 22);
@@ -144,8 +138,6 @@
             // 
             // mnuDbgStepIntoBtn
             // 
-            this.mnuDbgStepIntoBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(62)))), ((int)(((byte)(74)))));
-            this.mnuDbgStepIntoBtn.ForeColor = System.Drawing.Color.White;
             this.mnuDbgStepIntoBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuDbgStepIntoBtn.Image")));
             this.mnuDbgStepIntoBtn.Name = "mnuDbgStepIntoBtn";
             this.mnuDbgStepIntoBtn.Size = new System.Drawing.Size(121, 22);
@@ -165,6 +157,7 @@
             this.mnuStopBtn.Name = "mnuStopBtn";
             this.mnuStopBtn.Size = new System.Drawing.Size(24, 35);
             this.mnuStopBtn.Text = "Stop";
+            this.mnuStopBtn.Click += new System.EventHandler(this.mnuStopBtn_Click);
             // 
             // mnuPauseBtn
             // 
@@ -203,13 +196,13 @@
             // 
             // rightPnl
             // 
-            this.rightPnl.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(52)))), ((int)(((byte)(64)))));
+            this.rightPnl.BackColor = System.Drawing.SystemColors.Control;
             this.rightPnl.Controls.Add(this.regsPnl);
             this.rightPnl.Controls.Add(this.panel1);
             this.rightPnl.Dock = System.Windows.Forms.DockStyle.Right;
-            this.rightPnl.Location = new System.Drawing.Point(1184, 38);
+            this.rightPnl.Location = new System.Drawing.Point(1231, 38);
             this.rightPnl.Name = "rightPnl";
-            this.rightPnl.Size = new System.Drawing.Size(400, 823);
+            this.rightPnl.Size = new System.Drawing.Size(353, 823);
             this.rightPnl.TabIndex = 1;
             // 
             // regsPnl
@@ -234,12 +227,11 @@
             this.regsPnl.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.regsPnl.Location = new System.Drawing.Point(0, 26);
             this.regsPnl.Name = "regsPnl";
-            this.regsPnl.Size = new System.Drawing.Size(400, 797);
+            this.regsPnl.Size = new System.Drawing.Size(353, 797);
             this.regsPnl.TabIndex = 1;
             // 
             // reg1
             // 
-            this.reg1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg1.Location = new System.Drawing.Point(3, 3);
             this.reg1.Name = "reg1";
             this.reg1.Size = new System.Drawing.Size(392, 29);
@@ -247,7 +239,6 @@
             // 
             // reg2
             // 
-            this.reg2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg2.Location = new System.Drawing.Point(3, 38);
             this.reg2.Name = "reg2";
             this.reg2.Size = new System.Drawing.Size(392, 29);
@@ -255,7 +246,6 @@
             // 
             // reg3
             // 
-            this.reg3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg3.Location = new System.Drawing.Point(3, 73);
             this.reg3.Name = "reg3";
             this.reg3.Size = new System.Drawing.Size(392, 29);
@@ -263,7 +253,6 @@
             // 
             // reg4
             // 
-            this.reg4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg4.Location = new System.Drawing.Point(3, 108);
             this.reg4.Name = "reg4";
             this.reg4.Size = new System.Drawing.Size(392, 29);
@@ -271,7 +260,6 @@
             // 
             // reg5
             // 
-            this.reg5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg5.Location = new System.Drawing.Point(3, 143);
             this.reg5.Name = "reg5";
             this.reg5.Size = new System.Drawing.Size(392, 29);
@@ -279,7 +267,6 @@
             // 
             // reg6
             // 
-            this.reg6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg6.Location = new System.Drawing.Point(3, 178);
             this.reg6.Name = "reg6";
             this.reg6.Size = new System.Drawing.Size(392, 29);
@@ -287,7 +274,6 @@
             // 
             // reg7
             // 
-            this.reg7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg7.Location = new System.Drawing.Point(3, 213);
             this.reg7.Name = "reg7";
             this.reg7.Size = new System.Drawing.Size(392, 29);
@@ -295,7 +281,6 @@
             // 
             // reg8
             // 
-            this.reg8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg8.Location = new System.Drawing.Point(3, 248);
             this.reg8.Name = "reg8";
             this.reg8.Size = new System.Drawing.Size(392, 29);
@@ -303,7 +288,6 @@
             // 
             // reg9
             // 
-            this.reg9.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg9.Location = new System.Drawing.Point(3, 283);
             this.reg9.Name = "reg9";
             this.reg9.Size = new System.Drawing.Size(392, 29);
@@ -311,7 +295,6 @@
             // 
             // reg10
             // 
-            this.reg10.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg10.Location = new System.Drawing.Point(3, 318);
             this.reg10.Name = "reg10";
             this.reg10.Size = new System.Drawing.Size(392, 29);
@@ -319,7 +302,6 @@
             // 
             // reg11
             // 
-            this.reg11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg11.Location = new System.Drawing.Point(3, 353);
             this.reg11.Name = "reg11";
             this.reg11.Size = new System.Drawing.Size(392, 29);
@@ -327,7 +309,6 @@
             // 
             // reg12
             // 
-            this.reg12.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg12.Location = new System.Drawing.Point(3, 388);
             this.reg12.Name = "reg12";
             this.reg12.Size = new System.Drawing.Size(392, 29);
@@ -335,7 +316,6 @@
             // 
             // reg13
             // 
-            this.reg13.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg13.Location = new System.Drawing.Point(3, 423);
             this.reg13.Name = "reg13";
             this.reg13.Size = new System.Drawing.Size(392, 29);
@@ -343,7 +323,6 @@
             // 
             // reg14
             // 
-            this.reg14.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg14.Location = new System.Drawing.Point(3, 458);
             this.reg14.Name = "reg14";
             this.reg14.Size = new System.Drawing.Size(392, 29);
@@ -351,7 +330,6 @@
             // 
             // reg15
             // 
-            this.reg15.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg15.Location = new System.Drawing.Point(3, 493);
             this.reg15.Name = "reg15";
             this.reg15.Size = new System.Drawing.Size(392, 29);
@@ -359,7 +337,6 @@
             // 
             // reg16
             // 
-            this.reg16.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
             this.reg16.Location = new System.Drawing.Point(3, 528);
             this.reg16.Name = "reg16";
             this.reg16.Size = new System.Drawing.Size(392, 29);
@@ -371,7 +348,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(400, 26);
+            this.panel1.Size = new System.Drawing.Size(353, 26);
             this.panel1.TabIndex = 0;
             // 
             // regsLbl
@@ -385,35 +362,23 @@
             this.regsLbl.Text = "Registers";
             this.regsLbl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Location = new System.Drawing.Point(318, 242);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(515, 296);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 2;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
-            // 
             // KPC8Player
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(42)))), ((int)(((byte)(54)))));
+            this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1584, 861);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.rightPnl);
             this.Controls.Add(this.mnuToolBar);
-            this.ForeColor = System.Drawing.Color.White;
             this.Name = "KPC8Player";
             this.Text = "KPC8 Player";
+            this.Load += new System.EventHandler(this.KPC8Player_Load);
             this.mnuToolBar.ResumeLayout(false);
             this.mnuToolBar.PerformLayout();
             this.rightPnl.ResumeLayout(false);
             this.regsPnl.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -436,24 +401,23 @@
         private ToolStripButton mnuStepIntoBtn;
         private Panel rightPnl;
         private FlowLayoutPanel regsPnl;
-        private Controls.RegisterCtrl reg1;
-        private Controls.RegisterCtrl reg2;
-        private Controls.RegisterCtrl reg3;
-        private Controls.RegisterCtrl reg4;
-        private Controls.RegisterCtrl reg5;
-        private Controls.RegisterCtrl reg6;
-        private Controls.RegisterCtrl reg7;
-        private Controls.RegisterCtrl reg8;
-        private Controls.RegisterCtrl reg9;
-        private Controls.RegisterCtrl reg10;
-        private Controls.RegisterCtrl reg11;
-        private Controls.RegisterCtrl reg12;
-        private Controls.RegisterCtrl reg13;
-        private Controls.RegisterCtrl reg14;
-        private Controls.RegisterCtrl reg15;
-        private Controls.RegisterCtrl reg16;
+        private Controls.Register.RegisterCtrl reg1;
+        private Controls.Register.RegisterCtrl reg2;
+        private Controls.Register.RegisterCtrl reg3;
+        private Controls.Register.RegisterCtrl reg4;
+        private Controls.Register.RegisterCtrl reg5;
+        private Controls.Register.RegisterCtrl reg6;
+        private Controls.Register.RegisterCtrl reg7;
+        private Controls.Register.RegisterCtrl reg8;
+        private Controls.Register.RegisterCtrl reg9;
+        private Controls.Register.RegisterCtrl reg10;
+        private Controls.Register.RegisterCtrl reg11;
+        private Controls.Register.RegisterCtrl reg12;
+        private Controls.Register.RegisterCtrl reg13;
+        private Controls.Register.RegisterCtrl reg14;
+        private Controls.Register.RegisterCtrl reg15;
+        private Controls.Register.RegisterCtrl reg16;
         private Panel panel1;
         private Label regsLbl;
-        private PictureBox pictureBox1;
     }
 }

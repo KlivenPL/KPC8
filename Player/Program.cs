@@ -16,7 +16,7 @@ namespace Player {
             services.InstallAll();
 
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
-            var player = serviceProvider.GetRequiredService<KPC8Player>();
+            var player = serviceProvider.GetRequiredService<MainForm.KPC8Player>();
             Application.Run(player);
         }
     }

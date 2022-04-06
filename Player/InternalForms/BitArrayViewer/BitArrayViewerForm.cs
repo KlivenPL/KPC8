@@ -1,7 +1,7 @@
 ﻿using Infrastructure.BitArrays;
 using System.Text;
 
-namespace Player.BitArrayViewer {
+namespace Player.InternalForms.BitArrayViewer {
     public partial class BitArrayViewerForm : Form {
         private BitArrayViewerFormParameters parameters;
         private string[] cachedValues;

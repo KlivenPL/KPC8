@@ -3,10 +3,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="MainForm\MainFormController.resx" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="_Assets\Buttons\debug.png" />
@@ -31,15 +35,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pc\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure\_Infrastructure.csproj" />
+    <ProjectReference Include="..\KPC8\KPC8.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +48,15 @@
     <Resource Include="_Assets\Buttons\play.png" />
     <Resource Include="_Assets\Buttons\stepInto.png" />
     <Resource Include="_Assets\Buttons\stepOver.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="KpcLogic\Configurators\" />
+    <Folder Include="KpcLogic\Simulation\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="MainForm\MainFormController.resx" />
   </ItemGroup>
 
 </Project>

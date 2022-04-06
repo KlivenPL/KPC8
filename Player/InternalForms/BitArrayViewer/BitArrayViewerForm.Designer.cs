@@ -1,4 +1,6 @@
-﻿namespace Player.BitArrayViewer {
+﻿using Player.InternalForms.BitArrayViewer;
+namespace Player.InternalForms.BitArrayViewer
+{
     partial class BitArrayViewerForm {
         /// <summary>
         /// Required designer variable.
