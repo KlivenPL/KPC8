@@ -1,6 +1,7 @@
 ﻿using Assembler._Infrastructure;
 using Assembler.Builders;
 using Assembler.Contexts;
+using Assembler.DebugData;
 using Assembler.Encoders;
 using Assembler.Parsers;
 using Assembler.Readers;
@@ -24,9 +25,12 @@ namespace Assembler {
             unresolvedPseudoinstructions = new List<LabelNotResolvedException>();
         }
 
-        public BitArray[] Parse(TokenReader reader) {
+        public BitArray[] Parse(TokenReader reader) => Parse(reader, out _);
+
+        public BitArray[] Parse(TokenReader reader, out IEnumerable<IDebugSymbol> debugSymbols) {
             var origReader = reader.Clone();
             var romBuilder = new RomBuilder();
+            var debugSymbolList = new List<IDebugSymbol>();
             LabelToken lastUnresolvedLabelToken = null;
 
             if (!labelsContext.TryParseAllRegionsAndLabels(reader.Clone())) {
@@ -36,7 +40,7 @@ namespace Assembler {
             while (reader.Read()) {
                 switch (reader.Current.Class) {
                     case TokenClass.Identifier:
-                        reader = ParseIdentifier(reader, romBuilder, ref lastUnresolvedLabelToken);
+                        reader = ParseIdentifier(reader, romBuilder, debugSymbolList, ref lastUnresolvedLabelToken);
                         break;
                     case TokenClass.Label:
                         lastUnresolvedLabelToken = reader.CastCurrent<LabelToken>();
@@ -53,20 +57,22 @@ namespace Assembler {
 
             reader = origReader;
             foreach (var unresolvedPseudoinstruction in unresolvedPseudoinstructions) {
-                if (!labelsContext.TryFindLabel(unresolvedPseudoinstruction.IdentifierToken.Value, out var address) || !address.HasValue) {
-                    throw ParserException.Create($"Unresolved label identifier: {unresolvedPseudoinstruction.IdentifierToken}", unresolvedPseudoinstruction.IdentifierToken);
+                if (!labelsContext.TryFindLabel(unresolvedPseudoinstruction.ArgumentToken.Value, out var address) || !address.HasValue) {
+                    throw ParserException.Create($"Unresolved label identifier: {unresolvedPseudoinstruction.ArgumentToken}", unresolvedPseudoinstruction.ArgumentToken);
                 }
 
                 var pseudoinstruction = unresolvedPseudoinstruction.Resolve(address.Value);
                 romBuilder.NextAddress = unresolvedPseudoinstruction.Address;
                 romBuilder.Unreserve(unresolvedPseudoinstruction.SizeInBytes);
-                romBuilder.AddPseudoinstruction(pseudoinstruction);
+                romBuilder.AddPseudoinstruction(pseudoinstruction, out var loAddress);
+                debugSymbolList.Add(new ExecutableSymbol(unresolvedPseudoinstruction.PseudoinstructionToken, loAddress));
             }
 
+            debugSymbols = debugSymbolList;
             return romBuilder.Build();
         }
 
-        private TokenReader ParseIdentifier(TokenReader reader, RomBuilder romBuilder, ref LabelToken lastUnresolvedLabelToken) {
+        private TokenReader ParseIdentifier(TokenReader reader, RomBuilder romBuilder, List<IDebugSymbol> debugSymbolList, ref LabelToken lastUnresolvedLabelToken) {
             var readerClone = reader.Clone();
 
             if (lastUnresolvedLabelToken != null) {
@@ -75,16 +81,21 @@ namespace Assembler {
             }
 
             try {
+                var identifier = reader.CastCurrent<IdentifierToken>();
                 instructionParser.Parse(reader, out var instructionHigh, out var instructionLow);
-                romBuilder.AddInstruction(instructionHigh, instructionLow);
+                romBuilder.AddInstruction(instructionHigh, instructionLow, out var loAddress);
+                debugSymbolList.Add(new ExecutableSymbol(identifier, loAddress));
             } catch (ParserException) {
                 if (readerClone.CastCurrent<IdentifierToken>().IsPseudoinstruction(out _)) {
+                    var pseudoinstructionToken = reader.CastCurrent<IdentifierToken>();
                     try {
                         var pseudoinstruction = pseudoinstructionParser.Parse(readerClone);
-                        romBuilder.AddPseudoinstruction(pseudoinstruction);
+                        romBuilder.AddPseudoinstruction(pseudoinstruction, out var loAddress);
+                        debugSymbolList.Add(new ExecutableSymbol(pseudoinstructionToken, loAddress));
                     } catch (LabelNotResolvedException labelNotResolvedException) {
                         romBuilder.Reserve(labelNotResolvedException.SizeInBytes);
                         labelNotResolvedException.SetAddress(romBuilder.NextAddress);
+                        labelNotResolvedException.SetPseudoinstructionToken(pseudoinstructionToken);
                         romBuilder.NextAddress += labelNotResolvedException.SizeInBytes;
                         unresolvedPseudoinstructions.Add(labelNotResolvedException);
                     } finally {

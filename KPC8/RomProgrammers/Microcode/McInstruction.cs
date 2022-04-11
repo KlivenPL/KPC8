@@ -15,32 +15,8 @@ namespace KPC8.RomProgrammers.Microcode {
         public abstract uint RomInstructionIndex { get; }
         public virtual BitArray OpCode => throw new System.NotImplementedException();
         public abstract int MaxTotalStepsCount { get; }
-        //public abstract ControlSignalType[] InstructionSteps { get; }
         public abstract ControlSignalType[] PreInstructionSteps { get; }
         public abstract ControlSignalType OptionalPostInstructionStep { get; }
         public abstract IEnumerable<ControlSignalType> BuildTotalSteps();
-        //public int PreAndInstructionStepsCount => PreInstructionSteps.Length + InstructionSteps.Length;
-
-        /*public abstract IEnumerable<ControlSignalType> BuildTotalSteps() {
-            int currentLength = 0;
-            foreach (var step in PreInstructionSteps) {
-                currentLength++;
-                yield return step;
-            }
-
-            for (int i = 0; i < InstructionSteps.Length; i++) {
-                currentLength++;
-                if (i == InstructionSteps.Length - 1) {
-                    yield return InstructionSteps[i] | OptionalPostInstructionStep;
-                } else {
-                    yield return InstructionSteps[i];
-                }
-            }
-
-
-            for (int i = currentLength; i < MaxTotalStepsCount; i++) {
-                yield return OptionalPostInstructionStep;
-            }
-        }*/
     }
 }

@@ -27,19 +27,21 @@ namespace Assembler.Builders {
             reservedAddresses = new bool[MaxAddress + 1];
         }
 
-        public RomBuilder AddInstruction(BitArray instructionHigh, BitArray instructionLow) {
+        public RomBuilder AddInstruction(BitArray instructionHigh, BitArray instructionLow, out ushort loAddress) {
             AddByte(instructionHigh);
+            loAddress = NextAddress;
             AddByte(instructionLow);
             return this;
         }
 
-        public RomBuilder AddPseudoinstruction(BitArray[] instructions) {
+        public RomBuilder AddPseudoinstruction(BitArray[] instructions, out ushort loAddress) {
             if (instructions.Length % 2 != 0) {
                 throw new System.Exception("Pseudoinstructions must be of length 2N");
             }
             foreach (var instruction in instructions) {
                 AddByte(instruction);
             }
+            loAddress = (ushort)(NextAddress - 1);
             return this;
         }
 

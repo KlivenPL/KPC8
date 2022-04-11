@@ -12,6 +12,8 @@ namespace Components.Clocks {
 
         public long Cycles { get; private set; } = 0;
         private long halfPeriod = 0;
+
+        public bool Disabled { get; set; } = false;
         /*public event Action<Clock> OnCycle;*/
 
         public Clock(Signal clkSignal, Signal clkBarSignal, ClockMode mode, long periodInTicks) {
@@ -62,6 +64,10 @@ namespace Components.Clocks {
         }
 
         public void Update() {
+            if (Disabled) {
+                return;
+            }
+
             switch (Mode) {
                 case ClockMode.Automatic:
                     AutomaticUpdate();
