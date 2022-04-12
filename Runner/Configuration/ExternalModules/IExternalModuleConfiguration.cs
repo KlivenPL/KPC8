@@ -3,7 +3,7 @@ using Simulation.Loops;
 using System;
 
 namespace Runner.Configuration.ExternalModules {
-    internal interface IExternalModuleConfiguration {
+    public interface IExternalModuleConfiguration {
         void Configure(CpuBuilder cpuBuilder, out Func<SimulationLoop> getSimulationLoop);
     }
 }

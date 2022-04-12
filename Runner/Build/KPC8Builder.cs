@@ -11,11 +11,11 @@ namespace Runner.Build {
     internal class KPC8Builder {
         private readonly KPC8Configuration configuration;
 
-        public KPC8Builder(KPC8Configuration configuration) {
+        internal KPC8Builder(KPC8Configuration configuration) {
             this.configuration = configuration ?? new KPC8Configuration();
         }
 
-        public KPC8Build Build() {
+        internal KPC8Build Build() {
             var clk = Signal.Factory.Create("Clock");
             var clkBar = Signal.Factory.Create("ClockBar");
 

@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Assembler", "Assembler\Asse
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player", "Player\Player.csproj", "{99BBFC70-3CA0-42C2-89EB-4EF7CCCDE4BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runner", "Runner\Runner.csproj", "{F6D6F193-30EC-4961-BDA8-BB84FF7668C3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Runner", "Runner\Runner.csproj", "{F6D6F193-30EC-4961-BDA8-BB84FF7668C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugAdapter", "DebugAdapter\DebugAdapter.csproj", "{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{F6D6F193-30EC-4961-BDA8-BB84FF7668C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6D6F193-30EC-4961-BDA8-BB84FF7668C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6D6F193-30EC-4961-BDA8-BB84FF7668C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

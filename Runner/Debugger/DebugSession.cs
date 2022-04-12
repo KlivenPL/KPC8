@@ -16,7 +16,7 @@ using System.Linq;
 using System.Threading;
 
 namespace Runner.Debugger {
-    public class DebugSession {
+    internal class DebugSession {
 
         private readonly DebugSessionConfiguration configuration;
         private readonly ManualResetEventSlim runEvent;
@@ -52,7 +52,7 @@ namespace Runner.Debugger {
             externalSlRunners = new List<SimulationLoopRunner>();
         }
 
-        internal void Initialize() {
+        internal void Start() {
             if (configuration.StopAtEntry) {
                 RequestPause(PauseReasonType.Entry);
             }
@@ -62,15 +62,16 @@ namespace Runner.Debugger {
             }
 
             InitializedEvent();
-            DebuggerLoop();
-        }
 
-        private void DebuggerLoop() {
             // Load the first instruction
             MakeTickAndWait();
             MakeTickAndWait();
             MakeTickAndWait();
 
+            DebuggerLoop();
+        }
+
+        private void DebuggerLoop() {
             do {
                 lock (syncObject) {
                     if (!runEvent.Wait(0)) {
@@ -160,16 +161,19 @@ namespace Runner.Debugger {
             }
 
             DebugInfo data = new DebugInfo {
-                HitBreakpointId = hitBreakpointId,
+                HitBreakpointId = hitBreakpointId.Value,
                 Frames = new StackFrameInfo[] {
                     new StackFrameInfo {
+                        Line = breakpointManager.GetLineOfBreakpoint(hitBreakpointId.Value),
                         Scopes = new ScopeInfo [] {
                             new ScopeInfo {
                                 Name = "Registers",
+                                VariablesReference = 1,
                                 Variables = GetRegisters(),
                             },
                             new ScopeInfo {
                                 Name = "Internal registers",
+                                VariablesReference = 2,
                                 Variables = GetInternalRegisters().ToArray(),
                             }
                         }
@@ -212,13 +216,6 @@ namespace Runner.Debugger {
 
         #region Potentially external thread section
 
-        internal void RequestPause(PauseReasonType pauseReason) {
-            lock (syncObject) {
-                this.pauseReason = pauseReason;
-                runEvent.Reset();
-            }
-        }
-
         internal void ChangeDebugValueFormat(DebugValueFormat newFormat) {
             debugValueFormat = newFormat;
             InvalidatedEvent(GetDebugInfo());
@@ -248,6 +245,13 @@ namespace Runner.Debugger {
 
         internal void StepOut() {
             Continue(true, null);
+        }
+
+        internal void RequestPause(PauseReasonType pauseReason) {
+            lock (syncObject) {
+                this.pauseReason = pauseReason;
+                runEvent.Reset();
+            }
         }
 
         internal void RequestTerminate() {

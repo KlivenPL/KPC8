@@ -8,14 +8,10 @@ using System.Threading;
 
 namespace Runner.Debugger {
     public class DebugSessionController {
-
-        private readonly KPC8Build kpc;
-        private readonly DebugSession debugSession;
-        private readonly DebugSessionConfiguration configuration;
-
         private readonly object syncObject;
         private readonly ManualResetEventSlim runEvent;
 
+        private readonly DebugSession debugSession;
         private Thread debugThread;
 
         #region DebugSessionController Events
@@ -34,14 +30,20 @@ namespace Runner.Debugger {
 
         #endregion
 
-        internal DebugSessionController(DebugSessionConfiguration configuration, KPC8Build kpc) {
+        public bool IsStarted => debugThread.IsAlive;
+
+        private DebugSessionController(DebugSessionConfiguration configuration, KPC8Build kpc) {
             syncObject = new object();
             runEvent = new ManualResetEventSlim();
             debugSession = new DebugSession(configuration, kpc, runEvent, syncObject);
-            this.configuration = configuration;
-            this.kpc = kpc;
 
             SubscribeToPassedEvents();
+        }
+
+        public void StartDebugging() {
+            debugThread = new Thread(debugSession.Start);
+            debugThread.Name = "Main debug thread";
+            debugThread.Start();
         }
 
         private void SubscribeToPassedEvents() {
@@ -51,30 +53,28 @@ namespace Runner.Debugger {
             debugSession.PausedEvent += PausedEvent;
         }
 
-        internal void StartDebugging() {
-            debugThread = new Thread(debugSession.Initialize);
-            debugThread.Name = "Main debug thread";
-            debugThread.Start();
-        }
-
         public IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations() {
             return debugSession.GetPossibleBreakpointLocations();
         }
 
         public void Continue() {
-
+            debugSession.Continue();
         }
 
         public void StepOver() {
-
+            debugSession.StepOver();
         }
 
         public void StepIn() {
-
+            debugSession.StepIn();
         }
 
         public void StepOut() {
+            debugSession.StepOut();
+        }
 
+        public void Pause() {
+            debugSession.RequestPause(PauseReasonType.Pause);
         }
 
         public void Terminate() {
@@ -91,6 +91,13 @@ namespace Runner.Debugger {
         public void Disconnect() {
             debugSession.RequestTerminate();
             debugThread.Join(3000);
+        }
+
+        public class Factory {
+            public static DebugSessionController Create(KPC8Configuration kpcConfig, DebugSessionConfiguration debugSessionConfig) {
+                var kpcBuild = new KPC8Builder(kpcConfig).Build();
+                return new DebugSessionController(debugSessionConfig, kpcBuild);
+            }
         }
     }
 }

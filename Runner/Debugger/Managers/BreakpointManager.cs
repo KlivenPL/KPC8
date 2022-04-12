@@ -26,6 +26,10 @@ namespace Runner.Debugger.Managers {
             return possibleBps.Select(x => new BreakpointInfo(x));
         }
 
+        public int GetLineOfBreakpoint(int breakpointId) {
+            return possibleBps.First(x => x.Id == breakpointId).Symbol.Line;
+        }
+
         public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
             placedBps = possibleBps.Where(s => proposedBreakpoints.Any(pb => pb.line == s.Symbol.Line && pb.column == s.Symbol.ColumnStart)).ToArray();
             loAddressToPlacedBpId = placedBps.ToDictionary(x => x.Symbol.LoAddress, x => x.Id);

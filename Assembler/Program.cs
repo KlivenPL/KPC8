@@ -10,7 +10,7 @@ using System.Linq;
 using System.Text;
 
 namespace Assembler {
-    class Program {
+    internal class Program {
 
         private static readonly JsonSerializerSettings jsonSerializerSettings = new() {
             Formatting = Formatting.Indented,

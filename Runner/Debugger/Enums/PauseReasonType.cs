@@ -7,7 +7,5 @@
         Entry = 4,
         Restart = 5,
         Goto = 6,
-
-        StepOver = 20,
     }
 }
