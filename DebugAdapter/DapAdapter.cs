@@ -2,10 +2,10 @@
 using DebugAdapter.Mappers;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
-using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Utilities;
 using Runner.Debugger;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.Enums;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,20 +17,17 @@ namespace DebugAdapter {
         private readonly DebugSessionController sessionController;
         private readonly Source source;
 
-        private string errorMessage = null;
         private DebugInfo debugInfo;
 
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
             this.sessionController = sessionController;
-            source = new Source { Path = configuration.SourceFilePath };
+            source = new Source { Path = configuration?.SourceFilePath };
 
-            SubscribeToEvents();
             InitializeProtocolClient(stdIn, stdOut);
         }
 
         private void SubscribeToEvents() {
-            sessionController.InitializedEvent += SessionController_InitializedEvent;
             sessionController.OutputEvent += SessionController_OutputEvent;
             sessionController.PausedEvent += SessionController_PausedEvent;
             sessionController.InvalidatedEvent += SessionController_InvalidatedEvent;
@@ -38,39 +35,83 @@ namespace DebugAdapter {
             sessionController.TerminatedEvent += SessionController_TerminatedEvent;
         }
 
-        internal void Run() {
+        public void Run() {
+            SubscribeToEvents();
             Protocol.Run();
         }
 
-        internal void RunAndExitWithErrorMessage(string errorMessage) {
-            this.errorMessage = errorMessage;
-            Run();
+        public void RunAndExitWithErrorMessage(string errorMessage) {
+            Protocol.Run();
+            SendOutput(OutputType.Stderr, errorMessage);
+            Protocol.Stop();
         }
 
         protected override InitializeResponse HandleInitializeRequest(InitializeArguments arguments) {
-
-            if (errorMessage != null) {
-                throw new ProtocolException(errorMessage);
-            }
-
             return new InitializeResponse {
                 SupportsConfigurationDoneRequest = true,
                 SupportsEvaluateForHovers = true,
-                SupportsBreakpointLocationsRequest = true,
+                //SupportsBreakpointLocationsRequest = true,
             };
         }
 
         protected override SetBreakpointsResponse HandleSetBreakpointsRequest(SetBreakpointsArguments arguments) {
-            var unveryfied = arguments.Breakpoints
-                .Select(x => x.ToUnverifiedBreakpoint());
 
-            var verified = sessionController
-                .GetPossibleBreakpointLocations()
-                .Select(x => x.ToVerifiedBreakpoint(source));
+            /*Console.WriteLine("protocol path: " + arguments.Source.Path);
+            Console.WriteLine("args path: " + source.Path);
+            Console.WriteLine("are equal: " + ComparePaths(arguments.Source.Path, this.source.Path));*/
+
+            // PRZYWROCOC
+            /*if (!ComparePaths(arguments.Source.Path, this.source.Path)) {
+                return new SetBreakpointsResponse {
+                    Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint()).ToList()
+                };
+            }*/
+
+            if (!arguments.Source.Path.EndsWith(".kpc")) {
+                return new SetBreakpointsResponse {
+                    Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint()).ToList()
+                };
+
+            }
+
+            var possibleBreakpoints = sessionController.GetPossibleBreakpointLocations();
+
+            /*var tmpVerified = arguments.Breakpoints.Where(abp => possibleBreakpoints.Any(pb => pb.Line == abp.Line && pb.Column == abp.Column));
+            var unverified = arguments.Breakpoints.Except(tmpVerified);
+            var verified = possibleBreakpoints.Where(pb => arguments.Breakpoints.Any(abp => pb.Line == abp.Line && pb.Column == abp.Column));*/
+
+            List<Breakpoint> resultBps = new List<Breakpoint>(arguments.Breakpoints.Count);
+            List<(int line, int column)> acceptedBreakpoints = new List<(int line, int column)>();
+
+            foreach (var abp in arguments.Breakpoints) {
+                var acceptedBp = possibleBreakpoints.FirstOrDefault(pb => pb.Line == abp.Line && (pb.Column == abp.Column || abp.Column == null));
+                if (acceptedBp != null) {
+                    resultBps.Add(acceptedBp.ToVerifiedBreakpoint(source));
+                    acceptedBreakpoints.Add((acceptedBp.Line, acceptedBp.Column));
+                } else {
+                    resultBps.Add(abp.ToUnverifiedBreakpoint());
+                }
+            }
+
+            var count = sessionController.SetBreakpoints(acceptedBreakpoints).Count();
+
+            Console.WriteLine($"setbp count: {count}");
+            Console.WriteLine($"count: {acceptedBreakpoints.Count}");
+
+            /*if (count != acceptedBreakpoints.Count) {
+                throw new ProtocolException();
+            }*/
 
             return new SetBreakpointsResponse {
-                Breakpoints = verified.Concat(unveryfied.Except(verified)).ToList()
+                Breakpoints = resultBps,
             };
+        }
+
+        private bool ComparePaths(string path1, string path2) {
+            return string.Equals(
+                Path.GetFullPath(path1).TrimEnd('\\'),
+                Path.GetFullPath(path2).TrimEnd('\\'),
+                System.StringComparison.InvariantCultureIgnoreCase);
         }
 
         protected override BreakpointLocationsResponse HandleBreakpointLocationsRequest(BreakpointLocationsArguments arguments) {
@@ -84,16 +125,21 @@ namespace DebugAdapter {
         }
 
         protected override ConfigurationDoneResponse HandleConfigurationDoneRequest(ConfigurationDoneArguments arguments) {
-            // startujemy machine
+            SendOutput(OutputType.Stdout, $"Debugger is already started: {sessionController.IsStarted}");
+            if (!sessionController.IsStarted) {
+                sessionController.StartDebugging();
+            }
+
             return new ConfigurationDoneResponse();
         }
 
         protected override AttachResponse HandleAttachRequest(AttachArguments arguments) {
+            Protocol.SendEvent(new InitializedEvent());
             return new AttachResponse();
         }
 
         protected override LaunchResponse HandleLaunchRequest(LaunchArguments arguments) {
-            string sourceFilePath = arguments.ConfigurationProperties.GetValueAsString("sourceFilePath");
+            /*string sourceFilePath = arguments.ConfigurationProperties.GetValueAsString("sourceFilePath");
 
             if (string.IsNullOrEmpty(sourceFilePath)) {
                 throw new ProtocolException("Launch failed because launch configuration did not specify 'sourceFilePath'.");
@@ -101,21 +147,9 @@ namespace DebugAdapter {
 
             if (!File.Exists(sourceFilePath)) {
                 throw new ProtocolException($"Could not find the source file at: \"{sourceFilePath}\"");
-            }
-
-            sessionController.StartDebugging();
-
-            /*try {
-                var compiled = Assembler.Compiler.CompileFromFile(sourceFilePath, out var symbols);
-                debugConfig = new() {
-                    DebugSymbols = symbols,
-                    StopAtEntry = arguments.ConfigurationProperties.GetValueAsBool("stopOnEntry") ?? false
-                };
-            } catch (Exception ex) {
-                
             }*/
 
-
+            Protocol.SendEvent(new InitializedEvent());
 
             return new LaunchResponse();
         }
@@ -223,12 +257,12 @@ namespace DebugAdapter {
             Protocol.SendEvent(new StoppedEvent {
                 Reason = (StoppedEvent.ReasonValue)(int)pauseReason,
                 ThreadId = 0,
-                HitBreakpointIds = new List<int> { debugInfo.HitBreakpointId },
+                HitBreakpointIds = debugInfo.HitBreakpointId.HasValue ? new List<int> { debugInfo.HitBreakpointId.Value } : null,
             });
         }
 
         private void SessionController_InitializedEvent() {
-            Protocol.SendEvent(new InitializedEvent());
+            // Protocol.SendEvent(new InitializedEvent());
         }
 
         private void SendOutput(OutputType outputType, string message) {

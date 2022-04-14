@@ -10,7 +10,7 @@ namespace Runner.Debugger.Managers {
         private readonly Dictionary<ushort, int> loAddressToPossibleBpId;
 
         private Breakpoint[] placedBps = System.Array.Empty<Breakpoint>();
-        private Dictionary<ushort, int> loAddressToPlacedBpId;
+        private Dictionary<ushort, int> loAddressToPlacedBpId = new Dictionary<ushort, int>();
 
         internal BreakpointManager(IEnumerable<IDebugSymbol> debugSymbols) {
             possibleBps = debugSymbols
@@ -26,18 +26,27 @@ namespace Runner.Debugger.Managers {
             return possibleBps.Select(x => new BreakpointInfo(x));
         }
 
-        public int GetLineOfBreakpoint(int breakpointId) {
+        public int GetLineOfBreakpoint(int? breakpointId) {
+            if (breakpointId == null) {
+                return possibleBps.Last().Symbol.Line;
+            }
             return possibleBps.First(x => x.Id == breakpointId).Symbol.Line;
         }
 
         public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
-            placedBps = possibleBps.Where(s => proposedBreakpoints.Any(pb => pb.line == s.Symbol.Line && pb.column == s.Symbol.ColumnStart)).ToArray();
-            loAddressToPlacedBpId = placedBps.ToDictionary(x => x.Symbol.LoAddress, x => x.Id);
+            placedBps = possibleBps.Where(s => proposedBreakpoints.Any(pb => pb.line == s.Symbol.Line /*&& pb.column == s.Symbol.ColumnStart*/)).ToArray();
+
+            if (placedBps.Any()) {
+                loAddressToPlacedBpId = placedBps.ToDictionary(x => x.Symbol.LoAddress, x => x.Id);
+            } else {
+                loAddressToPlacedBpId.Clear();
+            }
+
             return placedBps.Select(x => new BreakpointInfo(x));
         }
 
         public bool IsBreakpointHit(ushort loAddress, out int? breakpointId) {
-            if (loAddressToPlacedBpId.TryGetValue(loAddress, out var tmpBreakpointId)) {
+            if (loAddressToPlacedBpId.TryGetValue(loAddress, out var tmpBreakpointId) == true) {
                 breakpointId = tmpBreakpointId;
                 return true;
             }

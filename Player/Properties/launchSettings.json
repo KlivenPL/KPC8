@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Player": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false
+    },
+    "PlayerDebugNoGui": {
+      "commandName": "Project",
+      "commandLineArgs": "debug --src-path \"P:/Random/vscode-mock-debug/sampleWorkspace/FibonacciProgramSource.kpc\"",
+      "remoteDebugEnabled": false
+    }
+  }
+}

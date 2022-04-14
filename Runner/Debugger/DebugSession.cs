@@ -30,12 +30,11 @@ namespace Runner.Debugger {
         private ushort? nextPauseAddress = null;
         private int? hitBreakpointId = null;
         private bool terminate = false;
-        private DebugValueFormat debugValueFormat = DebugValueFormat.Binary;
+        private DebugValueFormat debugValueFormat = DebugValueFormat.DecWordUnsigned;
         private List<SimulationLoopRunner> externalSlRunners;
 
         #region DebugSession Events
 
-        internal event Action InitializedEvent;
         internal event Action<DebugInfo> InvalidatedEvent;
         internal event Action<OutputType, string> OutputEvent;
         internal event Action<PauseReasonType, DebugInfo> PausedEvent;
@@ -54,14 +53,12 @@ namespace Runner.Debugger {
 
         internal void Start() {
             if (configuration.StopAtEntry) {
-                RequestPause(PauseReasonType.Entry);
+                RequestPause();
             }
 
             foreach (var externalModuleSl in kpc.ExternalSimulationLoops) {
                 externalSlRunners.Add(SimulationLoopRunner.RunInNewThread(externalModuleSl));
             }
-
-            InitializedEvent();
 
             // Load the first instruction
             MakeTickAndWait();
@@ -73,30 +70,29 @@ namespace Runner.Debugger {
 
         private void DebuggerLoop() {
             do {
+                if (!paused) {
+                    var pcCurrInstrAddress = (ushort)(kpc.ModulePanel.Memory.PcContent.ToUShortLE() - 1);
+
+                    if (breakpointManager.IsBreakpointHit(pcCurrInstrAddress, out hitBreakpointId)) {
+                        // If a breakpoint is encountered, send a stopped event
+                        OutputEvent(OutputType.Stdout, $"BP hit at address: {pcCurrInstrAddress} bpid: {hitBreakpointId}\n");
+                        RequestPause(PauseReasonType.Breakpoint);
+                    } else if (pauseReason == PauseReasonType.Step &&
+                            breakpointManager.CanPauseHere(pcCurrInstrAddress, out hitBreakpointId) &&
+                            (nextPauseAddress == null || nextPauseAddress == pcCurrInstrAddress)) {
+
+                        OutputEvent(OutputType.Stdout, $"STEP hit at address: {pcCurrInstrAddress} bpid: {hitBreakpointId}\n");
+                        RequestPause(PauseReasonType.Step);
+                    }
+                }
+
                 lock (syncObject) {
-                    if (!runEvent.Wait(0)) {
+                    if (!runEvent.IsSet) {
                         HandlePause();
                     }
                 }
 
                 runEvent.Wait();
-
-                var pcCurrInstrAddress = (ushort)(kpc.ModulePanel.Memory.PcContent.ToUShortLE() - 1);
-
-                if (breakpointManager.IsBreakpointHit(pcCurrInstrAddress, out hitBreakpointId)) {
-                    // If a breakpoint is encountered, send a stopped event
-                    RequestPause(PauseReasonType.Pause);
-                    continue;
-                }
-
-                if (pauseReason == PauseReasonType.Step && (
-                        nextPauseAddress == null && breakpointManager.CanPauseHere(pcCurrInstrAddress, out hitBreakpointId) ||
-                        nextPauseAddress == pcCurrInstrAddress
-                    )) {
-                    RequestPause(PauseReasonType.Step);
-                    continue;
-                }
-
                 TickOneInstruction();
 
             } while (!terminate);
@@ -108,11 +104,16 @@ namespace Runner.Debugger {
 
         private void TickOneInstruction() {
             // Execute currently loaded instruction
-            do {
+            while (!kpc.CsPanel.Ctrl.Ic_clr) {
                 MakeTickAndWait();
-            } while (!kpc.CsPanel.Ctrl.Ic_clr);
+            }
+
+            /*while (kpc.CsPanel.Ctrl.Ic_clr) {
+                MakeTickAndWait();
+            }*/
 
             // Load next instruction
+            MakeTickAndWait();
             MakeTickAndWait();
             MakeTickAndWait();
             MakeTickAndWait();
@@ -161,10 +162,10 @@ namespace Runner.Debugger {
             }
 
             DebugInfo data = new DebugInfo {
-                HitBreakpointId = hitBreakpointId.Value,
+                HitBreakpointId = hitBreakpointId,
                 Frames = new StackFrameInfo[] {
                     new StackFrameInfo {
-                        Line = breakpointManager.GetLineOfBreakpoint(hitBreakpointId.Value),
+                        Line = breakpointManager.GetLineOfBreakpoint(hitBreakpointId),
                         Scopes = new ScopeInfo [] {
                             new ScopeInfo {
                                 Name = "Registers",
@@ -184,7 +185,7 @@ namespace Runner.Debugger {
             return data;
 
             VariableInfo[] GetRegisters() {
-                var registers = Enum.GetValues<Regs>().Select(x => {
+                var registers = Enum.GetValues<Regs>().Where(r => r != Regs.None).Select(x => {
                     var content = kpc.ModulePanel.Registers.GetWholeRegContent(x.GetIndex());
 
                     return new VariableInfo {
@@ -214,6 +215,13 @@ namespace Runner.Debugger {
             }
         }
 
+        private void RequestPause(PauseReasonType pauseReason) {
+            lock (syncObject) {
+                this.pauseReason = pauseReason;
+                runEvent.Reset();
+            }
+        }
+
         #region Potentially external thread section
 
         internal void ChangeDebugValueFormat(DebugValueFormat newFormat) {
@@ -227,6 +235,7 @@ namespace Runner.Debugger {
 
         /// <returns>Successfully placed breakpoints</returns>
         internal IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
+            //OutputEvent(OutputType.Stdout, "SET BRP: " + breakpointManager);
             return breakpointManager.SetBreakpoints(proposedBreakpoints);
         }
 
@@ -247,11 +256,8 @@ namespace Runner.Debugger {
             Continue(true, null);
         }
 
-        internal void RequestPause(PauseReasonType pauseReason) {
-            lock (syncObject) {
-                this.pauseReason = pauseReason;
-                runEvent.Reset();
-            }
+        internal void RequestPause() {
+            Continue(true, null);
         }
 
         internal void RequestTerminate() {

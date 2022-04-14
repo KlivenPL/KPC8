@@ -35,12 +35,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DebugAdapter\DebugAdapter.csproj" />
     <ProjectReference Include="..\Infrastructure\_Infrastructure.csproj" />
     <ProjectReference Include="..\KPC8\KPC8.csproj" />
+    <ProjectReference Include="..\Runner\Runner.csproj" />
   </ItemGroup>
 
   <ItemGroup>

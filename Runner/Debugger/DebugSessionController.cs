@@ -23,31 +23,28 @@ namespace Runner.Debugger {
 
         #region DebugSession passed Events
 
-        public event Action InitializedEvent;
         public event Action<DebugInfo> InvalidatedEvent;
         public event Action<OutputType, string> OutputEvent;
         public event Action<PauseReasonType, DebugInfo> PausedEvent;
 
         #endregion
 
-        public bool IsStarted => debugThread.IsAlive;
+        public bool IsStarted => debugThread?.IsAlive == true;
 
         private DebugSessionController(DebugSessionConfiguration configuration, KPC8Build kpc) {
             syncObject = new object();
-            runEvent = new ManualResetEventSlim();
+            runEvent = new ManualResetEventSlim(true);
             debugSession = new DebugSession(configuration, kpc, runEvent, syncObject);
-
-            SubscribeToPassedEvents();
         }
 
         public void StartDebugging() {
+            SubscribeToPassedEvents();
             debugThread = new Thread(debugSession.Start);
             debugThread.Name = "Main debug thread";
             debugThread.Start();
         }
 
         private void SubscribeToPassedEvents() {
-            debugSession.InitializedEvent += InitializedEvent;
             debugSession.InvalidatedEvent += InvalidatedEvent;
             debugSession.OutputEvent += OutputEvent;
             debugSession.PausedEvent += PausedEvent;
@@ -55,6 +52,10 @@ namespace Runner.Debugger {
 
         public IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations() {
             return debugSession.GetPossibleBreakpointLocations();
+        }
+
+        public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
+            return debugSession.SetBreakpoints(proposedBreakpoints);
         }
 
         public void Continue() {
@@ -74,7 +75,7 @@ namespace Runner.Debugger {
         }
 
         public void Pause() {
-            debugSession.RequestPause(PauseReasonType.Pause);
+            debugSession.RequestPause();
         }
 
         public void Terminate() {
@@ -90,7 +91,7 @@ namespace Runner.Debugger {
 
         public void Disconnect() {
             debugSession.RequestTerminate();
-            debugThread.Join(3000);
+            debugThread?.Join(3000);
         }
 
         public class Factory {
