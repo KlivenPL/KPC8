@@ -26,7 +26,8 @@ namespace Assembler.Contexts {
             ClearRegionedLabels();
         }
 
-        public bool TryParseAllRegionsAndLabels(TokenReader reader) {
+        public bool TryParseAllRegionsAndLabels(TokenReader reader, out string errorMessage) {
+            errorMessage = null;
             string currentRegion = GlobalRegion;
             string currentLabel = null;
             ClearRegionedLabels();
@@ -34,10 +35,12 @@ namespace Assembler.Contexts {
             while (reader.Read()) {
                 if (reader.Current is RegionToken regionToken) {
                     if (currentRegion != GlobalRegion && currentLabel == null) {
+                        errorMessage = $"Region: {currentRegion} does not contain any label";
                         return false;
                     }
 
                     if (regionedLabels.ContainsKey(regionToken.Value)) {
+                        errorMessage = $"Duplicated region: {regionToken.Value}";
                         return false;
                     }
 
@@ -47,11 +50,17 @@ namespace Assembler.Contexts {
                 } else if (reader.Current is LabelToken labelToken) {
                     var prevLabels = regionedLabels[currentRegion];
                     if (prevLabels.Select(l => l.Name).Contains(labelToken.Value)) {
+                        errorMessage = $"Duplicated label: {labelToken.Value} in region {currentRegion}";
                         return false;
                     }
 
                     prevLabels.Add(new LabelInfo(labelToken.Value, null));
                     currentLabel = labelToken.Value;
+
+                    if (!reader.Read() || reader.Current is not IdentifierToken) {
+                        errorMessage = $"Identifier expected after the Label {labelToken.Value}, got: {reader.Current.Class}";
+                        return false;
+                    }
                 }
             }
 

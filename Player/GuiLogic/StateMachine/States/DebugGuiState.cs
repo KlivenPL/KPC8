@@ -53,7 +53,6 @@ namespace Player.GuiLogic.StateMachine.States {
 
         private void StartDebuggingServer() {
             if (programLoader.TryGetCompiledProgramWithDebugSymbols(out var sourceFilePath, out var program, out var debugSymbols, out var compileErrors)) {
-
                 new Thread(() => {
                     debugInitializer = new DapAdapterAttachInitializer();
 

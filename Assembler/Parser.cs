@@ -33,8 +33,11 @@ namespace Assembler {
             var debugSymbolList = new List<IDebugSymbol>();
             LabelToken lastUnresolvedLabelToken = null;
 
-            if (!labelsContext.TryParseAllRegionsAndLabels(reader.Clone())) {
-                throw ParserException.Create("Error while parsing labels", reader.Current);
+            {
+                var clonedReader = reader.Clone();
+                if (!labelsContext.TryParseAllRegionsAndLabels(clonedReader, out var errorMessage)) {
+                    throw ParserException.Create($"Error while parsing labels: {errorMessage}", clonedReader.Current);
+                }
             }
 
             while (reader.Read()) {

@@ -11,6 +11,7 @@ namespace Assembler._Infrastructure {
 
         public static TokenizerException Create(string message, CodeReader codeReader) {
             var sb = new StringBuilder();
+            sb.AppendLine("Tokenizer exception:");
             sb.AppendLine(message);
             sb.AppendLine(CreateExceptionDetails(codeReader));
             return new TokenizerException(sb.ToString(), codeReader.Position, codeReader.Line, codeReader.LineText);

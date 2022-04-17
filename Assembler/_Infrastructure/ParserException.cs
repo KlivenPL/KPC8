@@ -10,6 +10,7 @@ namespace Assembler._Infrastructure {
 
         public static ParserException Create(string message, IToken token) {
             var sb = new StringBuilder();
+            sb.AppendLine("Parser exception:");
             sb.AppendLine(message);
             sb.AppendLine(CreateExceptionDetails(token));
             return new ParserException(sb.ToString(), token.CodePosition, token.LineNumber, token.ToString());
