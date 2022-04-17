@@ -12,6 +12,7 @@ namespace Runner.Debugger {
         private readonly ManualResetEventSlim runEvent;
 
         private readonly DebugSession debugSession;
+        private readonly CancellationTokenSource cts;
         private Thread debugThread;
 
         #region DebugSessionController Events
@@ -35,11 +36,12 @@ namespace Runner.Debugger {
             syncObject = new object();
             runEvent = new ManualResetEventSlim(true);
             debugSession = new DebugSession(configuration, kpc, runEvent, syncObject);
+            cts = new CancellationTokenSource();
         }
 
-        public void StartDebugging() {
+        public void StartDebugging(bool stopAtEntry) {
             SubscribeToPassedEvents();
-            debugThread = new Thread(debugSession.Start);
+            debugThread = new Thread(() => debugSession.Start(stopAtEntry, cts.Token));
             debugThread.Name = "Main debug thread";
             debugThread.Start();
         }
@@ -79,10 +81,11 @@ namespace Runner.Debugger {
         }
 
         public void Terminate() {
+            cts.Cancel();
             debugSession.RequestTerminate();
             ExitedEvent(0);
 
-            if (!debugThread.Join(3000)) {
+            if (!debugThread.Join(5000)) {
                 OutputEvent(OutputType.Stderr, "Could not terminate - termination time exceeded");
             }
 
@@ -90,8 +93,9 @@ namespace Runner.Debugger {
         }
 
         public void Disconnect() {
+            cts.Cancel();
             debugSession.RequestTerminate();
-            debugThread?.Join(3000);
+            debugThread?.Join(5000);
         }
 
         public class Factory {

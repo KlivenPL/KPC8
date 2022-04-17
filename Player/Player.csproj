@@ -54,11 +54,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="KpcLogic\Configurators\" />
-    <Folder Include="KpcLogic\Simulation\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="MainForm\MainFormController.resx" />
   </ItemGroup>
 

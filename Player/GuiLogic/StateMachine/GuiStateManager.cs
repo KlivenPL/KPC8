@@ -32,8 +32,6 @@ namespace Player.GuiLogic.StateMachine {
                 this.guiStateManager = guiStateManager;
             }
 
-            public GuiStateType CurrentStateType => guiStateManager.CurrentState.GuiStateType;
-
             protected void SetState<TGuiState>() where TGuiState : IGuiState {
                 guiStateManager.SetState<TGuiState>();
             }

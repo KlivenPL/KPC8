@@ -1,26 +1,33 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Player.GuiLogic.StateMachine;
+using Player.Contexts;
 using Player.InternalForms.BitArrayViewer;
+using Player.Loaders;
 
 namespace Player._Configuration {
     internal static class DiInstaller {
 
         public static void InstallAll(this IServiceCollection services) {
-            InstallServices(services);
             InstallForms(services);
+            InstallContexts(services);
+            InstallLoaders(services);
             DiStateInstaller.Install(services);
         }
 
         private static void InstallForms(IServiceCollection services) {
             services
                 .AddScoped<MainForm.KPC8Player>()
+                .AddScoped<MainForm.KPC8Player.Controller>()
                 .AddTransient<BitArrayViewerForm>();
         }
 
-        private static void InstallServices(IServiceCollection services) {
+        private static void InstallContexts(IServiceCollection services) {
             services
-                .AddScoped<MainForm.KPC8Player.Controller>()
-                .AddScoped<GuiStateManager>();
+                .AddSingleton<ProgramContext>();
+        }
+
+        private static void InstallLoaders(IServiceCollection services) {
+            services
+                .AddSingleton<ProgramLoader>();
         }
     }
 }

@@ -70,6 +70,10 @@ namespace Player.MainForm {
             guiStateManager.CurrentState.Stop();
         }
 
+        private void mnuDbgBtn_Click(object sender, EventArgs e) {
+            guiStateManager.CurrentState.Debug();
+        }
+
         /*
         var testData = LoadRomFromBinaryFile(theDialog.FileName);
                 bavForm.Initialize(new Player.InternalForms.BitArrayViewer.BitArrayViewerFormParameters(

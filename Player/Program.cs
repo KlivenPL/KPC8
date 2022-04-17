@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Player._Configuration;
 using Player._Configuration.CmdLine;
 using Player.Debugger;
-using System.Diagnostics;
 
 namespace Player {
     internal static class Program {
@@ -12,11 +11,9 @@ namespace Player {
         /// </summary>
         [STAThread]
         static void Main(string[] args) {
-            Console.WriteLine("args:" + String.Join(" ", args));
-            Debug.WriteLine("args" + String.Join(" ", args));
-            Parser.Default.ParseArguments<DefaultArgs, DebugArgs>(args)
+            Parser.Default.ParseArguments<DefaultArgs, DebugLaunchArgs>(args)
                   .WithParsed<DefaultArgs>(defaultArgs => InstallServices(RunMainForm))
-                  .WithParsed<DebugArgs>(RunNoGuiDebug);
+                  .WithParsed<DebugLaunchArgs>(RunNoGuiDebug);
         }
 
         private static void InstallServices(Action<ServiceCollection> then) {
@@ -32,12 +29,16 @@ namespace Player {
 
             using ServiceProvider serviceProvider = services.BuildServiceProvider();
             var player = serviceProvider.GetRequiredService<MainForm.KPC8Player>();
-            Application.Run(player);
+
+            try {
+                Application.Run(player);
+            } catch (Exception) {
+                throw;
+            }
         }
 
-        private static void RunNoGuiDebug(DebugArgs args) {
-            // new DapAdapterLaunchInitializer().InitializeLaunch(args);
-            new DapAdapterLaunchInitializer().InitializeLaunchViaServer(args);
+        private static void RunNoGuiDebug(DebugLaunchArgs args) {
+            new DapAdapterLaunchInitializer().InitializeLaunch(args);
         }
     }
 }

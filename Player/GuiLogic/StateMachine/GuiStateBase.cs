@@ -9,8 +9,6 @@ namespace Player.GuiLogic.StateMachine {
             Controller = controller;
         }
 
-        public abstract GuiStateType GuiStateType { get; }
-
         public virtual void OnEnter() {
 
         }

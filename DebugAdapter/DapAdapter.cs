@@ -18,6 +18,7 @@ namespace DebugAdapter {
         private readonly Source source;
 
         private DebugInfo debugInfo;
+        private bool stopAtEntry;
 
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
@@ -61,18 +62,18 @@ namespace DebugAdapter {
             Console.WriteLine("are equal: " + ComparePaths(arguments.Source.Path, this.source.Path));*/
 
             // PRZYWROCOC
-            /*if (!ComparePaths(arguments.Source.Path, this.source.Path)) {
+            if (!ComparePaths(arguments.Source.Path, this.source.Path)) {
                 return new SetBreakpointsResponse {
                     Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint()).ToList()
                 };
-            }*/
-
-            if (!arguments.Source.Path.EndsWith(".kpc")) {
-                return new SetBreakpointsResponse {
-                    Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint()).ToList()
-                };
-
             }
+
+            /*if (!arguments.Source.Path.EndsWith(".kpc")) {
+                return new SetBreakpointsResponse {
+                    Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint()).ToList()
+                };
+
+            }*/
 
             var possibleBreakpoints = sessionController.GetPossibleBreakpointLocations();
 
@@ -127,7 +128,7 @@ namespace DebugAdapter {
         protected override ConfigurationDoneResponse HandleConfigurationDoneRequest(ConfigurationDoneArguments arguments) {
             SendOutput(OutputType.Stdout, $"Debugger is already started: {sessionController.IsStarted}");
             if (!sessionController.IsStarted) {
-                sessionController.StartDebugging();
+                sessionController.StartDebugging(stopAtEntry);
             }
 
             return new ConfigurationDoneResponse();
@@ -195,7 +196,7 @@ namespace DebugAdapter {
                 Threads = new() {
                     new() {
                         Id = 0,
-                        Name = "kpc"
+                        Name = "Main thread"
                     }
                 }
             };
@@ -259,10 +260,6 @@ namespace DebugAdapter {
                 ThreadId = 0,
                 HitBreakpointIds = debugInfo.HitBreakpointId.HasValue ? new List<int> { debugInfo.HitBreakpointId.Value } : null,
             });
-        }
-
-        private void SessionController_InitializedEvent() {
-            // Protocol.SendEvent(new InitializedEvent());
         }
 
         private void SendOutput(OutputType outputType, string message) {

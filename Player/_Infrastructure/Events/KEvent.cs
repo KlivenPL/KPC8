@@ -3,7 +3,7 @@
         public static void Fire<TEvent>(TEvent @event) where TEvent : class, IEvent {
             var eventType = typeof(TEvent);
             if (KEventListener.TryGetListeners(eventType, out var tuple)) {
-                foreach (var listener in tuple.listeners) {
+                foreach (var listener in tuple.listeners.ToArray()) {
                     tuple.methodInfo.Invoke(listener, new[] { @event });
                 }
             }

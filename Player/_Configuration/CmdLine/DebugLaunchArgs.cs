@@ -3,7 +3,7 @@
 namespace Player._Configuration.CmdLine {
 
     [Verb("debug", HelpText = "No-GUI debug mode")]
-    internal class DebugArgs {
+    internal class DebugLaunchArgs {
 
         [Option('s', "src-path", Required = true, HelpText = "Source file path to compile and load")]
         public string SourceFilePath { get; init; }

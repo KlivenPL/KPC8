@@ -29,9 +29,7 @@
             this.mnuFileLoadRomBtn = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuPlayBtn = new System.Windows.Forms.ToolStripButton();
-            this.mnuDbgBtn = new System.Windows.Forms.ToolStripDropDownButton();
-            this.mnuDbgPlayBtn = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuDbgStepIntoBtn = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuDbgBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuStopBtn = new System.Windows.Forms.ToolStripButton();
             this.mnuPauseBtn = new System.Windows.Forms.ToolStripButton();
@@ -120,28 +118,12 @@
             // 
             // mnuDbgBtn
             // 
-            this.mnuDbgBtn.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuDbgPlayBtn,
-            this.mnuDbgStepIntoBtn});
             this.mnuDbgBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuDbgBtn.Image")));
             this.mnuDbgBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuDbgBtn.Name = "mnuDbgBtn";
-            this.mnuDbgBtn.Size = new System.Drawing.Size(75, 35);
+            this.mnuDbgBtn.Size = new System.Drawing.Size(66, 35);
             this.mnuDbgBtn.Text = "Debug";
-            // 
-            // mnuDbgPlayBtn
-            // 
-            this.mnuDbgPlayBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuDbgPlayBtn.Image")));
-            this.mnuDbgPlayBtn.Name = "mnuDbgPlayBtn";
-            this.mnuDbgPlayBtn.Size = new System.Drawing.Size(121, 22);
-            this.mnuDbgPlayBtn.Text = "Play";
-            // 
-            // mnuDbgStepIntoBtn
-            // 
-            this.mnuDbgStepIntoBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuDbgStepIntoBtn.Image")));
-            this.mnuDbgStepIntoBtn.Name = "mnuDbgStepIntoBtn";
-            this.mnuDbgStepIntoBtn.Size = new System.Drawing.Size(121, 22);
-            this.mnuDbgStepIntoBtn.Text = "Step into";
+            this.mnuDbgBtn.Click += new System.EventHandler(this.mnuDbgBtn_Click);
             // 
             // toolStripSeparator2
             // 
@@ -390,9 +372,6 @@
         private ToolStripMenuItem mnuFileLoadRomBtn;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripButton mnuPlayBtn;
-        private ToolStripDropDownButton mnuDbgBtn;
-        private ToolStripMenuItem mnuDbgStepIntoBtn;
-        private ToolStripMenuItem mnuDbgPlayBtn;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripButton mnuStopBtn;
         private ToolStripButton mnuPauseBtn;
@@ -419,5 +398,6 @@
         private Controls.Register.RegisterCtrl reg16;
         private Panel panel1;
         private Label regsLbl;
+        private ToolStripButton mnuDbgBtn;
     }
 }

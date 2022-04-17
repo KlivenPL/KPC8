@@ -1,9 +1,5 @@
-﻿using Player.GuiLogic.StateMachine;
-
-namespace Player._Infrastructure.States {
+﻿namespace Player._Infrastructure.States {
     internal interface IGuiState {
-        GuiStateType GuiStateType { get; }
-
         void OnEnter();
         void OnExit();
 

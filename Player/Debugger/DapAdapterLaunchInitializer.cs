@@ -8,7 +8,7 @@ using System.Collections;
 
 namespace Player.Debugger {
     internal class DapAdapterLaunchInitializer : DapAdapterInitializerBase {
-        public void InitializeLaunch(DebugArgs debugArgs) {
+        public void InitializeLaunch(DebugLaunchArgs debugArgs) {
             BitArray[] program;
             IEnumerable<IDebugSymbol> debugSymbols;
             KPC8Configuration kpc8Configuration;
@@ -26,7 +26,6 @@ namespace Player.Debugger {
 
             var debugSessionConfiguration = new DebugSessionConfiguration {
                 DebugSymbols = debugSymbols,
-                StopAtEntry = debugArgs.PauseAtEntry,
             };
 
             var dapAdapterConfiguration = new DapAdapterConfiguration {
@@ -39,7 +38,7 @@ namespace Player.Debugger {
             dapAdapter.Run();
         }
 
-        private bool ValidateArgs(DebugArgs debugArgs, out List<string> validationErrors) {
+        private bool ValidateArgs(DebugLaunchArgs debugArgs, out List<string> validationErrors) {
             validationErrors = new List<string>();
 
             if (string.IsNullOrWhiteSpace(debugArgs.SourceFilePath)) {

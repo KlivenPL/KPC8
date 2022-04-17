@@ -51,8 +51,8 @@ namespace Runner.Debugger {
             externalSlRunners = new List<SimulationLoopRunner>();
         }
 
-        internal void Start() {
-            if (configuration.StopAtEntry) {
+        internal void Start(bool stopAtEntry, CancellationToken cancellationToken) {
+            if (stopAtEntry) {
                 RequestPause();
             }
 
@@ -65,10 +65,10 @@ namespace Runner.Debugger {
             MakeTickAndWait();
             MakeTickAndWait();
 
-            DebuggerLoop();
+            DebuggerLoop(cancellationToken);
         }
 
-        private void DebuggerLoop() {
+        private void DebuggerLoop(CancellationToken cancellationToken) {
             do {
                 if (!paused) {
                     var pcCurrInstrAddress = (ushort)(kpc.ModulePanel.Memory.PcContent.ToUShortLE() - 1);
@@ -92,7 +92,13 @@ namespace Runner.Debugger {
                     }
                 }
 
-                runEvent.Wait();
+                try {
+                    runEvent.Wait(cancellationToken);
+                } catch (OperationCanceledException) {
+                    terminate = true;
+                    continue;
+                }
+
                 TickOneInstruction();
 
             } while (!terminate);
