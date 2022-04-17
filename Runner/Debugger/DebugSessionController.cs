@@ -39,9 +39,9 @@ namespace Runner.Debugger {
             cts = new CancellationTokenSource();
         }
 
-        public void StartDebugging(bool stopAtEntry) {
+        public void StartDebugging(bool pauseAtEntry) {
             SubscribeToPassedEvents();
-            debugThread = new Thread(() => debugSession.Start(stopAtEntry, cts.Token));
+            debugThread = new Thread(() => debugSession.Start(pauseAtEntry, cts.Token));
             debugThread.Name = "Main debug thread";
             debugThread.Start();
         }

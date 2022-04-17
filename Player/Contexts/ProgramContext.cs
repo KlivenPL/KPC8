@@ -1,15 +1,11 @@
-﻿using Player.InternalForms.Dialogs;
-using Player.MainForm;
+﻿using Player._Infrastructure.Events;
+using Player.Events;
+using Player.InternalForms.Dialogs;
 
 namespace Player.Contexts {
     internal class ProgramContext {
-        private readonly KPC8Player.Controller controller;
         private FileInfo romFile;
         private FileInfo sourceFile;
-
-        public ProgramContext(KPC8Player.Controller controller) {
-            this.controller = controller;
-        }
 
         private const string SelectKpcSrcDialogTitle = "Select KPC8 source file";
         private const string SelectKpcSrcDialogFilter = "KPC8 source file|*.kpc|All files|*.*";
@@ -24,7 +20,7 @@ namespace Player.Contexts {
             get => romFile;
             private set {
                 romFile = value;
-                SetFormLoadedFileTitle();
+                FireLoadedProgramChangedEvent();
             }
         }
 
@@ -32,18 +28,12 @@ namespace Player.Contexts {
             get => sourceFile;
             private set {
                 sourceFile = value;
-                SetFormLoadedFileTitle();
+                FireLoadedProgramChangedEvent();
             }
         }
 
-        private void SetFormLoadedFileTitle() {
-            if (romFile != null) {
-                controller.LoadedFileName = romFile.Name;
-            } else if (sourceFile != null) {
-                controller.LoadedFileName = sourceFile.Name;
-            } else {
-                controller.LoadedFileName = null;
-            }
+        private void FireLoadedProgramChangedEvent() {
+            KEvent.Fire(new LoadedProgramChangedEvent { RomFile = romFile, SourceFile = sourceFile });
         }
 
         public bool IsRomFileSelected => RomFile != null;
@@ -60,8 +50,8 @@ namespace Player.Contexts {
 
         public bool TryLoadRomFile() {
             if (LoadFileDialog.TryLoadFile(SelectKpcRomDialogTitle, SelectKpcRomDialogFilter, out var selectedFile)) {
-                RomFile = null;
-                SourceFile = selectedFile;
+                RomFile = selectedFile;
+                SourceFile = null;
                 return true;
             }
             return false;

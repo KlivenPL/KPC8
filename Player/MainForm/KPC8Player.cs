@@ -1,23 +1,29 @@
-using Infrastructure.BitArrays;
 using KPC8.ProgRegs;
 using Microsoft.Extensions.DependencyInjection;
+using Player.Contexts;
 using Player.Controls.Register;
 using Player.Gui.Renderers;
 using Player.GuiLogic.StateMachine;
-using Player.InternalForms.BitArrayViewer;
 using System.Collections;
 
 namespace Player.MainForm {
-    public partial class KPC8Player : Form {
+    internal partial class KPC8Player : Form {
         private readonly IServiceProvider provider;
         private readonly GuiStateManager guiStateManager;
+        private readonly ProgramContext programContext;
 
-        public KPC8Player(IServiceProvider provider) {
+        private static KPC8Player instance;
+
+        internal static void InvokeOnForm(Action method) => instance.Invoke(method);
+
+        public KPC8Player(IServiceProvider provider, ProgramContext programContext) {
             InitializeComponent();
             this.provider = provider;
             this.guiStateManager = provider.GetRequiredService<GuiStateManager>();
+            this.programContext = programContext;
             InitializeForm();
             InitializeRegisters();
+            instance = this;
         }
 
         private void InitializeForm() {
@@ -33,33 +39,8 @@ namespace Player.MainForm {
             }
         }
 
-        private void loadRomBtn_Click(object sender, EventArgs e) {
-            var bavForm = provider.GetRequiredService<BitArrayViewerForm>();
-
-            OpenFileDialog theDialog = new OpenFileDialog();
-            theDialog.Filter = "KPC8 ROM|*.kpcrom|All files|*.*";
-            if (theDialog.ShowDialog() == DialogResult.OK) {
-                bavForm.Show();
-            }
-        }
-
-        private static BitArray[] LoadRomFromBinaryFile(string path) {
-            var fileInfo = new FileInfo(path);
-            BitArray[] bas = new BitArray[ushort.MaxValue + 1];
-            using var stream = fileInfo.OpenRead();
-            using var binaryReader = new BinaryReader(stream);
-
-            for (int i = 0; i < ushort.MaxValue + 1; i++) {
-                var @byte = binaryReader.ReadByte();
-                bas[i] = BitArrayHelper.FromByteLE(@byte);
-            }
-
-            return bas;
-        }
-
         private void KPC8Player_Load(object sender, EventArgs e) {
             guiStateManager.Initialize();
-
         }
 
         private void mnuPlayBtn_Click(object sender, EventArgs e) {
@@ -73,6 +54,22 @@ namespace Player.MainForm {
         private void mnuDbgBtn_Click(object sender, EventArgs e) {
             guiStateManager.CurrentState.Debug();
         }
+
+        private void loadRomBtn_Click(object sender, EventArgs e) {
+            programContext.TryLoadRomFile();
+        }
+
+        private void mnuFileLoadSourceBtn_Click(object sender, EventArgs e) {
+            programContext.TryLoadSourceFile();
+        }
+
+        /*var bavForm = provider.GetRequiredService<BitArrayViewerForm>();
+
+            OpenFileDialog theDialog = new OpenFileDialog();
+            theDialog.Filter = "KPC8 ROM|*.kpcrom|All files|*.*";
+            if (theDialog.ShowDialog() == DialogResult.OK) {
+                bavForm.Show();
+            }*/
 
         /*
         var testData = LoadRomFromBinaryFile(theDialog.FileName);

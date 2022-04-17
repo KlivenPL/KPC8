@@ -7,7 +7,7 @@ using Player.Loaders;
 using Player.MainForm;
 
 namespace Player.GuiLogic.StateMachine.States {
-    internal class DebugGuiState : GuiStateBase, IEventListener<DapAdapterStatusChangedEvent> {
+    internal class DebugGuiState : CommonGuiState, IEventListener<DapAdapterStatusChangedEvent> {
         private readonly ProgramLoader programLoader;
 
         private DapAdapterAttachInitializer debugInitializer;
@@ -18,13 +18,13 @@ namespace Player.GuiLogic.StateMachine.States {
 
         public override void OnEnter() {
             this.ListenToEvent<DapAdapterStatusChangedEvent>();
-            Controller.mnuStopBtn.OnUiThread(x => x.Enabled = true);
+            Controller.mnuStopBtn.OnUI(x => x.Enabled = true);
             StartDebuggingServer();
         }
 
         public override void OnExit() {
             this.StopListenToEvent<DapAdapterStatusChangedEvent>();
-            Controller.mnuStopBtn.OnUiThread(x => x.Enabled = false);
+            Controller.mnuStopBtn.OnUI(x => x.Enabled = false);
             debugInitializer = null;
             Controller.StatusTitle = null;
         }

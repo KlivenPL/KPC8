@@ -1,7 +1,7 @@
 ﻿using Player.MainForm;
 
 namespace Player.GuiLogic.StateMachine.States {
-    internal class PlayGuiState : GuiStateBase {
+    internal class PlayGuiState : CommonGuiState {
         public PlayGuiState(GuiStateManager guiStateManager, KPC8Player.Controller controller) : base(guiStateManager, controller) { }
 
         public override void OnEnter() {

@@ -16,11 +16,12 @@ namespace Player.GuiLogic.StateMachine {
         public IGuiState CurrentState { get; private set; }
 
         public void Initialize() {
-            SetState<StopGuiState>();
+            CurrentState = serviceProvider.GetRequiredService<StopGuiState>();
+            CurrentState.OnEnter();
         }
 
         private void SetState<TGuiState>() where TGuiState : IGuiState {
-            CurrentState?.OnExit();
+            CurrentState.OnExit();
             CurrentState = serviceProvider.GetRequiredService<TGuiState>();
             CurrentState.OnEnter();
         }

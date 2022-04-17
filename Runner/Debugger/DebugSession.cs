@@ -51,8 +51,8 @@ namespace Runner.Debugger {
             externalSlRunners = new List<SimulationLoopRunner>();
         }
 
-        internal void Start(bool stopAtEntry, CancellationToken cancellationToken) {
-            if (stopAtEntry) {
+        internal void Start(bool pauseAtEntry, CancellationToken cancellationToken) {
+            if (pauseAtEntry) {
                 RequestPause();
             }
 

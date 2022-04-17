@@ -27,6 +27,7 @@
             this.mnuToolBar = new System.Windows.Forms.ToolStrip();
             this.mnuFileDrop = new System.Windows.Forms.ToolStripDropDownButton();
             this.mnuFileLoadRomBtn = new System.Windows.Forms.ToolStripMenuItem();
+            this.mnuFileLoadSourceBtn = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.mnuPlayBtn = new System.Windows.Forms.ToolStripButton();
             this.mnuDbgBtn = new System.Windows.Forms.ToolStripButton();
@@ -34,8 +35,6 @@
             this.mnuStopBtn = new System.Windows.Forms.ToolStripButton();
             this.mnuPauseBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuStepOverBtn = new System.Windows.Forms.ToolStripButton();
-            this.mnuStepIntoBtn = new System.Windows.Forms.ToolStripButton();
             this.rightPnl = new System.Windows.Forms.Panel();
             this.regsPnl = new System.Windows.Forms.FlowLayoutPanel();
             this.reg1 = new Player.Controls.Register.RegisterCtrl();
@@ -75,9 +74,7 @@
             this.toolStripSeparator2,
             this.mnuStopBtn,
             this.mnuPauseBtn,
-            this.toolStripSeparator3,
-            this.mnuStepOverBtn,
-            this.mnuStepIntoBtn});
+            this.toolStripSeparator3});
             this.mnuToolBar.Location = new System.Drawing.Point(0, 0);
             this.mnuToolBar.Name = "mnuToolBar";
             this.mnuToolBar.Size = new System.Drawing.Size(1584, 38);
@@ -88,7 +85,8 @@
             // 
             this.mnuFileDrop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.mnuFileDrop.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuFileLoadRomBtn});
+            this.mnuFileLoadRomBtn,
+            this.mnuFileLoadSourceBtn});
             this.mnuFileDrop.Image = ((System.Drawing.Image)(resources.GetObject("mnuFileDrop.Image")));
             this.mnuFileDrop.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuFileDrop.Name = "mnuFileDrop";
@@ -98,9 +96,16 @@
             // mnuFileLoadRomBtn
             // 
             this.mnuFileLoadRomBtn.Name = "mnuFileLoadRomBtn";
-            this.mnuFileLoadRomBtn.Size = new System.Drawing.Size(130, 22);
+            this.mnuFileLoadRomBtn.Size = new System.Drawing.Size(180, 22);
             this.mnuFileLoadRomBtn.Text = "Load ROM";
             this.mnuFileLoadRomBtn.Click += new System.EventHandler(this.loadRomBtn_Click);
+            // 
+            // mnuFileLoadSourceBtn
+            // 
+            this.mnuFileLoadSourceBtn.Name = "mnuFileLoadSourceBtn";
+            this.mnuFileLoadSourceBtn.Size = new System.Drawing.Size(180, 22);
+            this.mnuFileLoadSourceBtn.Text = "Load Source File";
+            this.mnuFileLoadSourceBtn.Click += new System.EventHandler(this.mnuFileLoadSourceBtn_Click);
             // 
             // toolStripSeparator1
             // 
@@ -155,26 +160,6 @@
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 38);
-            // 
-            // mnuStepOverBtn
-            // 
-            this.mnuStepOverBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.mnuStepOverBtn.Enabled = false;
-            this.mnuStepOverBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuStepOverBtn.Image")));
-            this.mnuStepOverBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.mnuStepOverBtn.Name = "mnuStepOverBtn";
-            this.mnuStepOverBtn.Size = new System.Drawing.Size(24, 35);
-            this.mnuStepOverBtn.Text = "Step over";
-            // 
-            // mnuStepIntoBtn
-            // 
-            this.mnuStepIntoBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.mnuStepIntoBtn.Enabled = false;
-            this.mnuStepIntoBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuStepIntoBtn.Image")));
-            this.mnuStepIntoBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.mnuStepIntoBtn.Name = "mnuStepIntoBtn";
-            this.mnuStepIntoBtn.Size = new System.Drawing.Size(24, 35);
-            this.mnuStepIntoBtn.Text = "Step into";
             // 
             // rightPnl
             // 
@@ -376,8 +361,6 @@
         private ToolStripButton mnuStopBtn;
         private ToolStripButton mnuPauseBtn;
         private ToolStripSeparator toolStripSeparator3;
-        private ToolStripButton mnuStepOverBtn;
-        private ToolStripButton mnuStepIntoBtn;
         private Panel rightPnl;
         private FlowLayoutPanel regsPnl;
         private Controls.Register.RegisterCtrl reg1;
@@ -399,5 +382,6 @@
         private Panel panel1;
         private Label regsLbl;
         private ToolStripButton mnuDbgBtn;
+        private ToolStripMenuItem mnuFileLoadSourceBtn;
     }
 }

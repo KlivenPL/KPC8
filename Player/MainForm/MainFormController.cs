@@ -1,13 +1,20 @@
 ﻿using Player._Infrastructure.Controls;
+using Player._Infrastructure.Events;
+using Player.Events;
 using System.Text;
 
 namespace Player.MainForm {
     partial class KPC8Player {
-        internal class Controller {
+        internal class Controller : IEventListener<LoadedProgramChangedEvent> {
             private const string MainTitle = "KPC8 Player";
             private readonly KPC8Player form;
             private string loadedFileName;
             private string statusTitle;
+
+            public Controller(KPC8Player form) {
+                this.form = form;
+                this.ListenToEvent<LoadedProgramChangedEvent>();
+            }
 
             public string LoadedFileName {
                 get => loadedFileName;
@@ -25,17 +32,12 @@ namespace Player.MainForm {
                 }
             }
 
-
-            public Controller(KPC8Player form) {
-                this.form = form;
-            }
-
             internal void FreezeFrom() {
-                mnuToolBar.OnUiThread(x => x.Enabled = false);
+                mnuToolBar.OnUI(x => x.Enabled = false);
             }
 
             internal void UnfreezeForm() {
-                mnuToolBar.OnUiThread(x => x.Enabled = true);
+                mnuToolBar.OnUI(x => x.Enabled = true);
             }
 
             public void RefreshTitle() {
@@ -54,12 +56,11 @@ namespace Player.MainForm {
             internal ToolStrip mnuToolBar => form.mnuToolBar;
             internal ToolStripDropDownButton mnuFileDrop => form.mnuFileDrop;
             internal ToolStripMenuItem mnuFileLoadRomBtn => form.mnuFileLoadRomBtn;
+            internal ToolStripMenuItem mnuFileLoadSourceBtn => form.mnuFileLoadSourceBtn;
             internal ToolStripButton mnuPlayBtn => form.mnuPlayBtn;
             internal ToolStripButton mnuDbgBtn => form.mnuDbgBtn;
             internal ToolStripButton mnuStopBtn => form.mnuStopBtn;
             internal ToolStripButton mnuPauseBtn => form.mnuPauseBtn;
-            internal ToolStripButton mnuStepOverBtn => form.mnuStepOverBtn;
-            internal ToolStripButton mnuStepIntoBtn => form.mnuStepIntoBtn;
             internal FlowLayoutPanel regsPnl => form.regsPnl;
 
 
@@ -74,6 +75,16 @@ namespace Player.MainForm {
                         selectedFileCallback(null);
                     }
                 });
+            }
+
+            public void OnEvent(LoadedProgramChangedEvent @event) {
+                if (@event.RomFile != null) {
+                    LoadedFileName = @event.RomFile.Name;
+                } else if (@event.SourceFile != null) {
+                    LoadedFileName = @event.SourceFile.Name;
+                } else {
+                    LoadedFileName = null;
+                }
             }
         }
     }

@@ -1,22 +1,32 @@
 ﻿using Player._Infrastructure.Controls;
+using Player._Infrastructure.Events;
+using Player.Contexts;
+using Player.Events;
 using Player.MainForm;
 
 namespace Player.GuiLogic.StateMachine.States {
-    internal class StopGuiState : GuiStateBase {
-        public StopGuiState(GuiStateManager guiStateManager, KPC8Player.Controller controller) : base(guiStateManager, controller) {
-
+    internal class StopGuiState : CommonGuiState, IEventListener<LoadedProgramChangedEvent> {
+        private readonly ProgramContext programContext;
+        public StopGuiState(GuiStateManager guiStateManager, KPC8Player.Controller controller, ProgramContext programContext) : base(guiStateManager, controller) {
+            this.programContext = programContext;
         }
 
         public override void OnEnter() {
-            Controller.mnuPlayBtn.OnUiThread(x => x.Enabled = true);
-            Controller.mnuDbgBtn.OnUiThread(x => x.Enabled = true);
-            Controller.mnuStepIntoBtn.OnUiThread(x => x.Enabled = true);
+            this.ListenToEvent<LoadedProgramChangedEvent>();
+            Controller.mnuPlayBtn.OnUI(x => x.Enabled = true);
+            Controller.mnuDbgBtn.OnUI(x => x.Enabled = true);
+
+            Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = !programContext.IsRomFileSelected);
+            Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = !programContext.IsSourceFileSelected);
         }
 
         public override void OnExit() {
-            Controller.mnuPlayBtn.OnUiThread(x => x.Enabled = false);
-            Controller.mnuDbgBtn.OnUiThread(x => x.Enabled = false);
-            Controller.mnuStepIntoBtn.OnUiThread(x => x.Enabled = false);
+            this.StopListenToEvent<LoadedProgramChangedEvent>();
+            Controller.mnuPlayBtn.OnUI(x => x.Enabled = false);
+            Controller.mnuDbgBtn.OnUI(x => x.Enabled = false);
+
+            Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = false);
+            Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = false);
         }
 
         public override void Play() {
@@ -31,6 +41,22 @@ namespace Player.GuiLogic.StateMachine.States {
 
         public override void StepInto() {
 
+        }
+
+        public void OnEvent(LoadedProgramChangedEvent @event) {
+            if (@event.RomFile != null) {
+                Controller.LoadedFileName = @event.RomFile.Name;
+                Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = false);
+                Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = true);
+            } else if (@event.SourceFile != null) {
+                Controller.LoadedFileName = @event.SourceFile.Name;
+                Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = true);
+                Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = false);
+            } else {
+                Controller.LoadedFileName = null;
+                Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = true);
+                Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = true);
+            }
         }
     }
 }

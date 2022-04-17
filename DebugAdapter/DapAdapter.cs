@@ -1,7 +1,9 @@
-﻿using DebugAdapter.Configuration;
+﻿using _Infrastructure.Paths;
+using DebugAdapter.Configuration;
 using DebugAdapter.Mappers;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
+using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Utilities;
 using Runner.Debugger;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.Enums;
@@ -18,7 +20,7 @@ namespace DebugAdapter {
         private readonly Source source;
 
         private DebugInfo debugInfo;
-        private bool stopAtEntry;
+        private bool pauseAtEntry;
 
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
@@ -62,7 +64,7 @@ namespace DebugAdapter {
             Console.WriteLine("are equal: " + ComparePaths(arguments.Source.Path, this.source.Path));*/
 
             // PRZYWROCOC
-            if (!ComparePaths(arguments.Source.Path, this.source.Path)) {
+            if (!PathComparer.Compare(arguments.Source.Path, this.source.Path)) {
                 return new SetBreakpointsResponse {
                     Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint()).ToList()
                 };
@@ -108,13 +110,6 @@ namespace DebugAdapter {
             };
         }
 
-        private bool ComparePaths(string path1, string path2) {
-            return string.Equals(
-                Path.GetFullPath(path1).TrimEnd('\\'),
-                Path.GetFullPath(path2).TrimEnd('\\'),
-                System.StringComparison.InvariantCultureIgnoreCase);
-        }
-
         protected override BreakpointLocationsResponse HandleBreakpointLocationsRequest(BreakpointLocationsArguments arguments) {
             return new BreakpointLocationsResponse {
                 Breakpoints = sessionController.GetPossibleBreakpointLocations().Select(x => new BreakpointLocation { Column = x.Column, EndColumn = x.EndColumn, Line = x.Line }).ToList()
@@ -128,13 +123,14 @@ namespace DebugAdapter {
         protected override ConfigurationDoneResponse HandleConfigurationDoneRequest(ConfigurationDoneArguments arguments) {
             SendOutput(OutputType.Stdout, $"Debugger is already started: {sessionController.IsStarted}");
             if (!sessionController.IsStarted) {
-                sessionController.StartDebugging(stopAtEntry);
+                sessionController.StartDebugging(pauseAtEntry);
             }
 
             return new ConfigurationDoneResponse();
         }
 
         protected override AttachResponse HandleAttachRequest(AttachArguments arguments) {
+            pauseAtEntry = arguments.ConfigurationProperties.GetValueAsBool("pauseAtEntry") ?? false;
             Protocol.SendEvent(new InitializedEvent());
             return new AttachResponse();
         }
