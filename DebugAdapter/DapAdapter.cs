@@ -1,5 +1,6 @@
 ﻿using _Infrastructure.Paths;
 using DebugAdapter.Configuration;
+using DebugAdapter.CustomRequests;
 using DebugAdapter.Mappers;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
@@ -14,6 +15,7 @@ using System.Linq;
 
 namespace DebugAdapter {
     public class DapAdapter : DebugAdapterBase {
+        private const string RamMemoryReference = "RAM";
 
         private readonly DapAdapterConfiguration configuration;
         private readonly DebugSessionController sessionController;
@@ -21,6 +23,10 @@ namespace DebugAdapter {
 
         private DebugInfo debugInfo;
         private bool pauseAtEntry;
+
+        private int pauseId;
+        private int cachedRamPauseId;
+        private string cachedRamBase64;
 
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
@@ -50,11 +56,21 @@ namespace DebugAdapter {
         }
 
         protected override InitializeResponse HandleInitializeRequest(InitializeArguments arguments) {
+            ReqisterCustomRequests();
+
             return new InitializeResponse {
                 SupportsConfigurationDoneRequest = true,
                 SupportsEvaluateForHovers = true,
+                SupportsReadMemoryRequest = true,
                 //SupportsBreakpointLocationsRequest = true,
             };
+        }
+
+        private void ReqisterCustomRequests() {
+            Protocol.RegisterRequestType<ChangeFormatRequest, ChangeFormatRequestArguments>(toggleFormatting => {
+                sessionController.ChangeDebugValueFormat(toggleFormatting.Arguments.Format);
+                Protocol.SendEvent(new InvalidatedEvent());
+            });
         }
 
         protected override SetBreakpointsResponse HandleSetBreakpointsRequest(SetBreakpointsArguments arguments) {
@@ -225,10 +241,28 @@ namespace DebugAdapter {
             };
         }
 
-        protected override EvaluateResponse HandleEvaluateRequest(EvaluateArguments arguments) {
-            return new EvaluateResponse {
-                Result = $"Jan paweł drugi {arguments.FrameId}",
+        protected override ReadMemoryResponse HandleReadMemoryRequest(ReadMemoryArguments arguments) {
+            if (cachedRamPauseId != pauseId) {
+                cachedRamPauseId = pauseId;
+                cachedRamBase64 = Convert.ToBase64String(sessionController.GetRamBytes());
+            }
+
+            return new ReadMemoryResponse {
+                Address = "0x0",
+                Data = cachedRamBase64,
+                UnreadableBytes = 0
             };
+        }
+
+        protected override EvaluateResponse HandleEvaluateRequest(EvaluateArguments arguments) {
+            try {
+                var register = debugInfo.Frames.First().Scopes.SelectMany(x => x.Variables).First(x => x.Name.Equals(arguments.Expression, StringComparison.OrdinalIgnoreCase));
+                return new EvaluateResponse {
+                    Result = $"Reg {register?.Name} = {register?.Value}"
+                };
+            } catch {
+                return new EvaluateResponse { Result = null };
+            }
         }
 
         private void SessionController_TerminatedEvent() {
@@ -251,11 +285,14 @@ namespace DebugAdapter {
         private void SessionController_PausedEvent(PauseReasonType pauseReason, DebugInfo debugInfo) {
             this.debugInfo = debugInfo;
 
+            pauseId++;
             Protocol.SendEvent(new StoppedEvent {
                 Reason = (StoppedEvent.ReasonValue)(int)pauseReason,
                 ThreadId = 0,
                 HitBreakpointIds = debugInfo.HitBreakpointId.HasValue ? new List<int> { debugInfo.HitBreakpointId.Value } : null,
             });
+
+            Protocol.SendEvent(new MemoryEvent { MemoryReference = RamMemoryReference });
         }
 
         private void SendOutput(OutputType outputType, string message) {

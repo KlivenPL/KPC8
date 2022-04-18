@@ -61,7 +61,7 @@ namespace Player.MainForm {
             internal ToolStripButton mnuDbgBtn => form.mnuDbgBtn;
             internal ToolStripButton mnuStopBtn => form.mnuStopBtn;
             internal ToolStripButton mnuPauseBtn => form.mnuPauseBtn;
-            internal FlowLayoutPanel regsPnl => form.regsPnl;
+            //internal FlowLayoutPanel regsPnl => form.regsPnl;
 
 
             internal void TryLoadFile(string title, string filter, Action<FileInfo> selectedFileCallback) {

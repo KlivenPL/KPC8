@@ -11,11 +11,11 @@ namespace Runner._Infrastructure {
         }
 
         internal static string ToHexWordString(this BitArray ba) {
-            return $"0x{ba.ToUShortLE:X4}";
+            return $"0x{ba.ToUShortLE():X4}";
         }
 
         internal static string ToHexTwoBytesString(this BitArray ba) {
-            return $"0x{ba.Take(8).ToByteLE:X2}\t0x{ba.Skip(8).ToByteLE:X2}";
+            return $"0x{ba.Take(8).ToByteLE():X2} 0x{ba.Skip(8).ToByteLE():X2}";
         }
 
         internal static string ToDecUnsignedWordString(this BitArray ba) {
@@ -23,7 +23,7 @@ namespace Runner._Infrastructure {
         }
 
         internal static string ToDecUnsignedTwoBytesString(this BitArray ba) {
-            return $"{ba.Take(8).ToByteLE}\t{ba.Skip(8).ToByteLE}";
+            return $"{ba.Take(8).ToByteLE()} {ba.Skip(8).ToByteLE()}";
         }
 
         internal static string ToDecSignedWordString(this BitArray ba) {
@@ -31,7 +31,7 @@ namespace Runner._Infrastructure {
         }
 
         internal static string ToDecSignedTwoBytesString(this BitArray ba) {
-            return $"{ba.Take(8).ToSByteLE}\t{ba.Skip(8).ToSByteLE}";
+            return $"{ba.Take(8).ToSByteLE()} {ba.Skip(8).ToSByteLE()}";
         }
 
         internal static string ToFormattedDebugString(this BitArray ba, DebugValueFormat format) {

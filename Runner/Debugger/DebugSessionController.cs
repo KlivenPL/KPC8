@@ -1,4 +1,5 @@
-﻿using Runner.Build;
+﻿using Runner._Infrastructure;
+using Runner.Build;
 using Runner.Configuration;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.Enums;
@@ -60,6 +61,10 @@ namespace Runner.Debugger {
             return debugSession.SetBreakpoints(proposedBreakpoints);
         }
 
+        public byte[] GetRamBytes() {
+            return debugSession.GetRamBytes();
+        }
+
         public void Continue() {
             debugSession.Continue();
         }
@@ -78,6 +83,10 @@ namespace Runner.Debugger {
 
         public void Pause() {
             debugSession.RequestPause();
+        }
+
+        public void ChangeDebugValueFormat(DebugValueFormat newFormat) {
+            debugSession.ChangeDebugValueFormat(newFormat);
         }
 
         public void Terminate() {

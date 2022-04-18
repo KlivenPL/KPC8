@@ -212,6 +212,7 @@ namespace Runner.Debugger {
                 yield return new VariableInfo {
                     Name = "MAR",
                     Value = kpc.ModulePanel.Memory.MarContent.ToFormattedDebugString(debugValueFormat),
+                    MemoryReference = "RAM",
                 };
 
                 yield return new VariableInfo {
@@ -243,6 +244,15 @@ namespace Runner.Debugger {
         internal IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
             //OutputEvent(OutputType.Stdout, "SET BRP: " + breakpointManager);
             return breakpointManager.SetBreakpoints(proposedBreakpoints);
+        }
+
+        internal byte[] GetRamBytes() {
+            if (!paused) {
+                OutputEvent(OutputType.Stderr, "Cannot get RAM bytes if not paused");
+                return null;
+            }
+
+            return kpc.ModulePanel.Memory.RamDumpToBytesLE();
         }
 
         internal void Continue() {

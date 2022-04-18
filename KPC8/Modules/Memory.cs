@@ -7,6 +7,7 @@ using Components.Rams;
 using Components.Roms;
 using Components.Signals;
 using Components.Transcievers;
+using Infrastructure.BitArrays;
 using KPC8._Infrastructure.Components;
 using KPC8.ControlSignals;
 using System.Collections;
@@ -32,10 +33,19 @@ namespace KPC8.Modules {
         private readonly HLHiLoTransciever addrBusToDataBus;
 
         private Signal mar_oe_const;
-
         public BitArray PcContent => pc.Content;
         public BitArray MarContent => mar.Content;
         public BitArray GetRamAt(ushort address) => ram.Content[address];
+
+        public byte[] RamDumpToBytesLE() {
+            var bytes = new byte[MemorySize];
+
+            for (int i = 0; i < MemorySize; i++) {
+                bytes[i] = BitArrayHelper.ToByteLE(ram.Content[i]);
+            }
+
+            return bytes;
+        }
 
         public Memory(BitArray[] romData, BitArray[] ramData, Signal mainClock, IBus dataBus, IBus addressBus) {
             pc = new HLHiLoCounter(nameof(pc), 16);

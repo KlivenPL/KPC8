@@ -1,10 +1,7 @@
-using KPC8.ProgRegs;
 using Microsoft.Extensions.DependencyInjection;
 using Player.Contexts;
-using Player.Controls.Register;
 using Player.Gui.Renderers;
 using Player.GuiLogic.StateMachine;
-using System.Collections;
 
 namespace Player.MainForm {
     internal partial class KPC8Player : Form {
@@ -22,7 +19,7 @@ namespace Player.MainForm {
             this.guiStateManager = provider.GetRequiredService<GuiStateManager>();
             this.programContext = programContext;
             InitializeForm();
-            InitializeRegisters();
+            //InitializeRegisters();
             instance = this;
         }
 
@@ -30,14 +27,14 @@ namespace Player.MainForm {
             mnuToolBar.Renderer = new CustomToolStripRenderer();
         }
 
-        private void InitializeRegisters() {
-            var registers = regsPnl.Controls.OfType<RegisterCtrl>().ToArray();
-            var regsTypes = Enum.GetValues<Regs>();
+        /* private void InitializeRegisters() {
+             var registers = regsPnl.Controls.OfType<RegisterCtrl>().ToArray();
+             var regsTypes = Enum.GetValues<Regs>();
 
-            for (int i = 0; i < 16; i++) {
-                registers[i].Initialize(new RegisterCtrlParameters(regsTypes[i + 1].ToString(), 16, () => new BitArray(16)));
-            }
-        }
+             for (int i = 0; i < 16; i++) {
+                 registers[i].Initialize(new RegisterCtrlParameters(regsTypes[i + 1].ToString(), 16, () => new BitArray(16)));
+             }
+         }*/
 
         private void KPC8Player_Load(object sender, EventArgs e) {
             guiStateManager.Initialize();

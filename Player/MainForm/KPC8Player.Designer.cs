@@ -36,29 +36,7 @@
             this.mnuPauseBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.rightPnl = new System.Windows.Forms.Panel();
-            this.regsPnl = new System.Windows.Forms.FlowLayoutPanel();
-            this.reg1 = new Player.Controls.Register.RegisterCtrl();
-            this.reg2 = new Player.Controls.Register.RegisterCtrl();
-            this.reg3 = new Player.Controls.Register.RegisterCtrl();
-            this.reg4 = new Player.Controls.Register.RegisterCtrl();
-            this.reg5 = new Player.Controls.Register.RegisterCtrl();
-            this.reg6 = new Player.Controls.Register.RegisterCtrl();
-            this.reg7 = new Player.Controls.Register.RegisterCtrl();
-            this.reg8 = new Player.Controls.Register.RegisterCtrl();
-            this.reg9 = new Player.Controls.Register.RegisterCtrl();
-            this.reg10 = new Player.Controls.Register.RegisterCtrl();
-            this.reg11 = new Player.Controls.Register.RegisterCtrl();
-            this.reg12 = new Player.Controls.Register.RegisterCtrl();
-            this.reg13 = new Player.Controls.Register.RegisterCtrl();
-            this.reg14 = new Player.Controls.Register.RegisterCtrl();
-            this.reg15 = new Player.Controls.Register.RegisterCtrl();
-            this.reg16 = new Player.Controls.Register.RegisterCtrl();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.regsLbl = new System.Windows.Forms.Label();
             this.mnuToolBar.SuspendLayout();
-            this.rightPnl.SuspendLayout();
-            this.regsPnl.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // mnuToolBar
@@ -96,14 +74,14 @@
             // mnuFileLoadRomBtn
             // 
             this.mnuFileLoadRomBtn.Name = "mnuFileLoadRomBtn";
-            this.mnuFileLoadRomBtn.Size = new System.Drawing.Size(180, 22);
+            this.mnuFileLoadRomBtn.Size = new System.Drawing.Size(160, 22);
             this.mnuFileLoadRomBtn.Text = "Load ROM";
             this.mnuFileLoadRomBtn.Click += new System.EventHandler(this.loadRomBtn_Click);
             // 
             // mnuFileLoadSourceBtn
             // 
             this.mnuFileLoadSourceBtn.Name = "mnuFileLoadSourceBtn";
-            this.mnuFileLoadSourceBtn.Size = new System.Drawing.Size(180, 22);
+            this.mnuFileLoadSourceBtn.Size = new System.Drawing.Size(160, 22);
             this.mnuFileLoadSourceBtn.Text = "Load Source File";
             this.mnuFileLoadSourceBtn.Click += new System.EventHandler(this.mnuFileLoadSourceBtn_Click);
             // 
@@ -164,170 +142,11 @@
             // rightPnl
             // 
             this.rightPnl.BackColor = System.Drawing.SystemColors.Control;
-            this.rightPnl.Controls.Add(this.regsPnl);
-            this.rightPnl.Controls.Add(this.panel1);
             this.rightPnl.Dock = System.Windows.Forms.DockStyle.Right;
             this.rightPnl.Location = new System.Drawing.Point(1231, 38);
             this.rightPnl.Name = "rightPnl";
             this.rightPnl.Size = new System.Drawing.Size(353, 823);
             this.rightPnl.TabIndex = 1;
-            // 
-            // regsPnl
-            // 
-            this.regsPnl.Controls.Add(this.reg1);
-            this.regsPnl.Controls.Add(this.reg2);
-            this.regsPnl.Controls.Add(this.reg3);
-            this.regsPnl.Controls.Add(this.reg4);
-            this.regsPnl.Controls.Add(this.reg5);
-            this.regsPnl.Controls.Add(this.reg6);
-            this.regsPnl.Controls.Add(this.reg7);
-            this.regsPnl.Controls.Add(this.reg8);
-            this.regsPnl.Controls.Add(this.reg9);
-            this.regsPnl.Controls.Add(this.reg10);
-            this.regsPnl.Controls.Add(this.reg11);
-            this.regsPnl.Controls.Add(this.reg12);
-            this.regsPnl.Controls.Add(this.reg13);
-            this.regsPnl.Controls.Add(this.reg14);
-            this.regsPnl.Controls.Add(this.reg15);
-            this.regsPnl.Controls.Add(this.reg16);
-            this.regsPnl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.regsPnl.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.regsPnl.Location = new System.Drawing.Point(0, 26);
-            this.regsPnl.Name = "regsPnl";
-            this.regsPnl.Size = new System.Drawing.Size(353, 797);
-            this.regsPnl.TabIndex = 1;
-            // 
-            // reg1
-            // 
-            this.reg1.Location = new System.Drawing.Point(3, 3);
-            this.reg1.Name = "reg1";
-            this.reg1.Size = new System.Drawing.Size(392, 29);
-            this.reg1.TabIndex = 0;
-            // 
-            // reg2
-            // 
-            this.reg2.Location = new System.Drawing.Point(3, 38);
-            this.reg2.Name = "reg2";
-            this.reg2.Size = new System.Drawing.Size(392, 29);
-            this.reg2.TabIndex = 1;
-            // 
-            // reg3
-            // 
-            this.reg3.Location = new System.Drawing.Point(3, 73);
-            this.reg3.Name = "reg3";
-            this.reg3.Size = new System.Drawing.Size(392, 29);
-            this.reg3.TabIndex = 2;
-            // 
-            // reg4
-            // 
-            this.reg4.Location = new System.Drawing.Point(3, 108);
-            this.reg4.Name = "reg4";
-            this.reg4.Size = new System.Drawing.Size(392, 29);
-            this.reg4.TabIndex = 3;
-            // 
-            // reg5
-            // 
-            this.reg5.Location = new System.Drawing.Point(3, 143);
-            this.reg5.Name = "reg5";
-            this.reg5.Size = new System.Drawing.Size(392, 29);
-            this.reg5.TabIndex = 4;
-            // 
-            // reg6
-            // 
-            this.reg6.Location = new System.Drawing.Point(3, 178);
-            this.reg6.Name = "reg6";
-            this.reg6.Size = new System.Drawing.Size(392, 29);
-            this.reg6.TabIndex = 5;
-            // 
-            // reg7
-            // 
-            this.reg7.Location = new System.Drawing.Point(3, 213);
-            this.reg7.Name = "reg7";
-            this.reg7.Size = new System.Drawing.Size(392, 29);
-            this.reg7.TabIndex = 6;
-            // 
-            // reg8
-            // 
-            this.reg8.Location = new System.Drawing.Point(3, 248);
-            this.reg8.Name = "reg8";
-            this.reg8.Size = new System.Drawing.Size(392, 29);
-            this.reg8.TabIndex = 7;
-            // 
-            // reg9
-            // 
-            this.reg9.Location = new System.Drawing.Point(3, 283);
-            this.reg9.Name = "reg9";
-            this.reg9.Size = new System.Drawing.Size(392, 29);
-            this.reg9.TabIndex = 8;
-            // 
-            // reg10
-            // 
-            this.reg10.Location = new System.Drawing.Point(3, 318);
-            this.reg10.Name = "reg10";
-            this.reg10.Size = new System.Drawing.Size(392, 29);
-            this.reg10.TabIndex = 9;
-            // 
-            // reg11
-            // 
-            this.reg11.Location = new System.Drawing.Point(3, 353);
-            this.reg11.Name = "reg11";
-            this.reg11.Size = new System.Drawing.Size(392, 29);
-            this.reg11.TabIndex = 10;
-            // 
-            // reg12
-            // 
-            this.reg12.Location = new System.Drawing.Point(3, 388);
-            this.reg12.Name = "reg12";
-            this.reg12.Size = new System.Drawing.Size(392, 29);
-            this.reg12.TabIndex = 11;
-            // 
-            // reg13
-            // 
-            this.reg13.Location = new System.Drawing.Point(3, 423);
-            this.reg13.Name = "reg13";
-            this.reg13.Size = new System.Drawing.Size(392, 29);
-            this.reg13.TabIndex = 12;
-            // 
-            // reg14
-            // 
-            this.reg14.Location = new System.Drawing.Point(3, 458);
-            this.reg14.Name = "reg14";
-            this.reg14.Size = new System.Drawing.Size(392, 29);
-            this.reg14.TabIndex = 13;
-            // 
-            // reg15
-            // 
-            this.reg15.Location = new System.Drawing.Point(3, 493);
-            this.reg15.Name = "reg15";
-            this.reg15.Size = new System.Drawing.Size(392, 29);
-            this.reg15.TabIndex = 14;
-            // 
-            // reg16
-            // 
-            this.reg16.Location = new System.Drawing.Point(3, 528);
-            this.reg16.Name = "reg16";
-            this.reg16.Size = new System.Drawing.Size(392, 29);
-            this.reg16.TabIndex = 15;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.regsLbl);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(353, 26);
-            this.panel1.TabIndex = 0;
-            // 
-            // regsLbl
-            // 
-            this.regsLbl.AutoSize = true;
-            this.regsLbl.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.regsLbl.Location = new System.Drawing.Point(3, 4);
-            this.regsLbl.Name = "regsLbl";
-            this.regsLbl.Size = new System.Drawing.Size(64, 19);
-            this.regsLbl.TabIndex = 0;
-            this.regsLbl.Text = "Registers";
-            this.regsLbl.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // KPC8Player
             // 
@@ -342,10 +161,6 @@
             this.Load += new System.EventHandler(this.KPC8Player_Load);
             this.mnuToolBar.ResumeLayout(false);
             this.mnuToolBar.PerformLayout();
-            this.rightPnl.ResumeLayout(false);
-            this.regsPnl.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -362,25 +177,6 @@
         private ToolStripButton mnuPauseBtn;
         private ToolStripSeparator toolStripSeparator3;
         private Panel rightPnl;
-        private FlowLayoutPanel regsPnl;
-        private Controls.Register.RegisterCtrl reg1;
-        private Controls.Register.RegisterCtrl reg2;
-        private Controls.Register.RegisterCtrl reg3;
-        private Controls.Register.RegisterCtrl reg4;
-        private Controls.Register.RegisterCtrl reg5;
-        private Controls.Register.RegisterCtrl reg6;
-        private Controls.Register.RegisterCtrl reg7;
-        private Controls.Register.RegisterCtrl reg8;
-        private Controls.Register.RegisterCtrl reg9;
-        private Controls.Register.RegisterCtrl reg10;
-        private Controls.Register.RegisterCtrl reg11;
-        private Controls.Register.RegisterCtrl reg12;
-        private Controls.Register.RegisterCtrl reg13;
-        private Controls.Register.RegisterCtrl reg14;
-        private Controls.Register.RegisterCtrl reg15;
-        private Controls.Register.RegisterCtrl reg16;
-        private Panel panel1;
-        private Label regsLbl;
         private ToolStripButton mnuDbgBtn;
         private ToolStripMenuItem mnuFileLoadSourceBtn;
     }
