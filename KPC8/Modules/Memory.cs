@@ -47,6 +47,16 @@ namespace KPC8.Modules {
             return bytes;
         }
 
+        public byte[] RomDumpToBytesLE() {
+            var bytes = new byte[MemorySize];
+
+            for (int i = 0; i < MemorySize; i++) {
+                bytes[i] = BitArrayHelper.ToByteLE(rom.Content[i]);
+            }
+
+            return bytes;
+        }
+
         public Memory(BitArray[] romData, BitArray[] ramData, Signal mainClock, IBus dataBus, IBus addressBus) {
             pc = new HLHiLoCounter(nameof(pc), 16);
             mar = new HLHiLoCounter(nameof(mar), 16);

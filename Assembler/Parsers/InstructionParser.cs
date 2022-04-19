@@ -8,6 +8,8 @@ using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Assembler.Parsers {
     class InstructionParser {
@@ -30,6 +32,8 @@ namespace Assembler.Parsers {
                 var instructionFormat = instructionsContext.GetInstructionFormat(instructionType);
                 var originalReaderPos = reader.Position;
 
+                var assReplacements = new List<ChangeToAssRegisterException>();
+
                 while (true) {
                     try {
                         switch (instructionFormat.InstructionFormat) {
@@ -42,14 +46,23 @@ namespace Assembler.Parsers {
                             default:
                                 throw new NotImplementedException();
                         }
-                        return;
-                    } catch (InvalidTokenException ex) {
+                        if (assReplacements.Count == 0) {
+                            return;
+                        } else {
+                            var ex = assReplacements.Single();
+                            throw new RegisterChangedToAssException(ex, instructionHigh, instructionLow);
+                        }
+                    } catch (InvalidTokenClassException ex) {
                         if (labelsContext.TryResolveInvalidTokenException(ex, out var resolvedToken)) {
                             reader.MoveTo(originalReaderPos);
                             reader.ReplaceToken(ex.RecievedToken, resolvedToken);
                         } else {
                             throw ex.ToParserException();
                         }
+                    } catch (ChangeToAssRegisterException ex) {
+                        reader.MoveTo(originalReaderPos);
+                        reader.ReplaceToken(ex.TokenToChange, new RegisterToken(Regs.Ass, ex.TokenToChange.CodePosition, ex.TokenToChange.LineNumber));
+                        assReplacements.Add(ex);
                     }
                 }
 
@@ -66,11 +79,17 @@ namespace Assembler.Parsers {
                 regDest = instructionFormat.RegDestRestrictions;
             } else {
                 if (reader.Read() && reader.Current is RegisterToken registerToken) {
-                    ValidateIsRegisterAllowed(instructionFormat.RegDestRestrictions, registerToken, instructionType);
+                    try {
+                        ValidateIsRegisterAllowed(instructionFormat.RegDestRestrictions, registerToken, instructionType);
+                    } catch (ParserException) {
+                        if (instructionFormat.RegDestRestrictions.HasFlag(Regs.Ass)) {
+                            throw new ChangeToAssRegisterException(registerToken);
+                        }
+                    }
                     regDest = registerToken.Value;
                 } else {
                     //  throw ParserException.Create($"Expected register, got {reader.Current.Class}", reader.Current);
-                    throw new InvalidTokenException(reader.Current, TokenClass.Register);
+                    throw new InvalidTokenClassException(reader.Current, TokenClass.Register);
                 }
             }
 
@@ -90,7 +109,7 @@ namespace Assembler.Parsers {
                         number = (byte)reader.CastCurrent<CharToken>().Value;
                         break;
                     default:
-                        throw new InvalidTokenException(reader.Current, TokenClass.Number | TokenClass.Char);
+                        throw new InvalidTokenClassException(reader.Current, TokenClass.Number | TokenClass.Char);
                         //throw ParserException.Create($"Expected Number or Char token, got {reader.Current.Class}", reader.Current);
                 }
             } else {
@@ -126,12 +145,18 @@ namespace Assembler.Parsers {
 
             while (regsToResolveCount-- > 0 && reader.Read()) {
                 if (reader.Current is not RegisterToken registerToken) {
-                    throw new InvalidTokenException(reader.Current, TokenClass.Register);
+                    throw new InvalidTokenClassException(reader.Current, TokenClass.Register);
                     //throw ParserException.Create($"Expected register token, got {reader.Current.Class}", reader.Current);
                 }
 
                 if (regDest == Regs.None) {
-                    ValidateIsRegisterAllowed(instructionFormat.RegDestRestrictions, registerToken, instructionType);
+                    try {
+                        ValidateIsRegisterAllowed(instructionFormat.RegDestRestrictions, registerToken, instructionType);
+                    } catch (ParserException) {
+                        if (instructionFormat.RegDestRestrictions.HasFlag(Regs.Ass)) {
+                            throw new ChangeToAssRegisterException(registerToken);
+                        }
+                    }
                     regDest = registerToken.Value;
                 } else if (regA == Regs.None) {
                     ValidateIsRegisterAllowed(instructionFormat.RegARestrictions, registerToken, instructionType);

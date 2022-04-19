@@ -1,0 +1,38 @@
+﻿*@const
+	.asciiz sampleTextPtr "Just a sample text."
+	.asciiz anotherTextPtr "Another other simple text."
+*@code
+    .defnum ramAddr1 0x0
+    .defnum ramAddr2 0x30
+
+    :main
+        seti $a1 @const.sampleTextPtr
+        seti $a2 ramAddr1
+        jasl copyTextToRam.main $ra
+
+        seti $a1 @const.anotherTextPtr
+        seti $a2 ramAddr2
+        jasl copyTextToRam.main $ra
+
+    :end
+        nop
+
+*copyTextToRam
+    .defreg textPtrArg $a1
+    .defreg ramPtr $a2
+    .defreg currChar $t1
+    .defreg offset $t2
+
+    :main
+        seti offset 0
+
+    :loop
+        lbromo currChar textPtrArg offset
+        sbramo currChar ramPtr offset
+        addi offset 1
+        add $zero currChar currChar
+        jzfl end
+        jl loop
+
+    :end
+        jr $ra

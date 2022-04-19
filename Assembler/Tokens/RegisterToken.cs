@@ -8,6 +8,15 @@ namespace Assembler.Tokens {
         public override Regs Value { get; protected set; }
         public override TokenClass Class => TokenClass.Register;
 
+        public RegisterToken() {
+
+        }
+
+        public RegisterToken(Regs value, int position, int line) {
+            Value = value;
+            AddDebugData(position, line);
+        }
+
         public override bool TryAccept(CodeReader reader) {
             if (reader.Current == '$') {
                 var sb = new StringBuilder();

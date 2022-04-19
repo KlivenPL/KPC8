@@ -207,6 +207,7 @@ namespace Runner.Debugger {
                 yield return new VariableInfo {
                     Name = "PC",
                     Value = kpc.ModulePanel.Memory.PcContent.ToFormattedDebugString(debugValueFormat),
+                    MemoryReference = "ROM",
                 };
 
                 yield return new VariableInfo {
@@ -253,6 +254,15 @@ namespace Runner.Debugger {
             }
 
             return kpc.ModulePanel.Memory.RamDumpToBytesLE();
+        }
+
+        internal byte[] GetRomBytes() {
+            if (!paused) {
+                OutputEvent(OutputType.Stderr, "Cannot get ROM bytes if not paused");
+                return null;
+            }
+
+            return kpc.ModulePanel.Memory.RomDumpToBytesLE();
         }
 
         internal void Continue() {

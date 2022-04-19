@@ -195,7 +195,7 @@ namespace Assembler.Contexts {
             return false;
         }
 
-        public bool TryResolveInvalidTokenException(InvalidTokenException ex, out IToken token) {
+        public bool TryResolveInvalidTokenException(InvalidTokenClassException ex, out IToken token) {
             token = null;
 
             if (ex.RecievedToken is not IdentifierToken identifierToken) {

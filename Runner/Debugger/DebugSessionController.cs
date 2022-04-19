@@ -65,6 +65,10 @@ namespace Runner.Debugger {
             return debugSession.GetRamBytes();
         }
 
+        public byte[] GetRomBytes() {
+            return debugSession.GetRomBytes();
+        }
+
         public void Continue() {
             debugSession.Continue();
         }

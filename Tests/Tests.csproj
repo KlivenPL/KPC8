@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ProgramTests\AsciiCopyToRam\AsciiCopyToRamProgramSource.kpc" />
     <None Remove="ProgramTests\Fibonacci\FibonacciProgramSource.kpc" />
     <None Remove="ProgramTests\Multiplication\MultiplicationProgramSource.kpc" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ProgramTests\AsciiCopyToRam\AsciiCopyToRamProgramSource.kpc" />
     <EmbeddedResource Include="ProgramTests\Multiplication\MultiplicationProgramSource.kpc" />
     <EmbeddedResource Include="ProgramTests\Fibonacci\FibonacciProgramSource.kpc" />
   </ItemGroup>

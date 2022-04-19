@@ -100,11 +100,27 @@ namespace Assembler {
                 lastUnresolvedLabelToken = null;
             }
 
+            var identifier = reader.CastCurrent<IdentifierToken>();
+
             try {
-                var identifier = reader.CastCurrent<IdentifierToken>();
                 instructionParser.Parse(reader, out var instructionHigh, out var instructionLow);
                 romBuilder.AddInstruction(instructionHigh, instructionLow, out var loAddress);
                 debugSymbolList.Add(new ExecutableSymbol(identifier, loAddress));
+            } catch (RegisterChangedToAssException ex) {
+                romBuilder.AddInstruction(ex.InstructionHigh, ex.InstructionLow, out var loAddress);
+                debugSymbolList.Add(new ExecutableSymbol(identifier, loAddress));
+
+                var tokens = reader.GetTokens();
+                tokens.InsertRange(reader.Position + 1, new IToken[] {
+                    new IdentifierToken("setw", -1, -1),
+                    new RegisterToken(ex.ChangedToken.Value, -1, -1),
+                    new RegisterToken(KPC8.ProgRegs.Regs.Ass, -1, -1),
+                });
+
+                var pos = reader.Position;
+                reader = new TokenReader(tokens);
+                reader.MoveTo(pos);
+
             } catch (ParserException) {
                 if (readerClone.CastCurrent<IdentifierToken>().IsPseudoinstruction(out _)) {
                     var pseudoinstructionToken = reader.CastCurrent<IdentifierToken>();

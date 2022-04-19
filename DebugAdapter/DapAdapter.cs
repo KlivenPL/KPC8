@@ -15,6 +15,7 @@ using System.Linq;
 
 namespace DebugAdapter {
     public class DapAdapter : DebugAdapterBase {
+        private const string RomMemoryReference = "ROM";
         private const string RamMemoryReference = "RAM";
 
         private readonly DapAdapterConfiguration configuration;
@@ -27,6 +28,7 @@ namespace DebugAdapter {
         private int pauseId;
         private int cachedRamPauseId;
         private string cachedRamBase64;
+        private string cachedRomBase64;
 
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
@@ -242,16 +244,34 @@ namespace DebugAdapter {
         }
 
         protected override ReadMemoryResponse HandleReadMemoryRequest(ReadMemoryArguments arguments) {
-            if (cachedRamPauseId != pauseId) {
-                cachedRamPauseId = pauseId;
-                cachedRamBase64 = Convert.ToBase64String(sessionController.GetRamBytes());
-            }
+            if (arguments.MemoryReference == RamMemoryReference) {
+                if (cachedRamPauseId != pauseId) {
+                    cachedRamPauseId = pauseId;
+                    cachedRamBase64 = Convert.ToBase64String(sessionController.GetRamBytes());
+                }
 
-            return new ReadMemoryResponse {
-                Address = "0x0",
-                Data = cachedRamBase64,
-                UnreadableBytes = 0
-            };
+                return new ReadMemoryResponse {
+                    Address = "0x0",
+                    Data = cachedRamBase64,
+                    UnreadableBytes = 0
+                };
+            } else if (arguments.MemoryReference == RomMemoryReference) {
+                cachedRomBase64 ??= Convert.ToBase64String(sessionController.GetRomBytes());
+
+                return new ReadMemoryResponse {
+                    Address = "0x0",
+                    Data = cachedRomBase64,
+                    UnreadableBytes = 0
+                };
+
+            } else {
+
+                return new ReadMemoryResponse {
+                    Address = "0x0",
+                    Data = "",
+                    UnreadableBytes = 0
+                };
+            }
         }
 
         protected override EvaluateResponse HandleEvaluateRequest(EvaluateArguments arguments) {

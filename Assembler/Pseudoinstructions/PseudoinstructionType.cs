@@ -2,6 +2,7 @@
     enum PseudoinstructionType {
         AddIw,
         Jl,
+        Jasl,
         Jzfl,
     }
 }

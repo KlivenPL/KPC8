@@ -13,7 +13,9 @@ namespace Assembler.Commands {
         protected override void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder) {
             ParseParameters<IdentifierToken, NumberToken>(reader, out var identifierToken, out var numToken);
 
-            if (!labelsContext.TryInsertRegionedToken(identifierToken.Value, numToken, out var errorMessage)) {
+            var numTokenCopy = new NumberToken(numToken.Value, numToken.CodePosition, numToken.LineNumber);
+
+            if (!labelsContext.TryInsertRegionedToken(identifierToken.Value, numTokenCopy, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
         }
