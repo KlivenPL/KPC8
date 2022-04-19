@@ -15,6 +15,7 @@ namespace Runner.Debugger.Managers {
         internal BreakpointManager(IEnumerable<IDebugSymbol> debugSymbols) {
             possibleBps = debugSymbols
                 .OfType<ExecutableSymbol>()
+                .Where(x => x.Line >= 0)
                 .OrderBy(x => x.LoAddress)
                 .Select((x, i) => new Breakpoint { Id = i, Symbol = x })
                 .ToArray();

@@ -1,8 +1,11 @@
 ﻿namespace Assembler.Commands {
     public enum CommandType {
         None,
-        Address,
+        SetAddress,
+        Reserve,
         Ascii,
         Asciiz,
+        Defnum,
+        Defreg,
     }
 }

@@ -13,10 +13,12 @@ namespace Assembler.Parsers {
     class InstructionParser {
         private readonly InstructionEncoder instructionEncoder;
         private readonly InstructionsContext instructionsContext;
+        private readonly LabelsContext labelsContext;
 
-        public InstructionParser(InstructionsContext instructionsContext, InstructionEncoder instructionEncoder) {
+        public InstructionParser(InstructionsContext instructionsContext, InstructionEncoder instructionEncoder, LabelsContext labelsContext) {
             this.instructionsContext = instructionsContext;
             this.instructionEncoder = instructionEncoder;
+            this.labelsContext = labelsContext;
         }
 
         public void Parse(TokenReader reader, out BitArray instructionHigh, out BitArray instructionLow) {
@@ -26,16 +28,29 @@ namespace Assembler.Parsers {
 
             if (identifier.IsInstruction(out var instructionType)) {
                 var instructionFormat = instructionsContext.GetInstructionFormat(instructionType);
+                var originalReaderPos = reader.Position;
 
-                switch (instructionFormat.InstructionFormat) {
-                    case McInstructionFormat.Register:
-                        ParseRegisterInstruction(reader, out instructionHigh, out instructionLow, instructionType, instructionFormat);
-                        break;
-                    case McInstructionFormat.Immediate:
-                        ParseImmediateInstruction(reader, out instructionHigh, out instructionLow, instructionType, instructionFormat);
-                        break;
-                    default:
-                        throw new NotImplementedException();
+                while (true) {
+                    try {
+                        switch (instructionFormat.InstructionFormat) {
+                            case McInstructionFormat.Register:
+                                ParseRegisterInstruction(reader, out instructionHigh, out instructionLow, instructionType, instructionFormat);
+                                break;
+                            case McInstructionFormat.Immediate:
+                                ParseImmediateInstruction(reader, out instructionHigh, out instructionLow, instructionType, instructionFormat);
+                                break;
+                            default:
+                                throw new NotImplementedException();
+                        }
+                        return;
+                    } catch (InvalidTokenException ex) {
+                        if (labelsContext.TryResolveInvalidTokenException(ex, out var resolvedToken)) {
+                            reader.MoveTo(originalReaderPos);
+                            reader.ReplaceToken(ex.RecievedToken, resolvedToken);
+                        } else {
+                            throw ex.ToParserException();
+                        }
+                    }
                 }
 
             } else {
@@ -54,18 +69,30 @@ namespace Assembler.Parsers {
                     ValidateIsRegisterAllowed(instructionFormat.RegDestRestrictions, registerToken, instructionType);
                     regDest = registerToken.Value;
                 } else {
-                    throw ParserException.Create($"Expected register, got {reader.Current.Class}", reader.Current);
+                    //  throw ParserException.Create($"Expected register, got {reader.Current.Class}", reader.Current);
+                    throw new InvalidTokenException(reader.Current, TokenClass.Register);
                 }
             }
 
             if (instructionFormat.ImmediateValue.HasValue) {
                 number = (byte)instructionFormat.ImmediateValue;
             } else if (reader.Read()) {
-                number = reader.Current.Class switch {
-                    TokenClass.Number => (byte)(reader.CastCurrent<NumberToken>().Value & 0xFF),
-                    TokenClass.Char => (byte)reader.CastCurrent<CharToken>().Value,
-                    _ => throw ParserException.Create($"Expected Number or Char token, got {reader.Current.Class}", reader.Current),
-                };
+
+                switch (reader.Current.Class) {
+                    case TokenClass.Number:
+                        var val = reader.CastCurrent<NumberToken>().Value;
+                        if (val > byte.MaxValue) {
+                            throw ParserException.Create($"Value too big: {val}. Expected max value: {byte.MaxValue}", reader.Current);
+                        }
+                        number = (byte)val;
+                        break;
+                    case TokenClass.Char:
+                        number = (byte)reader.CastCurrent<CharToken>().Value;
+                        break;
+                    default:
+                        throw new InvalidTokenException(reader.Current, TokenClass.Number | TokenClass.Char);
+                        //throw ParserException.Create($"Expected Number or Char token, got {reader.Current.Class}", reader.Current);
+                }
             } else {
                 throw ParserException.Create($"Too few arguments. Expected Number or Char token", reader.Current);
             }
@@ -99,7 +126,8 @@ namespace Assembler.Parsers {
 
             while (regsToResolveCount-- > 0 && reader.Read()) {
                 if (reader.Current is not RegisterToken registerToken) {
-                    throw ParserException.Create($"Expected register token, got {reader.Current.Class}", reader.Current);
+                    throw new InvalidTokenException(reader.Current, TokenClass.Register);
+                    //throw ParserException.Create($"Expected register token, got {reader.Current.Class}", reader.Current);
                 }
 
                 if (regDest == Regs.None) {

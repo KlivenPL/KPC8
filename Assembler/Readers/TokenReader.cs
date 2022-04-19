@@ -1,4 +1,5 @@
 ﻿using Assembler.Tokens;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -42,5 +43,17 @@ namespace Assembler.Readers {
         public TokenReader Clone() {
             return new TokenReader(tokens, Position);
         }
+
+        public void ReplaceToken(IToken oldToken, IToken newToken) {
+            var index = Array.IndexOf(tokens, oldToken);
+
+            if (index == -1) {
+                throw new Exception($"Token not found {oldToken}");
+            }
+
+            tokens[index] = newToken;
+        }
+
+        public List<IToken> GetTokens() => tokens.ToList();
     }
 }

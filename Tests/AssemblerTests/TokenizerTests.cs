@@ -15,9 +15,9 @@ namespace Tests.AssemblerTests {
         [InlineData("add // comment, \r\n $t1, \r\n //ignore ignore \n\t\t   $t2 ,\n \t //ignore me $t4 \r\n\t$t3",
             TokenClass.Identifier, TokenClass.Register, TokenClass.Register, TokenClass.Register)]
         [InlineData(
-            ".address *region :label $t1 'c' \"string\" set dupa -1 2137",
+            ".setaddress *region :label $t1 'c' \"string\" set test -1 2137 @const",
             TokenClass.Command, TokenClass.Region, TokenClass.Label, TokenClass.Register,
-            TokenClass.Char, TokenClass.String, TokenClass.Identifier, TokenClass.Identifier, TokenClass.Number, TokenClass.Number
+            TokenClass.Char, TokenClass.String, TokenClass.Identifier, TokenClass.Identifier, TokenClass.Number, TokenClass.Number, TokenClass.Identifier
         )]
         public void Tokenize_ValidInput_Success(string input, params TokenClass[] expectedTokenClasses) {
             using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));

@@ -3,6 +3,15 @@ using System.Text;
 
 namespace Assembler.Tokens {
     class NumberToken : TokenBase<ushort> {
+        public NumberToken() {
+
+        }
+
+        public NumberToken(ushort value, int position, int line) {
+            Value = value;
+            AddDebugData(position, line);
+        }
+
         public override ushort Value { get; protected set; }
         public override TokenClass Class => TokenClass.Number;
 

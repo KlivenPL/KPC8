@@ -12,6 +12,7 @@ namespace Tests.AssemblerTests.Tokens {
         [InlineData("ADD", "ADD")]
         [InlineData("aDdi xd", "aDdi")]
         [InlineData("label_name-pig", "label_name")]
+        [InlineData("@const", "@const")]
         public void TryAccept_InputAccepted(string input, string expectedValue) {
             using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));
             using var reader = CreateReader(ms);

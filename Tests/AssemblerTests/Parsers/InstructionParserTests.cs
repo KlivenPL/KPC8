@@ -44,7 +44,6 @@ namespace Tests.AssemblerTests.Parsers {
 
         [Theory]
         [InlineData("addi $t2, 218", McInstructionType.AddI, Regs.T2, 218)]
-        [InlineData("jpcaddi 0x21FF", McInstructionType.JpcaddI, Regs.Zero, 0xFF)]
         [InlineData("irrex 218", McInstructionType.Irrex, Regs.T1, 218)]
         [InlineData("irren", McInstructionType.Irren, Regs.T1, 0)]
         [InlineData("seti $ass 'a'", McInstructionType.SetI, Regs.Ass, 'a')]
@@ -107,7 +106,7 @@ namespace Tests.AssemblerTests.Parsers {
         }
 
         private static InstructionParser CreateParser() {
-            return new InstructionParser(new InstructionsContext(), new InstructionEncoder());
+            return new InstructionParser(new InstructionsContext(), new InstructionEncoder(), new LabelsContext());
         }
     }
 }

@@ -6,7 +6,6 @@ using Assembler.Encoders;
 using Assembler.Parsers;
 using Assembler.Readers;
 using Assembler.Tokens;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -15,50 +14,68 @@ namespace Assembler {
 
         private readonly LabelsContext labelsContext;
         private readonly InstructionParser instructionParser;
+        private readonly CommandParser commandParser;
         private readonly PseudoinstructionParser pseudoinstructionParser;
         private readonly List<LabelNotResolvedException> unresolvedPseudoinstructions;
 
         public Parser() {
             labelsContext = new LabelsContext();
-            instructionParser = new InstructionParser(new InstructionsContext(), new InstructionEncoder());
+            instructionParser = new InstructionParser(new InstructionsContext(), new InstructionEncoder(), labelsContext);
             pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext());
+            commandParser = new CommandParser(new CommandsContext(), labelsContext);
             unresolvedPseudoinstructions = new List<LabelNotResolvedException>();
         }
 
         public BitArray[] Parse(TokenReader reader) => Parse(reader, out _);
 
         public BitArray[] Parse(TokenReader reader, out IEnumerable<IDebugSymbol> debugSymbols) {
-            var origReader = reader.Clone();
             var romBuilder = new RomBuilder();
             var debugSymbolList = new List<IDebugSymbol>();
             LabelToken lastUnresolvedLabelToken = null;
 
             {
                 var clonedReader = reader.Clone();
-                if (!labelsContext.TryParseAllRegionsAndLabels(clonedReader, out var errorMessage)) {
+                if (!labelsContext.TryParseAllRegionsAndLabels(clonedReader, out var isConstRegionDefined, out var isCodeRegionDefined, out var mainLabel, out var errorMessage)) {
                     throw ParserException.Create($"Error while parsing labels: {errorMessage}", clonedReader.Current);
+                }
+
+                if (isConstRegionDefined && isCodeRegionDefined) {
+                    if (mainLabel == null) {
+                        throw ParserException.Create($"No entry point found. Define \":main\" label in {LabelsContext.CodeRegion} region", clonedReader.Current);
+                    }
+
+                    var tokens = clonedReader.GetTokens();
+                    var jlToken = new IdentifierToken("jl", 0, -1);
+                    var mainIdentifier = new IdentifierToken($"{LabelsContext.CodeRegion}.{mainLabel.Value}", 0, -1);
+                    tokens.InsertRange(0, new IToken[] { jlToken, mainIdentifier });
+                    reader = new TokenReader(tokens);
                 }
             }
 
+            var origReader = reader.Clone();
             while (reader.Read()) {
                 switch (reader.Current.Class) {
                     case TokenClass.Identifier:
+                        if (labelsContext.CurrentReservedRegion == LabelsContext.ConstRegion) {
+                            throw ParserException.Create($"Identifiers are not allowed in reserved region {LabelsContext.ConstRegion}", reader.Current);
+                        }
                         reader = ParseIdentifier(reader, romBuilder, debugSymbolList, ref lastUnresolvedLabelToken);
                         break;
                     case TokenClass.Label:
                         lastUnresolvedLabelToken = reader.CastCurrent<LabelToken>();
                         break;
                     case TokenClass.Region:
-                        labelsContext.CurrentRegion = reader.CastCurrent<RegionToken>().Value;
+                        labelsContext.SetCurrentRegion(reader.CastCurrent<RegionToken>().Value);
                         break;
                     case TokenClass.Command:
-                        throw new NotImplementedException();
+                        commandParser.Parse(reader, romBuilder);
+                        break;
                     default:
                         throw ParserException.Create($"Unexpected token: {reader.Current} of class: {reader.Current.Class}", reader.Current);
                 }
             }
-
             reader = origReader;
+
             foreach (var unresolvedPseudoinstruction in unresolvedPseudoinstructions) {
                 if (!labelsContext.TryFindLabel(unresolvedPseudoinstruction.ArgumentToken.Value, out var address) || !address.HasValue) {
                     throw ParserException.Create($"Unresolved label identifier: {unresolvedPseudoinstruction.ArgumentToken}", unresolvedPseudoinstruction.ArgumentToken);

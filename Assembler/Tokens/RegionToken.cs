@@ -10,7 +10,7 @@ namespace Assembler.Tokens {
             if (reader.Current == '*') {
                 var sb = new StringBuilder();
 
-                while (reader.Read() && (char.IsLetterOrDigit(reader.Current) || reader.Current == '_')) {
+                while (reader.Read() && (char.IsLetterOrDigit(reader.Current) || reader.Current == '_' || reader.Current == '@')) {
                     sb.Append(reader.Current);
                 }
 

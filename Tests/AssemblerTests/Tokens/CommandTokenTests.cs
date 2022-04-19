@@ -9,7 +9,7 @@ namespace Tests.AssemblerTests.Tokens {
     public class CommandTokenTests {
 
         [Theory]
-        [InlineData(".Address", CommandType.Address)]
+        [InlineData(".setAddress", CommandType.SetAddress)]
         [InlineData(".ascii anyyy", CommandType.Ascii)]
         [InlineData(".ASCIIz", CommandType.Asciiz)]
         public void TryAccept_InputAccepted(string input, CommandType expectedValue) {
@@ -25,9 +25,9 @@ namespace Tests.AssemblerTests.Tokens {
 
         [Theory]
         [InlineData(".none")]
-        [InlineData(". Address")]
+        [InlineData(". setAddress")]
         [InlineData("Address")]
-        [InlineData("*address")]
+        [InlineData("*setaddress")]
         public void TryAccept_InputNotAccepted(string input) {
             using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));
             using var reader = CreateReader(ms);

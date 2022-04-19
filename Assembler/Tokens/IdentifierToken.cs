@@ -9,8 +9,15 @@ namespace Assembler.Tokens {
         public override string Value { get; protected set; }
         public override TokenClass Class => TokenClass.Identifier;
 
+        public IdentifierToken() { }
+
+        public IdentifierToken(string value, int position, int line) {
+            Value = value;
+            AddDebugData(position, line);
+        }
+
         public override bool TryAccept(CodeReader reader) {
-            if (char.IsLetter(reader.Current)) {
+            if (char.IsLetter(reader.Current) || reader.Current == '@') {
                 var sb = new StringBuilder(reader.Current.ToString());
 
                 while (reader.Read() && (char.IsLetterOrDigit(reader.Current) || reader.Current == '_' || reader.Current == '.')) {

@@ -32,7 +32,7 @@ namespace Assembler {
 
             if (char.IsDigit(reader.Current) || reader.Current == '-') {
                 return new NumberToken().AddDebugData(position, line);
-            } else if (char.IsLetter(reader.Current)) {
+            } else if (char.IsLetter(reader.Current) || reader.Current == '@') {
                 return new IdentifierToken().AddDebugData(position, line);
             }
 
