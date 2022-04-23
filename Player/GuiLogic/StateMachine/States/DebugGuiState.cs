@@ -5,12 +5,14 @@ using Player.Debugger;
 using Player.Events;
 using Player.Loaders;
 using Player.MainForm;
+using Runner.GraphicsRending;
 
 namespace Player.GuiLogic.StateMachine.States {
     internal class DebugGuiState : CommonGuiState, IEventListener<DapAdapterStatusChangedEvent> {
         private readonly ProgramLoader programLoader;
 
         private DapAdapterAttachInitializer debugInitializer;
+        private RendererController rendererController;
 
         public DebugGuiState(GuiStateManager guiStateManager, KPC8Player.Controller controller, ProgramLoader programLoader) : base(guiStateManager, controller) {
             this.programLoader = programLoader;
@@ -26,25 +28,26 @@ namespace Player.GuiLogic.StateMachine.States {
             this.StopListenToEvent<DapAdapterStatusChangedEvent>();
             Controller.mnuStopBtn.OnUI(x => x.Enabled = false);
             debugInitializer = null;
+            rendererController = null;
             Controller.StatusTitle = null;
         }
 
         public override void Stop() {
             debugInitializer.Stop();
-            SetState<StopGuiState>();
         }
 
         public void OnEvent(DapAdapterStatusChangedEvent @event) {
             switch (@event.Status) {
                 case DapAdapterStatus.None:
                     Controller.StatusTitle = null;
-                    Stop();
+                    CleanUpAndExit();
                     break;
                 case DapAdapterStatus.AwaitingConnection:
                     Controller.StatusTitle = "Awaiting for external debugger";
                     break;
                 case DapAdapterStatus.Connected:
                     Controller.StatusTitle = "External debugger attached";
+                    StartRendering();
                     break;
                 default:
                     break;
@@ -76,6 +79,20 @@ namespace Player.GuiLogic.StateMachine.States {
                 Controller.UnfreezeForm();
                 SetState<StopGuiState>();
             }
+        }
+
+        private void StartRendering() {
+            rendererController = debugInitializer.AttachRenderer();
+            rendererController.CanvasWriteEvent += Controller.SetRenderCanvasBitmap;
+            rendererController.StartRendering(50);
+        }
+
+        private void CleanUpAndExit() {
+            if (rendererController != null) {
+                rendererController.CanvasWriteEvent -= Controller.SetRenderCanvasBitmap;
+            }
+
+            SetState<StopGuiState>();
         }
     }
 }

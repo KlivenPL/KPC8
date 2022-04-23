@@ -18,6 +18,8 @@ namespace Player.GuiLogic.StateMachine.States {
 
             Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = !programContext.IsRomFileSelected);
             Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = !programContext.IsSourceFileSelected);
+
+            Controller.ResetRenderCanvas();
         }
 
         public override void OnExit() {

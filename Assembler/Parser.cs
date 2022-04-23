@@ -21,7 +21,7 @@ namespace Assembler {
         public Parser() {
             labelsContext = new LabelsContext();
             instructionParser = new InstructionParser(new InstructionsContext(), new InstructionEncoder(), labelsContext);
-            pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext());
+            pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext(), labelsContext);
             commandParser = new CommandParser(new CommandsContext(), labelsContext);
             unresolvedPseudoinstructions = new List<LabelNotResolvedException>();
         }

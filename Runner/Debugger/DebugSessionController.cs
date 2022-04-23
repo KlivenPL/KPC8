@@ -8,7 +8,9 @@ using System.Collections.Generic;
 using System.Threading;
 
 namespace Runner.Debugger {
-    public class DebugSessionController {
+    public class DebugSessionController : IKPC8SessionController {
+        private readonly KPC8Build kpc;
+
         private readonly object syncObject;
         private readonly ManualResetEventSlim runEvent;
 
@@ -33,7 +35,10 @@ namespace Runner.Debugger {
 
         public bool IsStarted => debugThread?.IsAlive == true;
 
+        KPC8Build IKPC8SessionController.GetKPC8Build => kpc;
+
         private DebugSessionController(DebugSessionConfiguration configuration, KPC8Build kpc) {
+            this.kpc = kpc;
             syncObject = new object();
             runEvent = new ManualResetEventSlim(true);
             debugSession = new DebugSession(configuration, kpc, runEvent, syncObject);
@@ -109,6 +114,7 @@ namespace Runner.Debugger {
             cts.Cancel();
             debugSession.RequestTerminate();
             debugThread?.Join(5000);
+            TerminatedEvent?.Invoke();
         }
 
         public class Factory {

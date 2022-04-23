@@ -212,6 +212,23 @@ namespace Assembler.Contexts {
             return false;
         }
 
+        public bool TryResolveInvalidToken<TExpectedToken>(IToken recievedToken, out TExpectedToken token) where TExpectedToken : IToken {
+            token = default;
+
+            if (recievedToken is not IdentifierToken identifierToken) {
+                return false;
+            }
+
+            if (TryFindRegionedToken(identifierToken.Value, out var tmpToken)) {
+                if (tmpToken is TExpectedToken successToken) {
+                    token = successToken;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public void ResolveLabel(string labelDef, ushort address) {
             if (!TryFindLabel(labelDef, out var oldAddress)) {
                 throw new Exception("Label not found");

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Player.Contexts;
+using Player.Controls.RenderCanvas;
 using Player.Gui.Renderers;
 using Player.GuiLogic.StateMachine;
 
@@ -8,6 +9,7 @@ namespace Player.MainForm {
         private readonly IServiceProvider provider;
         private readonly GuiStateManager guiStateManager;
         private readonly ProgramContext programContext;
+        private readonly RenderCanvas renderCanvas;
 
         private static KPC8Player instance;
 
@@ -15,6 +17,8 @@ namespace Player.MainForm {
 
         public KPC8Player(IServiceProvider provider, ProgramContext programContext) {
             InitializeComponent();
+            renderCanvas = CreateRenderCanvas();
+            Controls.Add(renderCanvas);
             this.provider = provider;
             this.guiStateManager = provider.GetRequiredService<GuiStateManager>();
             this.programContext = programContext;
@@ -26,6 +30,19 @@ namespace Player.MainForm {
         private void InitializeForm() {
             mnuToolBar.Renderer = new CustomToolStripRenderer();
         }
+
+        private RenderCanvas CreateRenderCanvas() {
+            var rc = new RenderCanvas {
+                Size = new Size(320 * 4, 192 * 4),
+                SizeMode = PictureBoxSizeMode.StretchImage,
+            };
+
+            rc.Left = (this.ClientSize.Width - rc.Width) / 2;
+            rc.Top = (this.ClientSize.Height - rc.Height) / 2;
+
+            return rc;
+        }
+
 
         /* private void InitializeRegisters() {
              var registers = regsPnl.Controls.OfType<RegisterCtrl>().ToArray();
@@ -59,6 +76,7 @@ namespace Player.MainForm {
         private void mnuFileLoadSourceBtn_Click(object sender, EventArgs e) {
             programContext.TryLoadSourceFile();
         }
+
 
         /*var bavForm = provider.GetRequiredService<BitArrayViewerForm>();
 

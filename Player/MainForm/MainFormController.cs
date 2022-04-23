@@ -86,6 +86,18 @@ namespace Player.MainForm {
                     LoadedFileName = null;
                 }
             }
+
+            public void SetRenderCanvasBitmap(Bitmap bitmap) {
+                form.renderCanvas.Image?.Dispose();
+                form.renderCanvas.Image = bitmap;
+            }
+
+            public void ResetRenderCanvas() {
+                form.renderCanvas.Image?.Dispose();
+                var bm = new Bitmap(1, 1);
+                bm.SetPixel(0, 0, Color.Black);
+                form.renderCanvas.Image = bm;
+            }
         }
     }
 }

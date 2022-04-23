@@ -7,5 +7,6 @@
         Asciiz,
         Defnum,
         Defreg,
+        Binfile,
     }
 }

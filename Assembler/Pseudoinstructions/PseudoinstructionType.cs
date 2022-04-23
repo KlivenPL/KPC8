@@ -1,8 +1,10 @@
 ﻿namespace Assembler.Pseudoinstructions {
     enum PseudoinstructionType {
-        AddIw,
+        AddwI,
         Jl,
         Jasl,
         Jzfl,
+        Jwnotzl,
+        SetwI,
     }
 }

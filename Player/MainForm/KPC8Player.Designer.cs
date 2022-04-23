@@ -35,7 +35,6 @@
             this.mnuStopBtn = new System.Windows.Forms.ToolStripButton();
             this.mnuPauseBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.rightPnl = new System.Windows.Forms.Panel();
             this.mnuToolBar.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -139,22 +138,12 @@
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 38);
             // 
-            // rightPnl
-            // 
-            this.rightPnl.BackColor = System.Drawing.SystemColors.Control;
-            this.rightPnl.Dock = System.Windows.Forms.DockStyle.Right;
-            this.rightPnl.Location = new System.Drawing.Point(1231, 38);
-            this.rightPnl.Name = "rightPnl";
-            this.rightPnl.Size = new System.Drawing.Size(353, 823);
-            this.rightPnl.TabIndex = 1;
-            // 
             // KPC8Player
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1584, 861);
-            this.Controls.Add(this.rightPnl);
             this.Controls.Add(this.mnuToolBar);
             this.Name = "KPC8Player";
             this.Text = "KPC8 Player";
@@ -176,7 +165,6 @@
         private ToolStripButton mnuStopBtn;
         private ToolStripButton mnuPauseBtn;
         private ToolStripSeparator toolStripSeparator3;
-        private Panel rightPnl;
         private ToolStripButton mnuDbgBtn;
         private ToolStripMenuItem mnuFileLoadSourceBtn;
     }

@@ -6,6 +6,15 @@ namespace Assembler.Tokens {
         public override string Value { get; protected set; }
         public override TokenClass Class => TokenClass.String;
 
+        public StringToken() {
+
+        }
+
+        public StringToken(string value, int position, int line) {
+            Value = value;
+            AddDebugData(position, line);
+        }
+
         public override bool TryAccept(CodeReader reader) {
             if (reader.Current == '"') {
                 var sb = new StringBuilder();

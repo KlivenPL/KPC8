@@ -5,6 +5,7 @@ using Player._Infrastructure.Events;
 using Player.Events;
 using Runner.Configuration;
 using Runner.Debugger;
+using Runner.GraphicsRending;
 using System.Net;
 using System.Net.Sockets;
 
@@ -20,7 +21,15 @@ namespace Player.Debugger {
 
         public void Stop() {
             cts.Cancel();
-            debugSessionController?.Terminate();
+            if (debugSessionController == null) {
+                KEvent.Fire(new DapAdapterStatusChangedEvent { Status = DapAdapterStatus.None });
+            } else {
+                debugSessionController.Terminate();
+            }
+        }
+
+        public RendererController AttachRenderer() {
+            return debugSessionController.AttachRenderer();
         }
 
         public void InitializeAttachServer(DebugAttachParameters attachArgs) {
@@ -57,7 +66,6 @@ namespace Player.Debugger {
         private void DebugServerConnectionThreadProc(DebugAttachParameters attachArgs, Socket clientSocket) {
             Console.WriteLine("Accepted connection");
 
-            KEvent.Fire(new DapAdapterStatusChangedEvent { Status = DapAdapterStatus.Connected });
 
             using (Stream stream = new NetworkStream(clientSocket)) {
                 var debugSessionConfiguration = new DebugSessionConfiguration {
@@ -85,6 +93,7 @@ namespace Player.Debugger {
                     Category = Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.OutputEvent.CategoryValue.Stderr
                 });
 
+                KEvent.Fire(new DapAdapterStatusChangedEvent { Status = DapAdapterStatus.Connected });
                 dapAdapter.Run();
                 dapAdapter.Protocol.WaitForReader();
             }

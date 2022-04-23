@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Simulation\Simulation.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Rendering\" />
+  </ItemGroup>
+
 </Project>

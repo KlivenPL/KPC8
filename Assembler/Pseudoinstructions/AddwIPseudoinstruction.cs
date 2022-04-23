@@ -7,10 +7,10 @@ using System.Collections.Generic;
 
 namespace Assembler.Pseudoinstructions {
     /// <summary>
-    /// AddIw $rDest, #value16
+    /// AddwI $rDest, #value16
     /// </summary>
-    class AddIwPseudoinstruction : PseudoinstructionBase {
-        public override PseudoinstructionType Type => PseudoinstructionType.AddIw;
+    class AddwIPseudoinstruction : PseudoinstructionBase {
+        public override PseudoinstructionType Type => PseudoinstructionType.AddwI;
 
         protected override IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader) {
             ParseParameters<RegisterToken, NumberToken>(reader, out var rDestToken, out var value16Token);

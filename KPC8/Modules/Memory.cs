@@ -35,7 +35,9 @@ namespace KPC8.Modules {
         private Signal mar_oe_const;
         public BitArray PcContent => pc.Content;
         public BitArray MarContent => mar.Content;
+
         public BitArray GetRamAt(ushort address) => ram.Content[address];
+        public BitArray GetRomAt(ushort address) => rom.Content[address];
 
         public byte[] RamDumpToBytesLE() {
             var bytes = new byte[MemorySize];

@@ -1,4 +1,5 @@
 ﻿using Assembler._Infrastructure;
+using Assembler.Contexts;
 using Assembler.Encoders;
 using Assembler.Readers;
 using Assembler.Tokens;
@@ -8,27 +9,16 @@ using System.Linq;
 
 namespace Assembler.Pseudoinstructions {
     abstract class PseudoinstructionBase {
+        private LabelsContext labelsContext;
+
         public abstract PseudoinstructionType Type { get; }
         protected abstract IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader);
         protected InstructionEncoder InstructionEncoder { get; } = new InstructionEncoder();
 
-        public BitArray[] Parse(TokenReader reader) {
+        public BitArray[] Parse(TokenReader reader, LabelsContext labelsContext) {
+            this.labelsContext ??= labelsContext;
             return ParseInner(reader).SelectMany(bitArray => bitArray).ToArray();
         }
-
-        /*protected void ParseParameters(TokenReader reader, out IToken[] parsedTokens, params TokenClass[] tokenClasses) {
-            var tmpParsedTokens = new List<IToken>();
-
-            for (int i = 0; i < tokenClasses.Length; i++) {
-                if (reader.Read() && reader.Current.Class == tokenClasses[i]) {
-                    tmpParsedTokens.Add(reader.Current);
-                } else {
-                    throw ParserException.Create($"Invalid {Type} pseudoinstruction parameter. Expected class {tokenClasses[i]}, got {reader.Current.Class}", reader.Current);
-                }
-            }
-
-            parsedTokens = tmpParsedTokens.ToArray();
-        }*/
 
         protected void ParseParameters<T>(TokenReader reader, out T parsedToken) where T : IToken {
             parsedToken = ParseNextParameter<T>(reader);
@@ -54,6 +44,11 @@ namespace Assembler.Pseudoinstructions {
             if (reader.Read() && reader.Current is T parsed) {
                 return parsed;
             } else {
+                if (reader.Current != null) {
+                    if (labelsContext.TryResolveInvalidToken<T>(reader.Current, out var resolvedToken)) {
+                        return resolvedToken;
+                    }
+                }
                 throw ParserException.Create($"Invalid {Type} pseudoinstruction parameter. Expected class {typeof(T).Name}, got {reader.Current.Class}", reader.Current);
             }
         }
