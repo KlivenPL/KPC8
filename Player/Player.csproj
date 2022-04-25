@@ -37,6 +37,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="OpenGL.Net.WinForms" Version="0.8.4" />
   </ItemGroup>
 
   <ItemGroup>

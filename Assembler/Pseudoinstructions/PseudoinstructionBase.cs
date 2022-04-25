@@ -9,14 +9,13 @@ using System.Linq;
 
 namespace Assembler.Pseudoinstructions {
     abstract class PseudoinstructionBase {
-        private LabelsContext labelsContext;
+        protected readonly LabelsContext labelsContext;
 
         public abstract PseudoinstructionType Type { get; }
         protected abstract IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader);
         protected InstructionEncoder InstructionEncoder { get; } = new InstructionEncoder();
 
-        public BitArray[] Parse(TokenReader reader, LabelsContext labelsContext) {
-            this.labelsContext ??= labelsContext;
+        public BitArray[] Parse(TokenReader reader) {
             return ParseInner(reader).SelectMany(bitArray => bitArray).ToArray();
         }
 

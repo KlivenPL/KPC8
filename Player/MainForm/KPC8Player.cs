@@ -16,6 +16,8 @@ namespace Player.MainForm {
         internal static void InvokeOnForm(Action method) => instance.Invoke(method);
 
         public KPC8Player(IServiceProvider provider, ProgramContext programContext) {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             InitializeComponent();
             renderCanvas = CreateRenderCanvas();
             Controls.Add(renderCanvas);

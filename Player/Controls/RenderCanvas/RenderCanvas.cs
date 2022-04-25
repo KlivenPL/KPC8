@@ -2,6 +2,12 @@
 
 namespace Player.Controls.RenderCanvas {
     internal class RenderCanvas : PictureBox {
+
+        public RenderCanvas() {
+            DoubleBuffered = true;
+            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+        }
+
         protected override void OnPaint(PaintEventArgs paintEventArgs) {
             paintEventArgs.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             paintEventArgs.Graphics.PixelOffsetMode = PixelOffsetMode.Half;

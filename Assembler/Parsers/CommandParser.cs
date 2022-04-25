@@ -15,7 +15,7 @@ namespace Assembler.Parsers {
 
         public void Parse(TokenReader reader, RomBuilder romBuilder) {
             var commandToken = reader.CastCurrent<CommandToken>();
-            var command = commandsContext.GetPseudoinstruction(commandToken.Value);
+            var command = commandsContext.GetCommand(commandToken.Value);
             command.Parse(reader, labelsContext, romBuilder);
         }
     }

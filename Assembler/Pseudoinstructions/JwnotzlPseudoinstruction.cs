@@ -17,7 +17,7 @@ namespace Assembler.Pseudoinstructions {
 
         protected override IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader) {
             ParseParameters<RegisterToken, IdentifierToken>(reader, out var registerToTestToken, out var labelToken);
-            throw new LabelNotResolvedException(labelToken, SizeInBytes, addr => ParseLabel(addr, registerToTestToken));
+            throw new LabelNotResolvedException(labelToken, labelsContext.CurrentRegion, SizeInBytes, addr => ParseLabel(addr, registerToTestToken));
         }
 
         private BitArray[] ParseLabel(ushort labelAddress, RegisterToken registerToTestToken) {

@@ -14,7 +14,7 @@ namespace Assembler.Contexts {
                  .ToDictionary(x => (CommandType)x.type.GetProperty("Type").GetValue(x.instance), x => (CommandBase)x.instance);
         }
 
-        public CommandBase GetPseudoinstruction(CommandType commandType) {
+        public CommandBase GetCommand(CommandType commandType) {
             return commands[commandType];
         }
     }

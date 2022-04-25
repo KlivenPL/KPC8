@@ -21,7 +21,7 @@ namespace Assembler {
         public Parser() {
             labelsContext = new LabelsContext();
             instructionParser = new InstructionParser(new InstructionsContext(), new InstructionEncoder(), labelsContext);
-            pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext(), labelsContext);
+            pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext(labelsContext));
             commandParser = new CommandParser(new CommandsContext(), labelsContext);
             unresolvedPseudoinstructions = new List<LabelNotResolvedException>();
         }
@@ -77,7 +77,10 @@ namespace Assembler {
             reader = origReader;
 
             foreach (var unresolvedPseudoinstruction in unresolvedPseudoinstructions) {
-                if (!labelsContext.TryFindLabel(unresolvedPseudoinstruction.ArgumentToken.Value, out var address) || !address.HasValue) {
+                var label = unresolvedPseudoinstruction.ArgumentToken.Value.Contains('.') ?
+                    unresolvedPseudoinstruction.ArgumentToken.Value : $"{unresolvedPseudoinstruction.Region}.{unresolvedPseudoinstruction.ArgumentToken.Value}";
+
+                if (!labelsContext.TryFindLabel(label, out var address) || !address.HasValue) {
                     throw ParserException.Create($"Unresolved label identifier: {unresolvedPseudoinstruction.ArgumentToken}", unresolvedPseudoinstruction.ArgumentToken);
                 }
 

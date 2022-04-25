@@ -7,6 +7,8 @@
         Asciiz,
         Defnum,
         Defreg,
+        DefcolorRGB,
+        DefcolorHEX,
         Binfile,
     }
 }

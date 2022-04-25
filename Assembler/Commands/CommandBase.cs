@@ -34,6 +34,13 @@ namespace Assembler.Commands {
             parsedToken3 = ParseNextParameter<T3>(reader);
         }
 
+        protected void ParseParameters<T1, T2, T3, T4>(TokenReader reader, out T1 parsedToken1, out T2 parsedToken2, out T3 parsedToken3, out T4 parsedToken4) where T1 : IToken where T2 : IToken where T3 : IToken where T4 : IToken {
+            parsedToken1 = ParseNextParameter<T1>(reader);
+            parsedToken2 = ParseNextParameter<T2>(reader);
+            parsedToken3 = ParseNextParameter<T3>(reader);
+            parsedToken4 = ParseNextParameter<T4>(reader);
+        }
+
         protected void SplitWord(ushort word, out byte lower, out byte higher) {
             lower = (byte)(word & 0x00FF);
             higher = (byte)((word >> 8) & 0x00FF);

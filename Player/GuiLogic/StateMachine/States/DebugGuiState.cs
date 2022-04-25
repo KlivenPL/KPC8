@@ -84,7 +84,7 @@ namespace Player.GuiLogic.StateMachine.States {
         private void StartRendering() {
             rendererController = debugInitializer.AttachRenderer();
             rendererController.CanvasWriteEvent += Controller.SetRenderCanvasBitmap;
-            rendererController.StartRendering(50);
+            rendererController.StartRendering(120);
         }
 
         private void CleanUpAndExit() {
