@@ -1,15 +1,13 @@
-﻿using Infrastructure.BitArrays;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Components.SignalMappers {
     public class MappedAddressBuilder {
 
         private readonly HashSet<ushort> mappedAddresses = new HashSet<ushort>();
-        public MappedAddressBuilder Add(BitArray address) => Add(BitArrayHelper.ToUShortLE(address));
+        /*public MappedAddressBuilder Add(BitArray address) => Add(BitArrayHelper.ToUShortLE(address));
         public MappedAddressBuilder AddRange(BitArray addressFrom, BitArray addressTo) => AddRange(BitArrayHelper.ToUShortLE(addressFrom), BitArrayHelper.ToUShortLE(addressTo));
         public MappedAddressBuilder Remove(BitArray address) => Remove(BitArrayHelper.ToUShortLE(address));
-        public MappedAddressBuilder RemoveRange(BitArray addressFrom, BitArray addressTo) => RemoveRange(BitArrayHelper.ToUShortLE(addressFrom), BitArrayHelper.ToUShortLE(addressTo));
+        public MappedAddressBuilder RemoveRange(BitArray addressFrom, BitArray addressTo) => RemoveRange(BitArrayHelper.ToUShortLE(addressFrom), BitArrayHelper.ToUShortLE(addressTo));*/
 
         public MappedAddressBuilder Add(ushort address) {
             mappedAddresses.Add(address);

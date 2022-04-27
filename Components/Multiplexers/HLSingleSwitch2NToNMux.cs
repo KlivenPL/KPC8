@@ -30,10 +30,10 @@ namespace Components.Multiplexers {
         }
 
         private void WriteOutput() {
-            var inputs = SelectB ? InputsB : InputsA;
+            var offset = SelectB ? singleInputSize : 0;
 
             for (int i = 0; i < Outputs.Length; i++) {
-                Outputs[i].Write(inputs[i]);
+                Outputs[i].Write(Inputs[i + offset]);
             }
         }
 

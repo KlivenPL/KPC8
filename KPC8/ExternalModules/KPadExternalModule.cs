@@ -58,7 +58,7 @@ namespace KPC8.ExternalModules {
 
         protected override void ConnectInternals() {
             Signal.Factory.CreateAndConnectPorts("KpadToOutputTransciever", kPad.Outputs, kpadOutputToBusTransciever.Inputs);
-           kpadOutputToBusTransciever.OutputEnable.PlugIn(extInAddressMapper.IsMatch);
+            kpadOutputToBusTransciever.OutputEnable.PlugIn(extInAddressMapper.IsMatch);
         }
     }
 

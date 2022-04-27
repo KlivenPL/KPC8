@@ -95,7 +95,7 @@ namespace KPC8.Microcode {
         public static IEnumerable<Cs> Sbext() {
             yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.Mar_le_lo;
             yield return Cs.DecB_oe | CsComb.Regs_oe_hi | Cs.Mar_le_hi;
-            yield return Cs.MarToBus_oe | Cs.Ext_out | Cs.DecA_oe | CsComb.Regs_oe_lo;
+            yield return Cs.MarToBus_oe | Cs.DecA_oe | CsComb.Regs_oe_lo | Cs.Ext_out;
         }
     }
 }
