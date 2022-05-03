@@ -8,6 +8,19 @@ namespace Assembler.Tokens {
         public override CommandType Value { get; protected set; }
         public override TokenClass Class => TokenClass.Command;
 
+        public CommandToken() {
+
+        }
+
+        public CommandToken(CommandType value, int position, int line) {
+            Value = value;
+            AddDebugData(position, line);
+        }
+
+        public override IToken DeepCopy() {
+            return new CommandToken(Value, CodePosition, LineNumber);
+        }
+
         public override bool TryAccept(CodeReader reader) {
             if (reader.Current == '.') {
                 var sb = new StringBuilder();

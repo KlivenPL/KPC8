@@ -1,4 +1,5 @@
 ﻿using Player._Configuration;
+using Player._Configuration.Dtos;
 using Player._Infrastructure.Controls;
 using Player._Infrastructure.Events;
 using Player.Debugger;
@@ -10,12 +11,14 @@ using Runner.GraphicsRending;
 namespace Player.GuiLogic.StateMachine.States {
     internal class DebugGuiState : CommonGuiState, IEventListener<DapAdapterStatusChangedEvent> {
         private readonly ProgramLoader programLoader;
+        private readonly KPC8ConfigurationLoader configurationLoader;
 
         private DapAdapterAttachInitializer debugInitializer;
         private RendererController rendererController;
 
-        public DebugGuiState(GuiStateManager guiStateManager, KPC8Player.Controller controller, ProgramLoader programLoader) : base(guiStateManager, controller) {
+        public DebugGuiState(GuiStateManager guiStateManager, KPC8Player.Controller controller, ProgramLoader programLoader, KPC8ConfigurationLoader configurationLoader) : base(guiStateManager, controller) {
             this.programLoader = programLoader;
+            this.configurationLoader = configurationLoader;
         }
 
         public override void OnEnter() {
@@ -56,6 +59,18 @@ namespace Player.GuiLogic.StateMachine.States {
 
         private void StartDebuggingServer() {
             if (programLoader.TryGetCompiledProgramWithDebugSymbols(out var sourceFilePath, out var program, out var debugSymbols, out var compileErrors)) {
+
+                var kPC8ConfigurationDto = new KPC8ConfigurationDto();
+
+                if (configurationLoader.TryGetConfiguration(out var configurationDto, out var configValidationErrors)) {
+                    kPC8ConfigurationDto = configurationDto;
+                } else if (!string.IsNullOrWhiteSpace(configValidationErrors)) {
+                    MessageBox.Show(configValidationErrors, "KPC Configuration validation errors");
+                    Controller.UnfreezeForm();
+                    SetState<StopGuiState>();
+                    return;
+                }
+
                 new Thread(() => {
                     debugInitializer = new DapAdapterAttachInitializer();
 
@@ -63,7 +78,7 @@ namespace Player.GuiLogic.StateMachine.States {
                         CompiledProgram = program,
                         DebugSymbols = debugSymbols,
                         ServerPort = 32137, //todo do poprawy
-                        KPC8ConfigurationDto = new _Configuration.Dtos.KPC8ConfigurationDto(),
+                        KPC8ConfigurationDto = kPC8ConfigurationDto,
                         SourceFilePath = sourceFilePath
                     };
 

@@ -100,7 +100,7 @@ namespace Assembler.Parsers {
                 switch (reader.Current.Class) {
                     case TokenClass.Number:
                         var val = reader.CastCurrent<NumberToken>().Value;
-                        if (val > byte.MaxValue) {
+                        if (val > byte.MaxValue && ((val & 0xFF00) >> 8 != 255)) {
                             throw ParserException.Create($"Value too big: {val}. Expected max value: {byte.MaxValue}", reader.Current);
                         }
                         number = (byte)val;

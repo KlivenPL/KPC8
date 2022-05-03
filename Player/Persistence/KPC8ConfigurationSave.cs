@@ -8,5 +8,7 @@ namespace Player.Persistence {
         public long? ClockPeriodInTicks { get; set; }
 
         public KPadExternalModuleConfiguration[] KPads { get; set; }
+
+        public KTimerExternalModuleConfiguration[] KTimers { get; set; }
     }
 }

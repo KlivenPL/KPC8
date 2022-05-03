@@ -106,6 +106,9 @@ namespace Runner.Debugger {
             foreach (var externalSlRunner in externalSlRunners) {
                 externalSlRunner.Kill();
             }
+
+            externalSlRunners.Clear();
+            externalSlRunners = null;
         }
 
         private void TickOneInstruction() {

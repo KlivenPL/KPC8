@@ -15,6 +15,10 @@ namespace Assembler.Tokens {
         public override ushort Value { get; protected set; }
         public override TokenClass Class => TokenClass.Number;
 
+        public override IToken DeepCopy() {
+            return new NumberToken(Value, CodePosition, LineNumber);
+        }
+
         public override bool TryAccept(CodeReader reader) {
             if (char.IsDigit(reader.Current) || reader.Current == '-') {
                 var sb = new StringBuilder(reader.Current.ToString());

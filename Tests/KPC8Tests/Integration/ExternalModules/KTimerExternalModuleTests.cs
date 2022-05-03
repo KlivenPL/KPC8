@@ -44,11 +44,12 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             StepThroughProceduralInstruction(modules, instruction);
             Thread.Sleep(100);
 
-            Assert.Equal(frequency, kTimerExternalModule.GetFrequency());
+            Assert.Equal(1000f / frequency, kTimerExternalModule.GetTimePeriod());
         }
 
         [Theory]
         [InlineData(0xF0)]
+        [InlineData(0xF1)]
         [InlineData(0xF6)]
         [InlineData(0xFF)]
         public void KTimerConfigureInterruptCode(byte irrCode) {
@@ -74,7 +75,7 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             StepThroughProceduralInstruction(modules, instruction);
             Thread.Sleep(100);
 
-            Assert.Equal(0, kTimerExternalModule.GetFrequency());
+            Assert.Equal(0, kTimerExternalModule.GetTimePeriod());
             Assert.Equal(irrCode & 0x0F, kTimerExternalModule.GetIrrCode());
         }
 

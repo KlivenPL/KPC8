@@ -1,7 +1,8 @@
 ﻿using Simulation.Updates;
+using System;
 
 namespace Simulation.Loops {
-    public class SimulationLoop {
+    public class SimulationLoop : IDisposable {
         private readonly IUpdate[] updates;
         private readonly int length;
 
@@ -16,6 +17,12 @@ namespace Simulation.Loops {
         public void Loop() {
             for (int i = 0; i < length; i++) {
                 updates[i].Update();
+            }
+        }
+
+        public void Dispose() {
+            foreach (var update in updates) {
+                update.Dispose();
             }
         }
     }

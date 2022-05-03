@@ -4,12 +4,12 @@ using Simulation.Loops;
 using System;
 
 namespace Runner.Configuration.ExternalModules {
-    public class KPadExternalModuleConfiguration : IExternalModuleConfiguration {
-        public string PadName { get; set; }
-        public ushort PadAddress { get; set; }
+    public class KTimerExternalModuleConfiguration : IExternalModuleConfiguration {
+        public string TimerName { get; set; }
+        public ushort TimerAddress { get; set; }
 
         void IExternalModuleConfiguration.Configure(CpuBuilder cpuBuilder, out Func<SimulationLoop> getSimulationLoop) {
-            cpuBuilder.AddKPad(PadName, PadAddress, out _, out getSimulationLoop);
+            cpuBuilder.AddKTimer(TimerName, TimerAddress, out _, out getSimulationLoop);
         }
     }
 }

@@ -6,6 +6,8 @@ namespace Assembler.Tokens {
         bool TryAccept(CodeReader reader);
         int CodePosition { get; }
         int LineNumber { get; }
+
+        IToken DeepCopy();
     }
 
     abstract class TokenBase<TValue> : IToken {
@@ -16,6 +18,7 @@ namespace Assembler.Tokens {
         public int LineNumber { get; private set; }
 
         public abstract bool TryAccept(CodeReader reader);
+        public abstract IToken DeepCopy();
 
         public TokenBase<TValue> AddDebugData(int position, int line) {
             CodePosition = position;

@@ -115,6 +115,10 @@ namespace Assembler {
 
                 var tokens = reader.GetTokens();
                 tokens.InsertRange(reader.Position + 1, new IToken[] {
+                    /*new IdentifierToken("setw", -1, -1),
+                    new RegisterToken(ex.ChangedToken.Value, -1, -1),
+                    new RegisterToken(KPC8.ProgRegs.Regs.Ass, -1, -1),*/ // TODO przed całym tym trzeba ustawiać ASS, bo może mieć jakąś wartość z dupy
+
                     new IdentifierToken("setw", -1, -1),
                     new RegisterToken(ex.ChangedToken.Value, -1, -1),
                     new RegisterToken(KPC8.ProgRegs.Regs.Ass, -1, -1),

@@ -5,6 +5,19 @@ namespace Assembler.Tokens {
         public override char Value { get; protected set; }
         public override TokenClass Class => TokenClass.Char;
 
+        public CharToken() {
+
+        }
+
+        public CharToken(char value, int position, int line) {
+            Value = value;
+            AddDebugData(position, line);
+        }
+
+        public override IToken DeepCopy() {
+            return new CharToken(Value, CodePosition, LineNumber);
+        }
+
         public override bool TryAccept(CodeReader reader) {
             if (reader.Current == '\'') {
                 if (reader.EndOfCode) {

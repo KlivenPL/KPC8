@@ -15,6 +15,10 @@ namespace Assembler.Tokens {
             AddDebugData(position, line);
         }
 
+        public override IToken DeepCopy() {
+            return new StringToken(Value, CodePosition, LineNumber);
+        }
+
         public override bool TryAccept(CodeReader reader) {
             if (reader.Current == '"') {
                 var sb = new StringBuilder();

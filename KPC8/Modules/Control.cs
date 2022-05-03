@@ -115,7 +115,7 @@ namespace KPC8.Modules {
         protected override void ConnectMainClockBar(Signal mainClockBar) {
             ir.Clk.PlugIn(mainClockBar);
             ic.Clk.PlugIn(mainClockBar);
-            irr.MainClock.PlugIn(mainClockBar);
+            irr.MainClockBar.PlugIn(mainClockBar);
         }
 
         protected override void ConnectInternals() {

@@ -15,11 +15,11 @@ namespace Tests.AssemblerTests.Parsers.MainParser {
         private readonly InstructionDecoder instructionDecoder = new InstructionDecoder();
 
         [Fact]
-        public void ParseAddIwPseudoinstruction() {
+        public void ParseAddwIPseudoinstruction() {
             var input =
                 @"
-                addiw $t1 2137
-                addiw $t2 0xFF01
+                addwi $t1 2137
+                addwi $t2 0xFF01
                 ";
 
             var rom = parser.Parse(CreateReader(input));
@@ -64,9 +64,9 @@ namespace Tests.AssemblerTests.Parsers.MainParser {
             var input =
                 @"
                 jl jumpLabel
-                addiw $t1 2137
+                addwi $t1 2137
                 :jumpLabel
-                addiw $t2 0xFF01
+                addwi $t2 0xFF01
                 jl jumpLabel
                 ";
 

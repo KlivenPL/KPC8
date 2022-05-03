@@ -52,6 +52,8 @@ namespace Tests.KPC8Tests.Modules {
             interruptsBus.Lanes[0].Value = true;
             interruptsBus.Write(4, interruptCode);
             Enable(cs.Irr_b);
+            MakeTickAndWait();
+
             Enable(cs.Ic_clr);
             MakeTickAndWait();
 

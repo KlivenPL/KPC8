@@ -187,7 +187,7 @@ namespace Assembler.Contexts {
             if (regionedTokens.TryGetValue(region, out var tokenInfos)) {
                 var tokenInfo = tokenInfos.FirstOrDefault(l => l.Name == label);
                 if (tokenInfo != null) {
-                    token = tokenInfo.Value;
+                    token = tokenInfo.Value.DeepCopy();
                     return true;
                 }
             }

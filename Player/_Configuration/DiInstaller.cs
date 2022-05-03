@@ -27,7 +27,8 @@ namespace Player._Configuration {
 
         private static void InstallLoaders(IServiceCollection services) {
             services
-                .AddSingleton<ProgramLoader>();
+                .AddSingleton<ProgramLoader>()
+                .AddSingleton<KPC8ConfigurationLoader>();
         }
     }
 }

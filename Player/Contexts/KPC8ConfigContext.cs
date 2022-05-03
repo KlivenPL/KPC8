@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Player.Contexts {
+﻿namespace Player.Contexts {
     internal class KPC8ConfigContext {
+        // public FileInfo KPC8ConfigurationFile { get; private set; }
+        // public bool IsKPC8ConfigurationFileSelected => KPC8ConfigurationFile != null;
+
+        //  public bool Set
+
     }
 }
