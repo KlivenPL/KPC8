@@ -80,22 +80,21 @@ namespace Components.Clocks {
         }
 
         private void AutomaticUpdate() {
-            timer += 1;
-
-            Clk.Value = timer <= halfPeriod;
+            Clk.Value = timer == 1;
             ClkBar.Value = !Clk.Value;
 
-            /*if (timer >= PeriodInTicks) {
-                if (++Cycles % 100000 == 0) {
+            timer += 1;
+            if (timer >= PeriodInTicks) {
+                /*if (++Cycles % 100000 == 0) {
                     var t = (decimal)sw.ElapsedTicks / Cycles / Stopwatch.Frequency;
                     Console.WriteLine($"Running clock in { 1L / t / 1000:f} KHz ({t * 1000000000:f}ns)");
                     Cycles = 0;
                     sw.Restart();
                 }
 
-                *//*OnCycle?.Invoke(this);*//*
+                OnCycle?.Invoke(this);*/
                 timer = 0L;
-            }*/
+            }
         }
 
         private void ManualUpdate() {

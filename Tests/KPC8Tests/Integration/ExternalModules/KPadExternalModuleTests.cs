@@ -69,7 +69,16 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh1, out var instructionLow1);
             EncodeInstruction(instruction, Regs.Zero, Regs.T2, Regs.Ass, out var instructionHigh2, out var instructionLow2);
 
-            var romData = new BitArray[] { instructionHigh1, instructionLow1, instructionHigh2, instructionLow2 };
+            var romData = new BitArray[] {
+                instructionHigh1,
+                instructionLow1,
+                instructionHigh1,
+                instructionLow1,
+                instructionHigh2,
+                instructionLow2,
+                instructionHigh2,
+                instructionLow2,
+            };
 
             KPadExternalModule kPadExternalModule1 = null;
             Func<SimulationLoop> getKPadModuleSimLoop1 = null;
@@ -86,8 +95,8 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             kPadExternalModule1.SimulateButtons(simulatedButtons1);
             kPadExternalModule2.SimulateButtons(simulatedButtons2);
 
-            Thread.Sleep(100);
-
+            StepThroughProceduralInstruction(modules, instruction);
+            StepThroughProceduralInstruction(modules, instruction);
             StepThroughProceduralInstruction(modules, instruction);
             StepThroughProceduralInstruction(modules, instruction);
 

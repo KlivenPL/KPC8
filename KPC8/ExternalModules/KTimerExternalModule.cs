@@ -33,28 +33,19 @@ namespace KPC8.ExternalModules {
             this.address = address;
             extOutAddressMapper = AddressMapper.Create(16, mab => mab.Add(address));
             dataBusToKTimerInputTransciever = new HLTransciever("KTimerInput", 8);
-            //enableReadSignal = Signal.Factory.Create("KTimerReadEnable");
-            // extOutAddressMapper.IsMatch.OnChange += IsMatch_OnChange;
         }
-
-        /*private void IsMatch_OnChange(Signal signal) {
-            enableReadSignal.Value = !signal.Value;
-        }*/
 
         public override void InitializeAndConnect(IBus dataBus, IBus addressBus, IBus interrputsBus, Signal extIn, Signal extOut) {
             extOutAddressMapper.OutputEnable.PlugIn(extOut);
             ktimer = new KTimer(name);
+            dataBusToKTimerInputTransciever.OutputEnable.PlugIn(extOut);
 
-            // (ktimer_cs_const = Signal.Factory.Create(nameof(ktimer_cs_const))).Value = true;
             KTimerExternal.ConnectAsExternalDevice(extIn, extOut, extOutAddressMapper.IsMatch);
 
             ConnectAddressBus(addressBus);
             ConnectDataBus(dataBus);
             ConnectInterruptsBus(interrputsBus);
             ConnectInternals();
-
-            dataBusToKTimerInputTransciever.OutputEnable.PlugIn(extOut);
-
         }
 
         protected override void ConnectAddressBus(IBus addressBus) {
@@ -65,7 +56,6 @@ namespace KPC8.ExternalModules {
         protected override void ConnectDataBus(IBus dataBus) {
             dataBus
             .Connect(0, 8, dataBusToKTimerInputTransciever.Inputs);
-            // .Connect(0, 8, ktimer.Inputs);
         }
 
         protected override void ConnectInterruptsBus(IBus interruptsBus) {

@@ -34,7 +34,7 @@ namespace Runner.Build {
         }
 
         private void Initialize() {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 10; i++) {
                 mainSimulationLoop.Loop();
                 foreach (var externalSimulationLoop in externalSimulationLoops) {
                     externalSimulationLoop.Loop();

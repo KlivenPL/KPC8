@@ -62,6 +62,10 @@ namespace Player.MainForm {
             guiStateManager.CurrentState.Stop();
         }
 
+        private void mnuPauseBtn_Click(object sender, EventArgs e) {
+            guiStateManager.CurrentState.Pause();
+        }
+
         private void mnuDbgBtn_Click(object sender, EventArgs e) {
             guiStateManager.CurrentState.Debug();
         }

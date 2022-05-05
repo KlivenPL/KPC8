@@ -92,7 +92,7 @@
             // 
             // mnuPlayBtn
             // 
-            this.mnuPlayBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuPlayBtn.Image")));
+            this.mnuPlayBtn.Image = global::Player.Properties.Resources.play;
             this.mnuPlayBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuPlayBtn.Name = "mnuPlayBtn";
             this.mnuPlayBtn.Size = new System.Drawing.Size(53, 35);
@@ -101,7 +101,7 @@
             // 
             // mnuDbgBtn
             // 
-            this.mnuDbgBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuDbgBtn.Image")));
+            this.mnuDbgBtn.Image = global::Player.Properties.Resources.debug;
             this.mnuDbgBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuDbgBtn.Name = "mnuDbgBtn";
             this.mnuDbgBtn.Size = new System.Drawing.Size(66, 35);
@@ -117,7 +117,7 @@
             // 
             this.mnuStopBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.mnuStopBtn.Enabled = false;
-            this.mnuStopBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuStopBtn.Image")));
+            this.mnuStopBtn.Image = global::Player.Properties.Resources.stop;
             this.mnuStopBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuStopBtn.Name = "mnuStopBtn";
             this.mnuStopBtn.Size = new System.Drawing.Size(24, 35);
@@ -128,11 +128,12 @@
             // 
             this.mnuPauseBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.mnuPauseBtn.Enabled = false;
-            this.mnuPauseBtn.Image = ((System.Drawing.Image)(resources.GetObject("mnuPauseBtn.Image")));
+            this.mnuPauseBtn.Image = global::Player.Properties.Resources.pause;
             this.mnuPauseBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.mnuPauseBtn.Name = "mnuPauseBtn";
             this.mnuPauseBtn.Size = new System.Drawing.Size(24, 35);
             this.mnuPauseBtn.Text = "Pause";
+            this.mnuPauseBtn.Click += new System.EventHandler(this.mnuPauseBtn_Click);
             // 
             // toolStripSeparator3
             // 

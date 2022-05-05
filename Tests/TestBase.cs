@@ -8,10 +8,12 @@ using System.Collections.Generic;
 
 namespace Tests {
     public abstract class TestBase {
+        private static int testId;
+
         private readonly List<Signal> cycleSignals = new List<Signal>();
         protected readonly Clock _testClock;
         private SimulationLoop _testSimulationLoop;
-        private readonly SimulationLoopBuilder _simulationLoopBuilder = SimulationLoopBuilder.CreateAsCurrent().SetName("Test");
+        private readonly SimulationLoopBuilder _simulationLoopBuilder = SimulationLoopBuilder.CreateAsCurrent().SetName($"Test{testId++}");
         private SimulationLoop TestSimulationLoop => _testSimulationLoop ??= _simulationLoopBuilder.Build();
 
         private static ClockParametersAttribute testClockParameters;
