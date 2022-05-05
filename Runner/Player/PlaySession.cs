@@ -32,6 +32,8 @@ namespace Runner.Player {
                 externalSlRunners.Add(SimulationLoopRunner.RunInNewThread(externalModuleSl));
             }
 
+            Thread.Sleep(100);
+
             PlayerLoop(cancellationToken);
         }
 

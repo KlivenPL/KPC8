@@ -78,7 +78,7 @@ namespace Player.Debugger {
 
                 var kpcConfiguration = new KPC8Configuration {
                     ClockMode = Components.Clocks.ClockMode.Manual,
-                    ClockPeriodInTicks = attachArgs.KPC8ConfigurationDto.ClockPeriodInTicks ?? 3,
+                    ClockPeriodInTicks = attachArgs.KPC8ConfigurationDto.ClockPeriodInTicks ?? 5,
                     ExternalModules = attachArgs.KPC8ConfigurationDto.ExternalModules,
                     InitialRamData = attachArgs.KPC8ConfigurationDto.InitialRamData,
                     RomData = attachArgs.CompiledProgram

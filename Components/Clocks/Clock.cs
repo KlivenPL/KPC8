@@ -98,12 +98,12 @@ namespace Components.Clocks {
         }
 
         private void ManualUpdate() {
+            Clk.Value = timer == 1 && IsManualTickInProgress;
+            ClkBar.Value = !Clk.Value;
+
             if (IsManualTickInProgress) {
                 timer += 1;
             }
-
-            Clk.Value = timer <= halfPeriod && IsManualTickInProgress;
-            ClkBar.Value = !Clk.Value;
 
             if (timer >= PeriodInTicks) {
                 /*OnCycle?.Invoke(this);*/

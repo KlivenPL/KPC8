@@ -129,15 +129,11 @@ namespace Runner.Debugger {
         }
 
         private void MakeTickAndWait() {
-            kpc.MainSimulationLoop.Loop();
-
             kpc.MainClock.MakeTick();
 
             while (kpc.MainClock.IsManualTickInProgress) {
                 kpc.MainSimulationLoop.Loop();
             }
-
-            kpc.MainSimulationLoop.Loop();
         }
 
         private void HandlePause() {

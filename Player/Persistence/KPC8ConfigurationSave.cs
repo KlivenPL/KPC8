@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Player.Persistence {
     internal class KPC8ConfigurationSave {
 
-        [Range(3, 10000)]
+        [Range(5, 10000)]
         public long? ClockPeriodInTicks { get; set; }
 
         public KPadExternalModuleConfiguration[] KPads { get; set; }

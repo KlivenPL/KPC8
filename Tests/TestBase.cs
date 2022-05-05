@@ -34,13 +34,10 @@ namespace Tests {
         }
 
         public void MakeTickAndWait() {
-            TestSimulationLoop.Loop();
             _testClock.MakeTick();
             while (_testClock.IsManualTickInProgress) {
-                _testSimulationLoop.Loop();
+                TestSimulationLoop.Loop();
             }
-
-            TestSimulationLoop.Loop();
 
             foreach (var sig in cycleSignals) {
                 sig.Value = false;
