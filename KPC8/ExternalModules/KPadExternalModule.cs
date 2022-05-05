@@ -35,7 +35,7 @@ namespace KPC8.ExternalModules {
             kPad = new KPad(name);
 
             (kpad_cs_const = Signal.Factory.Create(nameof(kpad_cs_const))).Value = true;
-            KPadExternal.ConnectAsExternalDevice(extIn, extOut, kpad_cs_const);
+            KPadExternal.ConnectAsExternalDevice(extIn, extOut, extInAddressMapper.IsMatch);
 
             ConnectAddressBus(addressBus);
             ConnectDataBus(dataBus);

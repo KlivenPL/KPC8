@@ -3,7 +3,7 @@ using System;
 using System.Text;
 
 namespace Assembler._Infrastructure {
-    class ParserException : Exception {
+    public class ParserException : Exception {
         public int Position { get; }
         public int Line { get; }
         public string LineText { get; }

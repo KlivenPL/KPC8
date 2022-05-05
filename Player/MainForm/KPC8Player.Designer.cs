@@ -35,6 +35,7 @@
             this.mnuStopBtn = new System.Windows.Forms.ToolStripButton();
             this.mnuPauseBtn = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.canvasPnl = new System.Windows.Forms.Panel();
             this.mnuToolBar.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -138,12 +139,23 @@
             this.toolStripSeparator3.Name = "toolStripSeparator3";
             this.toolStripSeparator3.Size = new System.Drawing.Size(6, 38);
             // 
+            // canvasPnl
+            // 
+            this.canvasPnl.AutoSize = true;
+            this.canvasPnl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.canvasPnl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.canvasPnl.Location = new System.Drawing.Point(0, 38);
+            this.canvasPnl.Name = "canvasPnl";
+            this.canvasPnl.Size = new System.Drawing.Size(1584, 823);
+            this.canvasPnl.TabIndex = 1;
+            // 
             // KPC8Player
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(1584, 861);
+            this.Controls.Add(this.canvasPnl);
             this.Controls.Add(this.mnuToolBar);
             this.Name = "KPC8Player";
             this.Text = "KPC8 Player";
@@ -151,6 +163,7 @@
             this.mnuToolBar.ResumeLayout(false);
             this.mnuToolBar.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -167,5 +180,6 @@
         private ToolStripSeparator toolStripSeparator3;
         private ToolStripButton mnuDbgBtn;
         private ToolStripMenuItem mnuFileLoadSourceBtn;
+        private Panel canvasPnl;
     }
 }

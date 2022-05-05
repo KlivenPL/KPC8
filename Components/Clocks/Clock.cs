@@ -1,14 +1,13 @@
 ﻿using Components.Signals;
 using Simulation.Updates;
 using System;
-using System.Diagnostics;
 
 namespace Components.Clocks {
     public class Clock : IUpdate {
         public int Priority => 10;
         private long timer = 0L;
         private ClockMode mode;
-        private Stopwatch sw;
+        //private Stopwatch sw;
 
         public long Cycles { get; private set; } = 0;
         private long halfPeriod = 0;
@@ -17,7 +16,7 @@ namespace Components.Clocks {
         /*public event Action<Clock> OnCycle;*/
 
         public Clock(Signal clkSignal, Signal clkBarSignal, ClockMode mode, long periodInTicks) {
-            sw = new Stopwatch();
+            //    sw = new Stopwatch();
             Mode = mode;
             PeriodInTicks = periodInTicks;
             halfPeriod = PeriodInTicks / 2L;
@@ -35,10 +34,10 @@ namespace Components.Clocks {
             set {
                 if (value == ClockMode.Automatic) {
                     timer = 0L;
-                    sw.Restart();
+                    //  sw.Restart();
                 } else if (value == ClockMode.Manual) {
                     timer = -1L;
-                    sw.Stop();
+                    //  sw.Stop();
                 }
 
                 mode = value;
@@ -86,7 +85,7 @@ namespace Components.Clocks {
             Clk.Value = timer <= halfPeriod;
             ClkBar.Value = !Clk.Value;
 
-            if (timer >= PeriodInTicks) {
+            /*if (timer >= PeriodInTicks) {
                 if (++Cycles % 100000 == 0) {
                     var t = (decimal)sw.ElapsedTicks / Cycles / Stopwatch.Frequency;
                     Console.WriteLine($"Running clock in { 1L / t / 1000:f} KHz ({t * 1000000000:f}ns)");
@@ -94,9 +93,9 @@ namespace Components.Clocks {
                     sw.Restart();
                 }
 
-                /*OnCycle?.Invoke(this);*/
+                *//*OnCycle?.Invoke(this);*//*
                 timer = 0L;
-            }
+            }*/
         }
 
         private void ManualUpdate() {

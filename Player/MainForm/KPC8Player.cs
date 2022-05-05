@@ -20,7 +20,7 @@ namespace Player.MainForm {
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             InitializeComponent();
             renderCanvas = CreateRenderCanvas();
-            Controls.Add(renderCanvas);
+            canvasPnl.Controls.Add(renderCanvas);
             this.provider = provider;
             this.guiStateManager = provider.GetRequiredService<GuiStateManager>();
             this.programContext = programContext;
@@ -34,14 +34,9 @@ namespace Player.MainForm {
         }
 
         private RenderCanvas CreateRenderCanvas() {
-            var rc = new RenderCanvas {
-                Size = new Size(320 * 4, 192 * 4),
-                SizeMode = PictureBoxSizeMode.StretchImage,
-            };
-
-            rc.Left = (this.ClientSize.Width - rc.Width) / 2;
-            rc.Top = (this.ClientSize.Height - rc.Height) / 2;
-
+            var rc = new RenderCanvas();
+            Resize += (x, d) => rc.OnFormResize(canvasPnl.Width, canvasPnl.Height);
+            OnResize(null);
             return rc;
         }
 

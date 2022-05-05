@@ -48,7 +48,8 @@ namespace Runner.Debugger {
         public void StartDebugging(bool pauseAtEntry) {
             SubscribeToPassedEvents();
             debugThread = new Thread(() => debugSession.Start(pauseAtEntry, cts.Token));
-            debugThread.Name = "Main debug thread";
+            debugThread.Name = "Main KPC8 debug thread";
+            debugThread.Priority = ThreadPriority.Highest;
             debugThread.Start();
         }
 

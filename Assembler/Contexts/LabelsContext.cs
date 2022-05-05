@@ -99,10 +99,10 @@ namespace Assembler.Contexts {
                         return false;
                     }*/
 
-                    if (!isReservedRegion && currentLabel == null) {
+                    /*if (!isReservedRegion && currentLabel == null) {
                         errorMessage = $"Region: {currentRegion} does not contain any label";
                         return false;
-                    }
+                    }*/
 
                     if (regionedLabels.ContainsKey(regionToken.Value)) {
                         errorMessage = $"Duplicated region: {regionToken.Value}";

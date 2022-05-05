@@ -24,7 +24,7 @@ namespace ExternalDevices.HID {
         }
 
         void IExternalDevice.InitializeExternalDevice() {
-            ChipSelect.OnEdgeRise += ChipEnable_OnEdgeRise;
+            // ChipSelect.OnEdgeRise += ChipEnable_OnEdgeRise;
             this.RegisterUpdate();
         }
 
@@ -34,11 +34,11 @@ namespace ExternalDevices.HID {
             }
         }
 
-        private void ChipEnable_OnEdgeRise() {
+        /*private void ChipEnable_OnEdgeRise() {
 
 
-            //mainBuffer.SetAll(false);
-        }
+            mainBuffer.SetAll(false);
+        }*/
 
         public virtual void Update() {
             var buttons = SimulatedButtons;
@@ -80,38 +80,38 @@ namespace ExternalDevices.HID {
 
             }
 
-            if (Console.KeyAvailable) {
-                var keyInfo = Console.ReadKey(true);
-                if (keyInfo.Key == ConsoleKey.E || keyInfo.Modifiers == ConsoleModifiers.Shift) {
-                    buttons |= KPadButtons.B;
-                }
+            /* if (Console.KeyAvailable) {
+                 var keyInfo = Console.ReadKey(true);
+                 if (keyInfo.Key == ConsoleKey.E || keyInfo.Modifiers == ConsoleModifiers.Shift) {
+                     buttons |= KPadButtons.B;
+                 }
 
-                if (keyInfo.Key == ConsoleKey.Spacebar) {
-                    buttons |= KPadButtons.A;
-                }
+                 if (keyInfo.Key == ConsoleKey.Spacebar) {
+                     buttons |= KPadButtons.A;
+                 }
 
-                if (keyInfo.Key == ConsoleKey.Enter) {
-                    buttons |= KPadButtons.Start;
-                } else if (keyInfo.Key == ConsoleKey.Tab) {
-                    buttons |= KPadButtons.Select;
-                }
+                 if (keyInfo.Key == ConsoleKey.Enter) {
+                     buttons |= KPadButtons.Start;
+                 } else if (keyInfo.Key == ConsoleKey.Tab) {
+                     buttons |= KPadButtons.Select;
+                 }
 
-                if (keyInfo.Key == ConsoleKey.W) {
-                    buttons |= KPadButtons.Up;
-                }
+                 if (keyInfo.Key == ConsoleKey.W) {
+                     buttons |= KPadButtons.Up;
+                 }
 
-                if (keyInfo.Key == ConsoleKey.A) {
-                    buttons |= KPadButtons.Left;
-                }
+                 if (keyInfo.Key == ConsoleKey.A) {
+                     buttons |= KPadButtons.Left;
+                 }
 
-                if (keyInfo.Key == ConsoleKey.S) {
-                    buttons |= KPadButtons.Down;
-                }
+                 if (keyInfo.Key == ConsoleKey.S) {
+                     buttons |= KPadButtons.Down;
+                 }
 
-                if (keyInfo.Key == ConsoleKey.D) {
-                    buttons |= KPadButtons.Right;
-                }
-            }
+                 if (keyInfo.Key == ConsoleKey.D) {
+                     buttons |= KPadButtons.Right;
+                 }
+             }*/
 
             if (buttons != KPadButtons.None) {
                 Console.WriteLine(buttons);
@@ -122,6 +122,7 @@ namespace ExternalDevices.HID {
                 for (int i = 0; i < Size; i++) {
                     Outputs[i].Write(mainBuffer[i]);
                 }
+                mainBuffer.SetAll(false);
             }
         }
 

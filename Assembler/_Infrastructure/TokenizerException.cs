@@ -4,7 +4,7 @@ using System;
 using System.Text;
 
 namespace Assembler._Infrastructure {
-    class TokenizerException : Exception {
+    public class TokenizerException : Exception {
         public int Position { get; }
         public int Line { get; }
         public string LineText { get; }

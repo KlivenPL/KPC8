@@ -1,4 +1,5 @@
 ﻿using Assembler;
+using Assembler._Infrastructure;
 using Assembler.DebugData;
 using Infrastructure.BitArrays;
 using Player.Contexts;
@@ -57,6 +58,9 @@ namespace Player.Loaders {
                 return true;
             } catch (Exception ex) {
                 compileErrors = ex.Message;
+                if (ex is not ParserException && ex is not TokenizerException) {
+                    compileErrors += $"{Environment.NewLine}{ex.StackTrace}";
+                }
                 return false;
             }
         }
