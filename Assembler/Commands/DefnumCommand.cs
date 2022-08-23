@@ -18,6 +18,8 @@ namespace Assembler.Commands {
             if (!labelsContext.TryInsertRegionedToken(identifierToken.Value, numTokenCopy, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
+
+            AddConstantDebugSymbol(new DebugData.ConstantValueSymbol(identifierToken.LineNumber, identifierToken.Value, numToken.Value.ToString(), false));
         }
     }
 }

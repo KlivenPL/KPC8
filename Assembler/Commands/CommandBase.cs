@@ -1,23 +1,31 @@
 ﻿using Assembler._Infrastructure;
 using Assembler.Builders;
 using Assembler.Contexts;
+using Assembler.DebugData;
 using Assembler.Encoders;
 using Assembler.Readers;
 using Assembler.Tokens;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Assembler.Commands {
     internal abstract class CommandBase {
         public abstract CommandType Type { get; }
 
-        public void Parse(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder) {
+        public void Parse(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder, List<IDebugSymbol> debugSymbols) {
             ValidateRegions(reader, labelsContext);
+            AddConstantDebugSymbol = debugSymbols.Add;
+            AddDebugWriteSymbol = debugSymbols.Add;
             ParseInner(reader, labelsContext, romBuilder);
         }
 
         protected abstract string[] AcceptedRegions { get; }
         protected abstract void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder);
         protected InstructionEncoder InstructionEncoder { get; } = new InstructionEncoder();
+
+        protected Action<ConstantValueSymbol> AddConstantDebugSymbol;
+        protected Action<DebugWriteSymbol> AddDebugWriteSymbol;
 
         protected void ParseParameters<T>(TokenReader reader, out T parsedToken) where T : IToken {
             parsedToken = ParseNextParameter<T>(reader);

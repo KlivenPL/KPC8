@@ -3,6 +3,8 @@ using Assembler.Contexts;
 using Assembler.Encoders;
 using Assembler.Readers;
 using Assembler.Tokens;
+using KPC8._Infrastructure.Microcode.Attributes;
+using KPC8.ProgRegs;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +39,16 @@ namespace Assembler.Pseudoinstructions {
         protected void SplitWord(ushort word, out byte lower, out byte higher) {
             lower = (byte)(word & 0x00FF);
             higher = (byte)((word >> 8) & 0x00FF);
+        }
+
+        protected bool DoesDestRegisterViolateDefaultRestrictions(RegisterToken registerToken) {
+            var restrictions = InstructionFormatAttribute.DefaultRegDestRestrictions;
+
+            if (restrictions != Regs.None && !restrictions.HasFlag(registerToken.Value)) {
+                return true;
+            }
+
+            return false;
         }
 
         private T ParseNextParameter<T>(TokenReader reader) where T : IToken {

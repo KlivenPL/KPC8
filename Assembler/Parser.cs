@@ -17,10 +17,12 @@ namespace Assembler {
         private readonly CommandParser commandParser;
         private readonly PseudoinstructionParser pseudoinstructionParser;
         private readonly List<LabelNotResolvedException> unresolvedPseudoinstructions;
+        private readonly InstructionEncoder instructionEncoder;
 
         public Parser() {
             labelsContext = new LabelsContext();
-            instructionParser = new InstructionParser(new InstructionsContext(), new InstructionEncoder(), labelsContext);
+            instructionEncoder = new InstructionEncoder();
+            instructionParser = new InstructionParser(new InstructionsContext(), instructionEncoder, labelsContext);
             pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext(labelsContext));
             commandParser = new CommandParser(new CommandsContext(), labelsContext);
             unresolvedPseudoinstructions = new List<LabelNotResolvedException>();
@@ -68,7 +70,7 @@ namespace Assembler {
                         labelsContext.SetCurrentRegion(reader.CastCurrent<RegionToken>().Value);
                         break;
                     case TokenClass.Command:
-                        commandParser.Parse(reader, romBuilder);
+                        commandParser.Parse(reader, romBuilder, debugSymbolList);
                         break;
                     default:
                         throw ParserException.Create($"Unexpected token: {reader.Current} of class: {reader.Current.Class}", reader.Current);
@@ -110,15 +112,14 @@ namespace Assembler {
                 romBuilder.AddInstruction(instructionHigh, instructionLow, out var loAddress);
                 debugSymbolList.Add(new ExecutableSymbol(identifier, loAddress));
             } catch (RegisterChangedToAssException ex) {
+                instructionEncoder.Encode(KPC8.RomProgrammers.Microcode.McInstructionType.Setw, KPC8.ProgRegs.Regs.Zero, KPC8.ProgRegs.Regs.Ass, ex.ChangedToken.Value, out var preAssInstrHigh, out var preAssInstrLow);
+                romBuilder.AddInstruction(preAssInstrHigh, preAssInstrLow, out var preAssLoAddress);
+
                 romBuilder.AddInstruction(ex.InstructionHigh, ex.InstructionLow, out var loAddress);
-                debugSymbolList.Add(new ExecutableSymbol(identifier, loAddress));
+                debugSymbolList.Add(new ExecutableSymbol(identifier, (ushort)(loAddress + 2)));
 
                 var tokens = reader.GetTokens();
                 tokens.InsertRange(reader.Position + 1, new IToken[] {
-                    /*new IdentifierToken("setw", -1, -1),
-                    new RegisterToken(ex.ChangedToken.Value, -1, -1),
-                    new RegisterToken(KPC8.ProgRegs.Regs.Ass, -1, -1),*/ // TODO przed całym tym trzeba ustawiać ASS, bo może mieć jakąś wartość z dupy
-
                     new IdentifierToken("setw", -1, -1),
                     new RegisterToken(ex.ChangedToken.Value, -1, -1),
                     new RegisterToken(KPC8.ProgRegs.Regs.Ass, -1, -1),

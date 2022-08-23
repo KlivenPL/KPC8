@@ -31,6 +31,8 @@ namespace Assembler.Commands {
             if (!labelsContext.TryInsertRegionedToken(identifierToken.Value, rgb15Token, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
+
+            AddConstantDebugSymbol(new DebugData.ConstantValueSymbol(identifierToken.LineNumber, identifierToken.Value, $"R:{r5b} G:{g5b} B:{b5b}", false));
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Assembler {
 
         private static readonly JsonSerializerSettings jsonSerializerSettings = new() {
             Formatting = Formatting.Indented,
+            TypeNameHandling = TypeNameHandling.All
         };
 
         static void Main(string[] args) {

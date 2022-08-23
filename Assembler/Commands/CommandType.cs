@@ -10,5 +10,6 @@
         DefcolorRGB,
         DefcolorHEX,
         Binfile,
+        DebugWrite,
     }
 }

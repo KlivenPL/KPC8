@@ -139,7 +139,6 @@ namespace DebugAdapter {
         }
 
         protected override ConfigurationDoneResponse HandleConfigurationDoneRequest(ConfigurationDoneArguments arguments) {
-            SendOutput(OutputType.Stdout, $"Debugger is already started: {sessionController.IsStarted}");
             if (!sessionController.IsStarted) {
                 sessionController.StartDebugging(pauseAtEntry);
             }
@@ -275,13 +274,32 @@ namespace DebugAdapter {
         }
 
         protected override EvaluateResponse HandleEvaluateRequest(EvaluateArguments arguments) {
-            try {
-                var register = debugInfo.Frames.First().Scopes.SelectMany(x => x.Variables).First(x => x.Name.Equals(arguments.Expression, StringComparison.OrdinalIgnoreCase));
-                return new EvaluateResponse {
-                    Result = $"Reg {register?.Name} = {register?.Value}"
-                };
-            } catch {
+            var split = arguments.Expression.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (split.Length != 2) {
                 return new EvaluateResponse { Result = null };
+            }
+
+            var name = split[0];
+            int.TryParse(split[1], out var line);
+
+            try {
+                if (name.StartsWith('$')) {
+                    var register = debugInfo.Frames.First().Scopes.SelectMany(x => x.Variables).First(x => x.Name.Equals(name[1..], StringComparison.OrdinalIgnoreCase));
+                    return new EvaluateResponse {
+                        Result = $"Reg ${register?.Name} = {register?.Value}"
+                    };
+                }
+
+                var constantValue = debugInfo.ConstantValues.First(x => x.Line <= line + 1 && x.Name == name);
+                return new EvaluateResponse {
+                    Result = constantValue.IsRegisterAlias
+                        ? $"{constantValue.Name} (${constantValue.RegisterName}) = {constantValue.Value}"
+                        : $"{constantValue.Name} = {constantValue.Value}"
+                };
+
+            } catch {
+                return new EvaluateResponse { Result = name };
             }
         }
 

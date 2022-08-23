@@ -88,10 +88,12 @@ namespace Player.Debugger {
 
                 var dapAdapter = new DapAdapter(dapAdapterConfiguration, debugSessionController, stream, stream);
 
-                dapAdapter.Protocol.LogMessage += (sender, e) => dapAdapter.Protocol.SendEvent(new Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.OutputEvent {
-                    Output = $"{e.Message}{Environment.NewLine}",
-                    Category = Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.OutputEvent.CategoryValue.Stderr
-                });
+                if (attachArgs.RedirectDebuggerLogsToDebugConsole) {
+                    dapAdapter.Protocol.LogMessage += (sender, e) => dapAdapter.Protocol.SendEvent(new Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.OutputEvent {
+                        Output = $"{e.Message}{Environment.NewLine}",
+                        Category = Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages.OutputEvent.CategoryValue.Stderr
+                    });
+                }
 
                 KEvent.Fire(new DapAdapterStatusChangedEvent { Status = DapAdapterStatus.Connected });
                 dapAdapter.Run();

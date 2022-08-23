@@ -1,7 +1,9 @@
 ﻿using Assembler.Builders;
 using Assembler.Contexts;
+using Assembler.DebugData;
 using Assembler.Readers;
 using Assembler.Tokens;
+using System.Collections.Generic;
 
 namespace Assembler.Parsers {
     class CommandParser {
@@ -13,10 +15,10 @@ namespace Assembler.Parsers {
             this.labelsContext = labelsContext;
         }
 
-        public void Parse(TokenReader reader, RomBuilder romBuilder) {
+        public void Parse(TokenReader reader, RomBuilder romBuilder, List<IDebugSymbol> debugSymbols) {
             var commandToken = reader.CastCurrent<CommandToken>();
             var command = commandsContext.GetCommand(commandToken.Value);
-            command.Parse(reader, labelsContext, romBuilder);
+            command.Parse(reader, labelsContext, romBuilder, debugSymbols);
         }
     }
 }

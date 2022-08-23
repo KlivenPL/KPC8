@@ -20,7 +20,14 @@ namespace Assembler.Pseudoinstructions {
 
             yield return InstructionEncoder.Encode(McInstructionType.SetI, Regs.Ass, lower);
             yield return InstructionEncoder.Encode(McInstructionType.SethI, Regs.Ass, higher);
-            yield return InstructionEncoder.Encode(McInstructionType.Addw, rDest, rDest, Regs.Ass);
+
+            if (DoesDestRegisterViolateDefaultRestrictions(rDestToken)) {
+                yield return InstructionEncoder.Encode(McInstructionType.Addw, Regs.Ass, rDest, Regs.Ass);
+                yield return InstructionEncoder.Encode(McInstructionType.Setw, Regs.Zero, rDest, Regs.Ass);
+
+            } else {
+                yield return InstructionEncoder.Encode(McInstructionType.Addw, rDest, rDest, Regs.Ass);
+            }
         }
     }
 }
