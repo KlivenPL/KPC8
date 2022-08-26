@@ -7,13 +7,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Assembler.Pseudoinstructions {
+namespace Assembler.Pseudoinstructions.JumpPseudoinstructions {
     /// <summary>
     /// Jl #label
     /// </summary>
-    class JlPseudoinstruction : PseudoinstructionBase {
+    class JoflPseudoinstruction : PseudoinstructionBase {
         private const int SizeInBytes = 3 * 2;
-        public override PseudoinstructionType Type => PseudoinstructionType.Jl;
+        public override PseudoinstructionType Type => PseudoinstructionType.Jofl;
 
         protected override IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader) {
             ParseParameters<IdentifierToken>(reader, out var identifierToken);
@@ -29,7 +29,7 @@ namespace Assembler.Pseudoinstructions {
 
             yield return InstructionEncoder.Encode(McInstructionType.SetI, Regs.Ass, lower);
             yield return InstructionEncoder.Encode(McInstructionType.SethI, Regs.Ass, higher);
-            yield return InstructionEncoder.Encode(McInstructionType.Jr, Regs.Zero, Regs.Zero, Regs.Ass);
+            yield return InstructionEncoder.Encode(McInstructionType.Jof, Regs.Zero, Regs.Zero, Regs.Ass);
         }
     }
 }

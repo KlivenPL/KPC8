@@ -268,6 +268,8 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         [InlineData(0x0021, 0x0037)]
         [InlineData(0x2137, 0x0911)]
         [InlineData(0xFF00, 0x00FF)]
+        [InlineData(10, 10)]
+        // todo poprawić żeby działało w miejscu
         public void Swaploh(ushort valAStr, ushort valBStr) {
             var instruction = McProceduralInstruction.CreateFromSteps(typeof(RegsProceduralInstructions), nameof(RegsProceduralInstructions.Swaploh));
 

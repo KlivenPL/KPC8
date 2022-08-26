@@ -5,12 +5,12 @@ using KPC8.RomProgrammers.Microcode;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Assembler.Pseudoinstructions {
+namespace Assembler.Pseudoinstructions.MathPseudoinstructions {
     /// <summary>
-    /// SetwI $rDest, #value16
+    /// AddwI $rDest, #value16
     /// </summary>
-    class SetwIPseudoinstruction : PseudoinstructionBase {
-        public override PseudoinstructionType Type => PseudoinstructionType.SetwI;
+    class AddwIPseudoinstruction : PseudoinstructionBase {
+        public override PseudoinstructionType Type => PseudoinstructionType.AddwI;
 
         protected override IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader) {
             ParseParameters<RegisterToken, NumberToken>(reader, out var rDestToken, out var value16Token);
@@ -20,7 +20,14 @@ namespace Assembler.Pseudoinstructions {
 
             yield return InstructionEncoder.Encode(McInstructionType.SetI, Regs.Ass, lower);
             yield return InstructionEncoder.Encode(McInstructionType.SethI, Regs.Ass, higher);
-            yield return InstructionEncoder.Encode(McInstructionType.Setw, Regs.Zero, rDest, Regs.Ass);
+
+            if (DoesDestRegisterViolateDefaultRestrictions(rDestToken)) {
+                yield return InstructionEncoder.Encode(McInstructionType.Addw, Regs.Ass, rDest, Regs.Ass);
+                yield return InstructionEncoder.Encode(McInstructionType.Setw, Regs.Zero, rDest, Regs.Ass);
+
+            } else {
+                yield return InstructionEncoder.Encode(McInstructionType.Addw, rDest, rDest, Regs.Ass);
+            }
         }
     }
 }

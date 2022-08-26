@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Assembler.Pseudoinstructions {
+namespace Assembler.Pseudoinstructions.JumpPseudoinstructions {
     /// <summary>
     /// Jl #label
     /// </summary>

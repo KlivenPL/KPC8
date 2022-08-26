@@ -57,7 +57,7 @@ namespace KPC8.Microcode {
 
 
         [ProceduralInstruction(McInstructionType.Negw)]
-        [InstructionFormat(McInstructionFormat.Register, regBRestrictions: Regs.Zero)]
+        [InstructionFormat(McInstructionFormat.Register, customRegDestRestr: Regs.Zero)]
         public static IEnumerable<Cs> Negw() {
             yield return CsComb.Alu_not | Cs.Alu_oe | Cs.RegB_le; // b = -1;
             yield return Cs.DecB_oe | CsComb.Regs_oe_lo | Cs.RegA_le; // a = val_lo;
