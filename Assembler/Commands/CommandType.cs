@@ -11,5 +11,6 @@
         DefcolorHEX,
         Binfile,
         DebugWrite,
+        InsertModule,
     }
 }

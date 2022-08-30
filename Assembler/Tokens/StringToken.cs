@@ -10,13 +10,13 @@ namespace Assembler.Tokens {
 
         }
 
-        public StringToken(string value, int position, int line) {
+        public StringToken(string value, int position, int line, string filePath) {
             Value = value;
-            AddDebugData(position, line);
+            AddDebugData(position, line, filePath);
         }
 
         public override IToken DeepCopy() {
-            return new StringToken(Value, CodePosition, LineNumber);
+            return new StringToken(Value, CodePosition, LineNumber, FilePath);
         }
 
         public override bool TryAccept(CodeReader reader) {

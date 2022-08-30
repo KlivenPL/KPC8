@@ -29,20 +29,21 @@ namespace Assembler {
         private IToken CreateToken(CodeReader reader) {
             var position = reader.Position;
             var line = reader.Line;
+            var filePath = reader.FilePath;
 
             if (char.IsDigit(reader.Current) || reader.Current == '-') {
-                return new NumberToken().AddDebugData(position, line);
+                return new NumberToken().AddDebugData(position, line, filePath);
             } else if (char.IsLetter(reader.Current) || reader.Current == '@') {
-                return new IdentifierToken().AddDebugData(position, line);
+                return new IdentifierToken().AddDebugData(position, line, filePath);
             }
 
             return reader.Current switch {
-                '$' => new RegisterToken().AddDebugData(position, line),
-                ':' => new LabelToken().AddDebugData(position, line),
-                '*' => new RegionToken().AddDebugData(position, line),
-                '.' => new CommandToken().AddDebugData(position, line),
-                '\'' => new CharToken().AddDebugData(position, line),
-                '"' => new StringToken().AddDebugData(position, line),
+                '$' => new RegisterToken().AddDebugData(position, line, filePath),
+                ':' => new LabelToken().AddDebugData(position, line, filePath),
+                '*' => new RegionToken().AddDebugData(position, line, filePath),
+                '.' => new CommandToken().AddDebugData(position, line, filePath),
+                '\'' => new CharToken().AddDebugData(position, line, filePath),
+                '"' => new StringToken().AddDebugData(position, line, filePath),
                 _ => throw TokenizerException.Create($"Unexpected character: {reader.Current}", reader)
             };
         }

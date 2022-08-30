@@ -22,7 +22,7 @@ namespace Tests.AssemblerTests.Parsers.MainParser {
                 addwi $t2 0xFF01
                 ";
 
-            var rom = parser.Parse(CreateReader(input));
+            var rom = parser.Parse(CreateReader(input)).Skip(6).ToArray();
 
             instructionDecoder.Decode(rom[0], rom[1], out var instrType1, out var regDest1, out var imm1);
             instructionDecoder.Decode(rom[2], rom[3], out var instrType2, out var regDest2, out var imm2);
@@ -70,7 +70,7 @@ namespace Tests.AssemblerTests.Parsers.MainParser {
                 jl jumpLabel
                 ";
 
-            var rom = parser.Parse(CreateReader(input));
+            var rom = parser.Parse(CreateReader(input)).Skip(6).ToArray();
 
             instructionDecoder.Decode(rom[0], rom[1], out var instrType1, out var regDest1, out var imm1);
             instructionDecoder.Decode(rom[2], rom[3], out var instrType2, out var regDest2, out var imm2);
@@ -78,7 +78,7 @@ namespace Tests.AssemblerTests.Parsers.MainParser {
 
             Assert.Equal(McInstructionType.SetI, instrType1);
             Assert.Equal(Regs.Ass, regDest1);
-            Assert.Equal(12, imm1);
+            Assert.Equal(12 + 6, imm1);
 
             Assert.Equal(McInstructionType.SethI, instrType2);
             Assert.Equal(Regs.Ass, regDest2);
@@ -129,7 +129,7 @@ namespace Tests.AssemblerTests.Parsers.MainParser {
 
             Assert.Equal(McInstructionType.SetI, instrType10);
             Assert.Equal(Regs.Ass, regDest10);
-            Assert.Equal(12, imm10);
+            Assert.Equal(12 + 6, imm10);
 
             Assert.Equal(McInstructionType.SethI, instrType11);
             Assert.Equal(Regs.Ass, regDest11);
@@ -142,7 +142,13 @@ namespace Tests.AssemblerTests.Parsers.MainParser {
         }
 
         private static TokenReader CreateReader(string input) {
-            using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));
+            string requiredStructure = @"
+                *@const
+                *@module mainModule
+                *initialize
+                    :main
+                ";
+            using var ms = new MemoryStream(Encoding.ASCII.GetBytes(requiredStructure + input));
             using var codeReader = new CodeReader(ms);
             var tokens = new Tokenizer().Tokenize(codeReader).ToList();
 

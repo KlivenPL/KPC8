@@ -1,5 +1,6 @@
 ﻿using Assembler._Infrastructure;
 using Assembler.Contexts;
+using Assembler.Contexts.Labels;
 using Assembler.Encoders;
 using Assembler.Readers;
 using Assembler.Tokens;
@@ -61,7 +62,7 @@ namespace Assembler.Parsers {
                         }
                     } catch (ChangeToAssRegisterException ex) {
                         reader.MoveTo(originalReaderPos);
-                        reader.ReplaceToken(ex.TokenToChange, new RegisterToken(Regs.Ass, ex.TokenToChange.CodePosition, ex.TokenToChange.LineNumber));
+                        reader.ReplaceToken(ex.TokenToChange, new RegisterToken(Regs.Ass, ex.TokenToChange.CodePosition, ex.TokenToChange.LineNumber, ex.TokenToChange.FilePath));
                         assReplacements.Add(ex);
                     }
                 }

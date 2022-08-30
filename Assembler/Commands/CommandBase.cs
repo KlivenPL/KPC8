@@ -1,13 +1,14 @@
 ﻿using Assembler._Infrastructure;
 using Assembler.Builders;
-using Assembler.Contexts;
+using Assembler.Contexts.Labels;
+using Assembler.Contexts.Regions;
 using Assembler.DebugData;
 using Assembler.Encoders;
+using Assembler.Parsers;
 using Assembler.Readers;
 using Assembler.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Assembler.Commands {
     internal abstract class CommandBase {
@@ -20,7 +21,7 @@ namespace Assembler.Commands {
             ParseInner(reader, labelsContext, romBuilder);
         }
 
-        protected abstract string[] AcceptedRegions { get; }
+        protected abstract CommandAllowedIn AcceptedRegions { get; }
         protected abstract void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder);
         protected InstructionEncoder InstructionEncoder { get; } = new InstructionEncoder();
 
@@ -55,13 +56,30 @@ namespace Assembler.Commands {
         }
 
         protected virtual void ValidateRegions(TokenReader reader, LabelsContext labelsContext) {
-            if (AcceptedRegions?.Any() != true) {
+            if (AcceptedRegions == CommandAllowedIn.None) {
                 throw new System.Exception("Commands must define accepted regions");
             }
 
-            if (!AcceptedRegions.Any(x => x == labelsContext.CurrentReservedRegion)) {
+            if (!CheckIsRegionAllowed(labelsContext.CurrentRegion, AcceptedRegions)) {
                 throw ParserException.Create($"Command {Type} can only be used in following reserved regions: {string.Join(", ", AcceptedRegions)}", reader.Current);
             }
+        }
+
+        private bool CheckIsRegionAllowed(IRegion currentRegion, CommandAllowedIn allowIn) {
+            if (currentRegion.IsReserved) {
+                if (currentRegion.Name == RegionParser.ModuleRegionName) {
+                    return allowIn.HasFlag(CommandAllowedIn.ModuleRegion);
+                }
+
+                if (currentRegion.Name == RegionParser.ConstRegionName) {
+                    return allowIn.HasFlag(CommandAllowedIn.ConstRegion);
+                }
+
+            } else {
+                return allowIn.HasFlag(CommandAllowedIn.UserDefinedRegion);
+            }
+
+            throw new NotImplementedException("Something went wrong on checking allowed command regions");
         }
 
         private T ParseNextParameter<T>(TokenReader reader) where T : IToken {
@@ -70,6 +88,15 @@ namespace Assembler.Commands {
             } else {
                 throw ParserException.Create($"Invalid {Type} command parameter. Expected class {typeof(T).Name}, got {reader.Current.Class}", reader.Current);
             }
+        }
+
+        [Flags]
+        protected enum CommandAllowedIn {
+            None = 0,
+            ConstRegion = 1,
+            ModuleRegion = 2,
+            UserDefinedRegion = 4,
+            Everywhere = 1 | 2 | 4,
         }
     }
 }

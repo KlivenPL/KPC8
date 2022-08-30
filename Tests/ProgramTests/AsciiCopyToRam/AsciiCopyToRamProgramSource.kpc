@@ -1,7 +1,8 @@
 ﻿*@const
 	.asciiz sampleTextPtr "Just a sample text."
 	.asciiz anotherTextPtr "Another other simple text."
-*@code
+*@module mainModule
+*asciiCopy
     .defnum ramAddr1 0x0
     .defnum ramAddr2 0x30
 

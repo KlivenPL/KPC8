@@ -1,61 +1,65 @@
-﻿irrdis
+﻿*@const
+*@module mainModule
+*fibonacci
+    :main
+		irrdis
 
-seti $t1 12			// n = 1
-set	$a1 $t1
+		seti $t1 12			// n = 1
+		set	$a1 $t1
 
-seti $t1 26			// fib address
-set	$s1 $t1
+		seti $t1 32			// fib address
+		set	$s1 $t1
 
-seti $t1 68			// nLessThan1 address
-set	$s2 $t1
+		seti $t1 74			// nLessThan1 address
+		set	$s2 $t1
 
-seti $t1 76			// end address
-set	$s3 $t1
+		seti $t1 82			// end address
+		set	$s3 $t1
 
-seti $t1 255		// array address
-set	$a2 $t1
+		seti $t1 255		// array address
+		set	$a2 $t1
 
-jas $s1 $ra
-jr $s3
+		jas $s1 $ra
+		jr $s3
 
-// a1 = n
-:fib
-	set $t1 $a1
-	subi $t1 1		// $t1 = n-1
-	jzf $s2
-	jnf $s2
+		// a1 = n
+		:fib
+			set $t1 $a1
+			subi $t1 1		// $t1 = n-1
+			jzf $s2
+			jnf $s2
 
-	pushb $ra $sp	// save original return address
-	pushb $a1 $sp	// save n
+			pushb $ra $sp	// save original return address
+			pushb $a1 $sp	// save n
 
-	pushb $t1 $sp	// save n-1
-	set $a1 $t1		// a1 = n-1
-	jas $s1 $ra		// fib(n-1)
-	popb $t1 $sp	// restore n-1
+			pushb $t1 $sp	// save n-1
+			set $a1 $t1		// a1 = n-1
+			jas $s1 $ra		// fib(n-1)
+			popb $t1 $sp	// restore n-1
 	
-	subi $t1 1		// $t1 = n-2
-	set $a1 $t1		// $a1 = n-2
+			subi $t1 1		// $t1 = n-2
+			set $a1 $t1		// $a1 = n-2
 	
-	pushb $rt $sp	// save fib(n-1)
-	jas $s1 $ra		// fib(n-2)
+			pushb $rt $sp	// save fib(n-1)
+			jas $s1 $ra		// fib(n-2)
 
-	popb $t2 $sp	// restore fib(n-1) to $t2
+			popb $t2 $sp	// restore fib(n-1) to $t2
 	
-	add $t2 $rt $t2	// $t2 = fib(n-2) + fib(n-1)
-	set $rt $t2		// $rt = fib(n-2) + fib(n-1)
+			add $t2 $rt $t2	// $t2 = fib(n-2) + fib(n-1)
+			set $rt $t2		// $rt = fib(n-2) + fib(n-1)
 
-	popb $t3 $sp	// restore n
-	sbramo $t2 $a2 $t3	// store result in array
+			popb $t3 $sp	// restore n
+			sbramo $t2 $a2 $t3	// store result in array
 
-	popb $ra $sp	// restore ra
+			popb $ra $sp	// restore ra
 
-	jr $ra
+			jr $ra
 
-:nLessThan1
-	set $t1 $a1		// $rt = n
-	set $rt $t1
-	sbramo $t1 $a2 $rt // store result in array
-	jr $ra
+		:nLessThan1
+			set $t1 $a1		// $rt = n
+			set $rt $t1
+			sbramo $t1 $a2 $rt // store result in array
+			jr $ra
 
-:end
-	nop
+		:end
+			nop

@@ -1,6 +1,6 @@
 ﻿using Assembler._Infrastructure;
 using Assembler.Builders;
-using Assembler.Contexts;
+using Assembler.Contexts.Labels;
 using Assembler.Readers;
 using Assembler.Tokens;
 
@@ -8,7 +8,7 @@ namespace Assembler.Commands {
     internal class DefcolorHEXCommand : CommandBase {
         public override CommandType Type => CommandType.DefcolorHEX;
 
-        protected override string[] AcceptedRegions => new[] { LabelsContext.CodeRegion, LabelsContext.ConstRegion };
+        protected override CommandAllowedIn AcceptedRegions => CommandAllowedIn.ConstRegion | CommandAllowedIn.UserDefinedRegion;
 
         protected override void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder) {
             ParseParameters<IdentifierToken, StringToken>(reader, out var identifierToken, out var hexColorToken);
@@ -38,7 +38,7 @@ namespace Assembler.Commands {
 
             ushort rgb15 = (ushort)(b1 << 8 | b2);
 
-            var rgb15Token = new NumberToken(rgb15, identifierToken.CodePosition, identifierToken.LineNumber);
+            var rgb15Token = new NumberToken(rgb15, identifierToken.CodePosition, identifierToken.LineNumber, identifierToken.FilePath);
 
             if (!labelsContext.TryInsertRegionedToken(identifierToken.Value, rgb15Token, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);

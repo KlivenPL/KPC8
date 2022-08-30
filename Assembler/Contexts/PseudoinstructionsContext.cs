@@ -1,4 +1,5 @@
-﻿using Assembler.Pseudoinstructions;
+﻿using Assembler.Contexts.Labels;
+using Assembler.Pseudoinstructions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

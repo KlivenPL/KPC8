@@ -16,13 +16,15 @@ namespace Assembler.Tokens {
 
         public int CodePosition { get; private set; }
         public int LineNumber { get; private set; }
+        public string FilePath { get; private set; }
 
         public abstract bool TryAccept(CodeReader reader);
         public abstract IToken DeepCopy();
 
-        public TokenBase<TValue> AddDebugData(int position, int line) {
+        public TokenBase<TValue> AddDebugData(int position, int line, string filePath) {
             CodePosition = position;
             LineNumber = line;
+            FilePath = filePath;
             return this;
         }
 

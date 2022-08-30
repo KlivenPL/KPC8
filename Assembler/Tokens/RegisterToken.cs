@@ -12,13 +12,13 @@ namespace Assembler.Tokens {
 
         }
 
-        public RegisterToken(Regs value, int position, int line) {
+        public RegisterToken(Regs value, int position, int line, string filePath) {
             Value = value;
-            AddDebugData(position, line);
+            AddDebugData(position, line, filePath);
         }
 
         public override IToken DeepCopy() {
-            return new RegisterToken(Value, CodePosition, LineNumber);
+            return new RegisterToken(Value, CodePosition, LineNumber, FilePath);
         }
 
         public override bool TryAccept(CodeReader reader) {

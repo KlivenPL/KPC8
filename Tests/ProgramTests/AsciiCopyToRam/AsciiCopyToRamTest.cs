@@ -6,7 +6,7 @@ namespace Tests.ProgramTests.AsciiCopyToRam {
     public class AsciiCopyToRamTest : ProgramTestBase {
 
         [Fact]
-        public void TestFibonacciSequence() {
+        public void TestAsciiCopyToRamProgramSource() {
             const string TestStr1 = "Just a sample text.";
             const string TestStr2 = "Another other simple text.";
 

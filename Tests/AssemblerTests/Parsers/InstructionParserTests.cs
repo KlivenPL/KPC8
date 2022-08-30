@@ -1,6 +1,7 @@
 ﻿using Assembler;
 using Assembler._Infrastructure;
 using Assembler.Contexts;
+using Assembler.Contexts.Labels;
 using Assembler.Encoders;
 using Assembler.Parsers;
 using Assembler.Readers;
@@ -64,7 +65,6 @@ namespace Tests.AssemblerTests.Parsers {
         [Theory]
         [InlineData("nopa")]
         [InlineData("lbromo $t2, $t3")]
-        [InlineData("sbramo $t2, t1, $ass")]
         [InlineData("add $t2, 21, 37")]
         [InlineData("XOR :t2, $t3, $ass")]
         [InlineData("sbramo $t2, $ass")]
@@ -106,7 +106,7 @@ namespace Tests.AssemblerTests.Parsers {
         }
 
         private static InstructionParser CreateParser() {
-            return new InstructionParser(new InstructionsContext(), new InstructionEncoder(), new LabelsContext());
+            return new InstructionParser(new InstructionsContext(), new InstructionEncoder(), new LabelsContext(new RegionParser()));
         }
     }
 }

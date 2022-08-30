@@ -7,16 +7,16 @@ namespace Assembler.Tokens {
 
         }
 
-        public NumberToken(ushort value, int position, int line) {
+        public NumberToken(ushort value, int position, int line, string filePath) {
             Value = value;
-            AddDebugData(position, line);
+            AddDebugData(position, line, filePath);
         }
 
         public override ushort Value { get; protected set; }
         public override TokenClass Class => TokenClass.Number;
 
         public override IToken DeepCopy() {
-            return new NumberToken(Value, CodePosition, LineNumber);
+            return new NumberToken(Value, CodePosition, LineNumber, FilePath);
         }
 
         public override bool TryAccept(CodeReader reader) {

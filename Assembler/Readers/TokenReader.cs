@@ -14,6 +14,20 @@ namespace Assembler.Readers {
         public int Position { get; private set; } = -1;
 
         public TokenReader(IEnumerable<IToken> tokens) {
+#if DEBUG
+            if (HasDuplicates(tokens, x => x, out var duplicates)) {
+                throw new Exception("Token reader cannot have duplicates");
+            }
+            bool HasDuplicates<TSource, TKey>(IEnumerable<TSource> source, Func<TSource, TKey> keySelector, out IEnumerable<TKey> duplicates) {
+                duplicates = source
+                    .GroupBy(keySelector)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key)
+                    .ToArray();
+
+                return duplicates.Any();
+            }
+#endif
             this.tokens = tokens.ToArray();
             size = this.tokens.Length;
         }
@@ -30,6 +44,15 @@ namespace Assembler.Readers {
                 return true;
             }
             return false;
+        }
+
+        public IToken Peek() {
+            bool hasNext = Position < size - 1;
+            if (hasNext) {
+                return tokens[Position + 1];
+            }
+
+            return null;
         }
 
         public bool MoveTo(int position) {

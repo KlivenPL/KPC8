@@ -1,5 +1,5 @@
 ﻿using Assembler._Infrastructure;
-using Assembler.Contexts;
+using Assembler.Contexts.Labels;
 using Assembler.Encoders;
 using Assembler.Readers;
 using Assembler.Tokens;

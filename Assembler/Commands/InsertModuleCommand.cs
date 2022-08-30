@@ -1,4 +1,4 @@
-﻿using Assembler._Infrastructure;
+﻿/*using Assembler._Infrastructure;
 using Assembler.Builders;
 using Assembler.Contexts.Labels;
 using Assembler.Readers;
@@ -9,27 +9,27 @@ using System.Collections;
 using System.IO;
 
 namespace Assembler.Commands {
-    internal class BinfileCommand : CommandBase {
-        public override CommandType Type => CommandType.Binfile;
+    internal class InsertModuleCommand : CommandBase {
+        public override CommandType Type => CommandType.InsertModule;
 
-        protected override CommandAllowedIn AcceptedRegions => CommandAllowedIn.ConstRegion;
+        protected override string[] AcceptedRegions => new[] { LabelsContext.ConstRegion };
 
         protected override void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder) {
-            ParseParameters<IdentifierToken, NumberToken, StringToken>(reader, out var ptrNameToken, out var sizeToken, out var filePathToken);
+            ParseParameters<IdentifierToken, StringToken>(reader, out var ptrNameToken, out var filePathToken);
 
             var newPtrAddressToken = new NumberToken(romBuilder.NextAddress, ptrNameToken.CodePosition, ptrNameToken.LineNumber, ptrNameToken.FilePath);
 
-            if (!labelsContext.TryInsertRegionedToken(ptrNameToken.Value, newPtrAddressToken, out var errorMessage)) {
+            *//*if (!labelsContext.TryInsertRegionedToken(ptrNameToken.Value, newPtrAddressToken, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
 
-            var loadedBytes = LoadBinFromFile(filePathToken, sizeToken);
+            var loadedBytes = LoadBinFromFile(filePathToken);
             for (int i = 0; i < loadedBytes.Length; i++) {
                 romBuilder.AddByte(loadedBytes[i]);
-            }
+            }*//*
         }
 
-        private BitArray[] LoadBinFromFile(StringToken filePathToken, NumberToken sizeToken) {
+        *//*private BitArray[] LoadBinFromFile(StringToken filePathToken) {
 
             var fileInfo = new FileInfo(Path.GetFullPath(filePathToken.Value));
 
@@ -37,13 +37,7 @@ namespace Assembler.Commands {
                 throw ParserException.Create($"File does not exist:{Environment.NewLine}\"{fileInfo.FullName}\"", filePathToken);
             }
 
-            if (sizeToken.Value > fileInfo.Length) {
-                throw ParserException.Create($"Size ({sizeToken.Value}) must be <= than file size ({fileInfo.Length})", sizeToken);
-            }
-
-            var size = sizeToken.Value;
-
-            var bas = new BitArray[size];
+            var bas = new BitArray[fileInfo.Length];
             using var stream = fileInfo.OpenRead();
             using var binaryReader = new BinaryReader(stream);
 
@@ -53,6 +47,7 @@ namespace Assembler.Commands {
             }
 
             return bas;
-        }
+        }*//*
     }
 }
+*/

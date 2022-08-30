@@ -15,10 +15,15 @@ namespace Assembler.Readers {
 
         public int Position { get; private set; }
         public int Line { get; private set; } = 1;
+        public string FilePath { get; }
 
         public CodeReader(MemoryStream ms) {
             reader = new StreamReader(ms);
             lastLineBuilder = new StringBuilder();
+        }
+
+        public CodeReader(MemoryStream ms, string filePath) : this(ms) {
+            FilePath = filePath;
         }
 
         public bool Read() {

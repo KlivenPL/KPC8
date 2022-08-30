@@ -1,17 +1,21 @@
-﻿irrdis
+﻿*@const
+*@module mainModule
+*multiplication
+    :main
+        irrdis
 
-seti $t3 20
-set $ra $t3
+        seti $t3 26
+        set $ra $t3
 
-seti $t1 21
-seti $t2 37
-seti $t3 0
+        seti $t1 21
+        seti $t2 37
+        seti $t3 0
 
-addw $t3 $t3 $t2
-subi $t1 1
+        addw $t3 $t3 $t2
+        subi $t1 1
 
-jzf $ra
-jpcsubi 8
+        jzf $ra
+        jpcsubi 8
 
-setw $rt $t3
-nop
+        setw $rt $t3
+        nop
