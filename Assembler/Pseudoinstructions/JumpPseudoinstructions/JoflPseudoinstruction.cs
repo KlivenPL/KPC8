@@ -1,5 +1,4 @@
-﻿using Assembler._Infrastructure;
-using Assembler.Readers;
+﻿using Assembler.Readers;
 using Assembler.Tokens;
 using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
@@ -17,7 +16,7 @@ namespace Assembler.Pseudoinstructions.JumpPseudoinstructions {
 
         protected override IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader) {
             ParseParameters<IdentifierToken>(reader, out var identifierToken);
-            throw new LabelNotResolvedException(identifierToken, labelsContext.CurrentRegion, SizeInBytes, ParseLabel);
+            throw CreateLabelNotResolvedException(identifierToken, SizeInBytes, ParseLabel);
         }
 
         private BitArray[] ParseLabel(ushort labelAddress) {

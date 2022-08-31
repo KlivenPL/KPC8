@@ -21,7 +21,7 @@ namespace Assembler.Parsers {
                 throw new OtherInnerException($"Could not parse {ConstRegionName} region: given token is not region token");
             }
 
-            var firstRegion = PreParseNextRegion(reader, regionToken.Value, null);
+            var firstRegion = PreParseNextRegion(reader, regionToken.Value, null, null);
             if (firstRegion is not ConstRegion cr) {
                 throw new OtherInnerException($"{ConstRegionName} must be the first defined region");
             }
@@ -34,7 +34,7 @@ namespace Assembler.Parsers {
                 throw new OtherInnerException($"Could not parse {ModuleRegionName} region: given token is not region token");
             }
 
-            var firstRegion = PreParseNextRegion(reader, regionToken.Value, constRegion);
+            var firstRegion = PreParseNextRegion(reader, regionToken.Value, constRegion, null);
             if (firstRegion is not ModuleRegion mr) {
                 throw new OtherInnerException($"{ModuleRegionName} must be the second defined region in main file or first defined region in module file");
             }
@@ -57,9 +57,10 @@ namespace Assembler.Parsers {
             };
 
             while (reader.Current is not null && reader.Current is RegionToken regionToken) {
-                var nextRegion = PreParseNextRegion(reader, regionToken.Value, constRegion);
+                var nextRegion = PreParseNextRegion(reader, regionToken.Value, constRegion, prevModuleRegion);
 
                 if (nextRegion is ModuleRegion mr) {
+                    CheckForUnexportedREgions(prevModuleRegion);
                     prevModuleRegion = mr;
                     modules.Add(mr);
                 } else if (nextRegion is UserDefinedRegion udr) {
@@ -73,18 +74,26 @@ namespace Assembler.Parsers {
                 }
             }
 
+            CheckForUnexportedREgions(prevModuleRegion);
+
             if (HasDuplicates(modules.OfType<ModuleRegion>(), x => x.Name, out var moduleDuplicates)) {
                 throw new OtherInnerException($"Duplicates of modules: {string.Join(',', moduleDuplicates)} were found");
             }
         }
 
-        private IRegion PreParseNextRegion(TokenReader reader, string regionName, ConstRegion constRegion) {
+        private static void CheckForUnexportedREgions(ModuleRegion prevModuleRegion) {
+            if (prevModuleRegion.AnyAwaitingRegionForExport(out var unexportedRegions)) {
+                throw new OtherInnerException($"Could not find regions: {string.Join(',', unexportedRegions)} to export in module {prevModuleRegion.Name}");
+            }
+        }
+
+        private IRegion PreParseNextRegion(TokenReader reader, string regionName, ConstRegion constRegion, ModuleRegion prevModuleRegion) {
             return regionName switch {
                 GlobalRegionName => throw new OtherInnerException($"Region {GlobalRegionName} is reserved for compiler only and cannot be used"),
                 ConstRegionName => ConstRegion.PreParse(reader),
                 ModuleRegionName => ModuleRegion.PreParse(reader, constRegion),
                 _ => !regionName.StartsWith('@')
-                    ? UserDefinedRegion.PreParse(reader)
+                    ? UserDefinedRegion.PreParse(reader, prevModuleRegion.AwaitingRegionsForExport.Contains(regionName))
                     : throw new OtherInnerException($"Only reserved regions can start with '@'. Reserved regions are: {string.Join(", ", reservedRegions)}")
             };
         }

@@ -19,7 +19,7 @@ namespace Assembler.Commands {
 
             var newPtrAddressToken = new NumberToken(romBuilder.NextAddress, ptrNameToken.CodePosition, ptrNameToken.LineNumber, ptrNameToken.FilePath);
 
-            if (!labelsContext.TryInsertRegionedToken(ptrNameToken.Value, newPtrAddressToken, out var errorMessage)) {
+            if (!TryInsertToken(ptrNameToken.Value, newPtrAddressToken, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
 

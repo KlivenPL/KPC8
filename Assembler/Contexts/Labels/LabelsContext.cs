@@ -11,15 +11,15 @@ namespace Assembler.Contexts.Labels {
         private readonly RegionParser regionParser;
 
         private ModuleRegion[] modules;
-        private ModuleRegion currentModule;
 
         public LabelsContext(RegionParser regionParser) {
             this.regionParser = regionParser;
-            currentModule = null;
+            CurrentModule = null;
             CurrentRegion = null;
         }
 
         public IRegion CurrentRegion { get; private set; }
+        internal ModuleRegion CurrentModule { get; set; }
 
         public bool TryPreParseRegions(TokenReader tokenReader, out string mainLabelIdentifier, out string errorMessage) {
             mainLabelIdentifier = null;
@@ -29,7 +29,7 @@ namespace Assembler.Contexts.Labels {
                 regionParser.PreParseAllRegions(tokenReader, out mainLabelIdentifier, out var constRegion, out var modules);
                 this.modules = modules.ToArray();
                 CurrentRegion = constRegion;
-                currentModule = modules[0];
+                CurrentModule = modules[0];
                 return true;
             } catch (OtherInnerException ex) {
                 errorMessage = ex.Message;
@@ -38,15 +38,15 @@ namespace Assembler.Contexts.Labels {
         }
 
         public void SetCurrentModule(IdentifierToken moduleNameToken) {
-            currentModule = modules.First(x => x.Name == moduleNameToken.Value);
-            CurrentRegion = currentModule;
+            CurrentModule = modules.First(x => x.Name == moduleNameToken.Value);
+            CurrentRegion = CurrentModule;
         }
 
         public void SetCurrentRegion(RegionToken regionToken) {
-            CurrentRegion = currentModule.GetRegion(regionToken.Value);
+            CurrentRegion = CurrentModule.GetRegion(regionToken.Value);
         }
 
-        internal bool TryInsertRegionedToken(string name, IToken token, out string errorMessage) {
+        public bool TryInsertToken(string name, IToken token, out string errorMessage) {
             try {
                 CurrentRegion.InsertToken(name, token);
             } catch (OtherInnerException ex) {
@@ -75,21 +75,44 @@ namespace Assembler.Contexts.Labels {
             return true;
         }
 
-        public bool TryFindToken(string name, out IToken token) {
-            token = null;
+        public bool TryResolveLabelNotResolvedException(LabelNotResolvedException ex, out ushort address) {
+            address = 0;
 
-            if (!TryLocalizeRegion(name, out var region, out var identifierStr)) {
-                return false;
+            // only for first jl in ROM (main label)
+            if ((ex.Region is ConstRegion) && ex.ArgumentToken.Value.Contains('.') && TryLocalizeRegion(ex.ArgumentToken.Value, out var tmpRegion, out var labelIdentifier, exportedOnly: false)) {
+                address = tmpRegion.GetLabel(labelIdentifier).Address ?? throw new Exception("Main label not resolved. This should not have happened");
+                return true;
             }
 
+            SplitIdentifier(ex.ArgumentToken.Value, out var moduleStr, out var regionStr, out var identifierStr);
+
             try {
-                var tokenInfo = region.GetToken(identifierStr);
-                token = tokenInfo.Value.DeepCopy();
-            } catch (OtherInnerException) {
+                address = TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule);
+            } catch (Exception) {
                 return false;
             }
 
             return true;
+
+            ushort GetFromLocalRegion() {
+                if (moduleStr != null || regionStr != null) {
+                    throw new OtherInnerException("Go for other region");
+                }
+
+                return ex.Region.GetLabel(identifierStr)?.Address.Value ?? throw new Exception();
+            }
+
+            ushort GetFromOtherRegion() {
+                if (moduleStr != null) {
+                    throw new OtherInnerException("Go for other module");
+                }
+
+                return ex.Module.GetRegion(regionStr)?.GetLabel(identifierStr)?.Address ?? throw new Exception();
+            }
+
+            ushort GetFromOtherModule() {
+                return modules.FirstOrDefault(x => x.Name == moduleStr)?.GetExportedRegion(regionStr).GetLabel(identifierStr)?.Address ?? throw new Exception();
+            }
         }
 
         public bool TryResolveInvalidTokenException(InvalidTokenClassException ex, out IToken token) {
@@ -99,38 +122,35 @@ namespace Assembler.Contexts.Labels {
                 return false;
             }
 
-            if (TryFindToken(identifierToken.Value, out var tmpToken)) {
-                if (ex.ExpectedTokenClass.HasFlag(tmpToken.Class)) {
-                    token = tmpToken;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public bool TryResolveLabelNotResolvedException(LabelNotResolvedException ex, out ushort address) {
-            address = 0;
-
-            IRegion region = ex.Region;
-            string identifierStr = ex.ArgumentToken.Value;
-
-            if (identifierStr.Contains('.')) {
-                if (TryLocalizeRegion(identifierStr, out var tmpRegion, out var labelIdentifier, exportedOnly: false)) {
-                    region = tmpRegion;
-                    identifierStr = labelIdentifier;
-                }
-            }
+            SplitIdentifier(identifierToken.Value, out var moduleStr, out var regionStr, out var identifierStr);
 
             try {
-                address = region.GetLabel(identifierStr).Address ?? throw new Exception("Label not resolved");
-            } catch (OtherInnerException) {
-                return false;
+                token = TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule).DeepCopy();
             } catch (Exception) {
                 return false;
             }
 
             return true;
+
+            IToken GetFromLocalRegion() {
+                if (moduleStr != null || regionStr != null) {
+                    throw new OtherInnerException("Go for other region");
+                }
+
+                return ex.Region.GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
+
+            IToken GetFromOtherRegion() {
+                if (moduleStr != null) {
+                    throw new OtherInnerException("Go for other module");
+                }
+
+                return ex.Module.GetRegion(regionStr)?.GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
+
+            IToken GetFromOtherModule() {
+                return modules.FirstOrDefault(x => x.Name == moduleStr)?.GetExportedRegion(regionStr).GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
         }
 
         public bool TryResolveInvalidToken<TExpectedToken>(IToken recievedToken, out TExpectedToken token) where TExpectedToken : IToken {
@@ -140,14 +160,38 @@ namespace Assembler.Contexts.Labels {
                 return false;
             }
 
-            if (TryFindToken(identifierToken.Value, out var tmpToken)) {
-                if (tmpToken is TExpectedToken successToken) {
-                    token = successToken;
+            SplitIdentifier(identifierToken.Value, out var moduleStr, out var regionStr, out var identifierStr);
+
+            try {
+                if (TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule).DeepCopy() is TExpectedToken expectedToken) {
+                    token = expectedToken;
                     return true;
                 }
+            } catch (Exception) {
+                return false;
             }
 
-            return false;
+            return true;
+
+            IToken GetFromLocalRegion() {
+                if (moduleStr != null || regionStr != null) {
+                    throw new OtherInnerException("Go for other region");
+                }
+
+                return CurrentRegion.GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
+
+            IToken GetFromOtherRegion() {
+                if (moduleStr != null) {
+                    throw new OtherInnerException("Go for other module");
+                }
+
+                return CurrentModule.GetRegion(regionStr)?.GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
+
+            IToken GetFromOtherModule() {
+                return modules.FirstOrDefault(x => x.Name == moduleStr)?.GetExportedRegion(regionStr).GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
         }
 
         public void ResolveLabel(string labelDef, ushort address) {
@@ -160,12 +204,17 @@ namespace Assembler.Contexts.Labels {
             CurrentRegion.GetLabel(labelDef).Address = address;
         }
 
+        public void ResetCurrentModuleAndRegion() {
+            CurrentModule = null;
+            CurrentRegion = null;
+        }
+
         private bool TryLocalizeRegion(string identifier, out IRegion region, out string identifierStr, bool? exportedOnly = null) {
             var split = identifier.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
             region = CurrentRegion;
 
-            string moduleStr = currentModule.Name;
-            string regionStr = CurrentRegion.Name;
+            string moduleStr = CurrentModule?.Name;
+            string regionStr = CurrentRegion?.Name;
             identifierStr = null;
 
             if (split.Length == 1) {
@@ -181,7 +230,7 @@ namespace Assembler.Contexts.Labels {
                 return false;
             }
 
-            exportedOnly ??= moduleStr != currentModule.Name;
+            exportedOnly ??= moduleStr != CurrentModule.Name;
 
             try {
                 var module = modules.FirstOrDefault(x => x.Name == moduleStr) ?? throw new Exception($"Module {moduleStr} not found");
@@ -193,6 +242,38 @@ namespace Assembler.Contexts.Labels {
             }
 
             return true;
+        }
+
+        private static void SplitIdentifier(string identifier, out string moduleStr, out string regionStr, out string identifierStr) {
+            moduleStr = null;
+            regionStr = null;
+            identifierStr = null;
+
+            var split = identifier.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (split.Length == 1) {
+                identifierStr = split[0];
+            } else if (split.Length == 2) {
+                regionStr = split[0];
+                identifierStr = split[1];
+            } else if (split.Length == 3) {
+                moduleStr = split[0];
+                regionStr = split[1];
+                identifierStr = split[2];
+            }
+        }
+
+        private static T TryAllThenThrow<T>(params Func<T>[] triees) {
+            foreach (var triee in triees) {
+                try {
+                    return triee();
+                } catch (OtherInnerException) {
+                } catch (Exception) {
+                    throw;
+                }
+            }
+
+            throw new Exception();
         }
     }
 }

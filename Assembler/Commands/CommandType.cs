@@ -12,5 +12,6 @@
         Binfile,
         DebugWrite,
         InsertModule,
+        ExportRegion,
     }
 }

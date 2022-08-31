@@ -12,12 +12,14 @@ namespace Assembler._Infrastructure {
         public IdentifierToken ArgumentToken { get; }
         public Func<ushort, BitArray[]> Resolve { get; }
         public ushort Address { get; private set; }
+        public ModuleRegion Module { get; }
         public IRegion Region { get; }
 
-        public LabelNotResolvedException(IdentifierToken argumentToken, IRegion region, ushort sizeInBytes, Func<ushort, BitArray[]> resolve) {
+        public LabelNotResolvedException(IdentifierToken argumentToken, IRegion region, ModuleRegion module, ushort sizeInBytes, Func<ushort, BitArray[]> resolve) {
             ArgumentToken = argumentToken;
             SizeInBytes = sizeInBytes;
             Resolve = resolve;
+            Module = module;
             Region = region;
         }
 

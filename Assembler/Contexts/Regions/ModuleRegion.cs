@@ -8,8 +8,11 @@ using System.Linq;
 
 namespace Assembler.Contexts.Regions {
     internal class ModuleRegion : IRegion {
+        private static readonly CommandsContext commandsContext = new CommandsContext();
         private readonly ConstRegion constRegion;
         private readonly List<UserDefinedRegion> userDefinedRegions;
+
+        private HashSet<string> awaitingRegionsForExport;
 
         private IEnumerable<IRegion> AllRegions => userDefinedRegions.Concat(new IRegion[] { constRegion });
 
@@ -17,10 +20,13 @@ namespace Assembler.Contexts.Regions {
             this.constRegion = constRegion;
             Name = name;
             userDefinedRegions = new List<UserDefinedRegion>();
+            AwaitingRegionsForExport = new HashSet<string>();
         }
 
         public string Name { get; }
         public bool IsReserved => true;
+
+        public HashSet<string> AwaitingRegionsForExport { get => awaitingRegionsForExport; private set => awaitingRegionsForExport = value; }
 
         public static IRegion PreParse(TokenReader reader, ConstRegion constRegion) {
             if (reader.Current is not RegionToken) {
@@ -37,6 +43,10 @@ namespace Assembler.Contexts.Regions {
             do {
                 if (reader.Current is LabelToken) {
                     throw new OtherInnerException($"Cannot declare labels in reserved module {name} region");
+                }
+
+                if (reader.Current is CommandToken commandToken) {
+                    PreParseCommand(reader, region, commandToken);
                 }
             } while (reader.Read() && reader.Current is not RegionToken);
 
@@ -68,10 +78,27 @@ namespace Assembler.Contexts.Regions {
             }
 
             userDefinedRegions.Add(region);
+
+            if (AwaitingRegionsForExport.Contains(region.Name)) {
+                AwaitingRegionsForExport.Remove(region.Name);
+            }
         }
 
         public void InsertToken(string name, IToken token) {
             throw new OtherInnerException($"Constant definition is not allowd in reserved {RegionParser.ModuleRegionName} regions");
+        }
+
+        public void AddAwaitingForExportRegionName(string awaitingForExportRegionName) {
+            if (AwaitingRegionsForExport.Contains(awaitingForExportRegionName)) {
+                throw new OtherInnerException($"Region {awaitingForExportRegionName} is already exported");
+            }
+
+            AwaitingRegionsForExport.Add(awaitingForExportRegionName);
+        }
+
+        public bool AnyAwaitingRegionForExport(out string[] unexportedRegions) {
+            unexportedRegions = AwaitingRegionsForExport.ToArray();
+            return unexportedRegions.Any();
         }
 
         public LabelInfo GetLabel(string labelName) {
@@ -80,6 +107,12 @@ namespace Assembler.Contexts.Regions {
 
         public TokenInfo GetToken(string tokenName) {
             throw new OtherInnerException($"{RegionParser.ModuleRegionName} region cannot contain tokens");
+        }
+
+        private static void PreParseCommand(TokenReader reader, ModuleRegion region, CommandToken commandToken) {
+            if (commandsContext.TryGetPreCommand(commandToken.Value, out var command)) {
+                command.PreParse(reader, region);
+            }
         }
     }
 }

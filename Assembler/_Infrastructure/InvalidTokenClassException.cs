@@ -1,15 +1,20 @@
-﻿using Assembler.Tokens;
+﻿using Assembler.Contexts.Regions;
+using Assembler.Tokens;
 using System;
 
 namespace Assembler._Infrastructure {
     class InvalidTokenClassException : Exception {
-        public InvalidTokenClassException(IToken recievedToken, TokenClass expectedTokenClass) {
+        public InvalidTokenClassException(IToken recievedToken, TokenClass expectedTokenClass, ModuleRegion module, IRegion region) {
             RecievedToken = recievedToken;
             ExpectedTokenClass = expectedTokenClass;
+            Module = module;
+            Region = region;
         }
 
-        public IToken RecievedToken { get; init; }
-        public TokenClass ExpectedTokenClass { get; init; }
+        public IToken RecievedToken { get; }
+        public TokenClass ExpectedTokenClass { get; }
+        public ModuleRegion Module { get; }
+        public IRegion Region { get; }
 
         public ParserException ToParserException() {
             if (RecievedToken is IdentifierToken identifierToken) {

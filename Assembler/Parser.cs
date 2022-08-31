@@ -84,6 +84,8 @@ namespace Assembler {
             }
             reader = origReader;
 
+            labelsContext.ResetCurrentModuleAndRegion();
+
             foreach (var unresolvedPseudoinstruction in unresolvedPseudoinstructions) {
                 /*var label = unresolvedPseudoinstruction.ArgumentToken.Value.Contains('.') ?
                     unresolvedPseudoinstruction.ArgumentToken.Value : $"{unresolvedPseudoinstruction.Region}.{unresolvedPseudoinstruction.ArgumentToken.Value}";

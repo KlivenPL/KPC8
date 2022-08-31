@@ -17,7 +17,7 @@ namespace Assembler.Commands {
 
             var numberToken = new NumberToken(romBuilder.NextAddress, identifierToken.CodePosition, identifierToken.LineNumber, identifierToken.FilePath);
 
-            if (!labelsContext.TryInsertRegionedToken(identifierToken.Value, numberToken, out var errorMessage)) {
+            if (!TryInsertToken(identifierToken.Value, numberToken, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
 

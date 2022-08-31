@@ -5,6 +5,7 @@ using Assembler.Readers;
 using Assembler.Tokens;
 using KPC8._Infrastructure.Microcode.Attributes;
 using KPC8.ProgRegs;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,6 +50,10 @@ namespace Assembler.Pseudoinstructions {
             }
 
             return false;
+        }
+
+        protected LabelNotResolvedException CreateLabelNotResolvedException(IdentifierToken identifierToken, ushort sizeInBytes, Func<ushort, BitArray[]> resolve) {
+            return new LabelNotResolvedException(identifierToken, labelsContext.CurrentRegion, labelsContext.CurrentModule, sizeInBytes, resolve);
         }
 
         private T ParseNextParameter<T>(TokenReader reader) where T : IToken {

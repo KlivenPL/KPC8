@@ -7,25 +7,27 @@ using System.Linq;
 
 namespace Assembler.Contexts.Regions {
     internal class UserDefinedRegion : IRegion {
+        private static readonly CommandsContext commandsContext = new CommandsContext();
         private readonly List<LabelInfo> labels;
         private readonly List<TokenInfo> tokens;
 
-        public UserDefinedRegion(string name) {
+        public UserDefinedRegion(string name, bool isExported) {
             Name = name;
+            IsExported = isExported;
             labels = new List<LabelInfo>();
             tokens = new List<TokenInfo>();
         }
 
         public string Name { get; }
         public bool IsReserved => false;
-        public bool IsExported { get; private set; }
+        public bool IsExported { get; }
 
-        public static IRegion PreParse(TokenReader reader) {
+        public static IRegion PreParse(TokenReader reader, bool isExported) {
             if (reader.Current is not RegionToken regionToken) {
                 throw new OtherInnerException("Given token is not region token");
             }
 
-            var region = new UserDefinedRegion(regionToken.Value);
+            var region = new UserDefinedRegion(regionToken.Value, isExported);
 
             do {
                 if (reader.Current is LabelToken labelToken) {
@@ -35,18 +37,13 @@ namespace Assembler.Contexts.Regions {
                         throw new OtherInnerException($"Instruction or pseudoinstruction expected after the label {labelToken.Value}, got: {reader.Current.Class}");
                     }
 
+                } else if (reader.Current is CommandToken commandToken) {
+                    PreParseCommand(reader, region, commandToken);
                 }
+
             } while (reader.Read() && reader.Current is not RegionToken);
 
             return region;
-        }
-
-        public void SetAsExported() {
-            if (IsExported) {
-                throw new OtherInnerException($"Region {Name} is already exported");
-            }
-
-            IsExported = true;
         }
 
         public void InsertToken(string name, IToken token) {
@@ -76,6 +73,12 @@ namespace Assembler.Contexts.Regions {
             }
 
             labels.Add(new LabelInfo(labelToken.Value, null));
+        }
+
+        private static void PreParseCommand(TokenReader reader, IRegion region, CommandToken commandToken) {
+            if (commandsContext.TryGetPreCommand(commandToken.Value, out var command)) {
+                command.PreParse(reader, region);
+            }
         }
     }
 }

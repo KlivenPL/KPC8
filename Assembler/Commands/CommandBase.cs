@@ -4,7 +4,6 @@ using Assembler.Contexts.Labels;
 using Assembler.Contexts.Regions;
 using Assembler.DebugData;
 using Assembler.Encoders;
-using Assembler.Parsers;
 using Assembler.Readers;
 using Assembler.Tokens;
 using System;
@@ -13,20 +12,47 @@ using System.Collections.Generic;
 namespace Assembler.Commands {
     internal abstract class CommandBase {
         public abstract CommandType Type { get; }
+        protected delegate bool TryInsertTokenDelegate(string name, IToken token, out string errorMessage);
+        private IRegion currentPreParseRegion;
 
         public void Parse(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder, List<IDebugSymbol> debugSymbols) {
-            ValidateRegions(reader, labelsContext);
+            ValidateRegions(reader, labelsContext.CurrentRegion);
             AddConstantDebugSymbol = debugSymbols.Add;
             AddDebugWriteSymbol = debugSymbols.Add;
+            TryInsertToken = labelsContext.TryInsertToken;
+            currentPreParseRegion = null;
             ParseInner(reader, labelsContext, romBuilder);
+        }
+
+        public void PreParse(TokenReader reader, IRegion currentRegion) {
+            ValidateRegions(reader, currentRegion);
+            AddConstantDebugSymbol = null;
+            AddDebugWriteSymbol = null;
+            currentPreParseRegion = currentRegion;
+            TryInsertToken = TryInsertTokenPreParse;
+            PreParseInner(reader, currentRegion);
+        }
+
+        private bool TryInsertTokenPreParse(string name, IToken token, out string errorMessage) {
+            try {
+                currentPreParseRegion.InsertToken(name, token);
+            } catch (OtherInnerException ex) {
+                errorMessage = ex.Message;
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
         }
 
         protected abstract CommandAllowedIn AcceptedRegions { get; }
         protected abstract void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder);
+        protected virtual void PreParseInner(TokenReader reader, IRegion region) => throw new NotImplementedException();
         protected InstructionEncoder InstructionEncoder { get; } = new InstructionEncoder();
 
         protected Action<ConstantValueSymbol> AddConstantDebugSymbol;
         protected Action<DebugWriteSymbol> AddDebugWriteSymbol;
+        protected TryInsertTokenDelegate TryInsertToken;
 
         protected void ParseParameters<T>(TokenReader reader, out T parsedToken) where T : IToken {
             parsedToken = ParseNextParameter<T>(reader);
@@ -55,23 +81,23 @@ namespace Assembler.Commands {
             higher = (byte)((word >> 8) & 0x00FF);
         }
 
-        protected virtual void ValidateRegions(TokenReader reader, LabelsContext labelsContext) {
+        protected virtual void ValidateRegions(TokenReader reader, IRegion currentRegion) {
             if (AcceptedRegions == CommandAllowedIn.None) {
                 throw new System.Exception("Commands must define accepted regions");
             }
 
-            if (!CheckIsRegionAllowed(labelsContext.CurrentRegion, AcceptedRegions)) {
+            if (!CheckIsRegionAllowed(currentRegion, AcceptedRegions)) {
                 throw ParserException.Create($"Command {Type} can only be used in following reserved regions: {string.Join(", ", AcceptedRegions)}", reader.Current);
             }
         }
 
         private bool CheckIsRegionAllowed(IRegion currentRegion, CommandAllowedIn allowIn) {
             if (currentRegion.IsReserved) {
-                if (currentRegion.Name == RegionParser.ModuleRegionName) {
+                if (currentRegion is ModuleRegion) {
                     return allowIn.HasFlag(CommandAllowedIn.ModuleRegion);
                 }
 
-                if (currentRegion.Name == RegionParser.ConstRegionName) {
+                if (currentRegion is ConstRegion) {
                     return allowIn.HasFlag(CommandAllowedIn.ConstRegion);
                 }
 

@@ -90,7 +90,7 @@ namespace Assembler.Parsers {
                     regDest = registerToken.Value;
                 } else {
                     //  throw ParserException.Create($"Expected register, got {reader.Current.Class}", reader.Current);
-                    throw new InvalidTokenClassException(reader.Current, TokenClass.Register);
+                    throw new InvalidTokenClassException(reader.Current, TokenClass.Register, labelsContext.CurrentModule, labelsContext.CurrentRegion);
                 }
             }
 
@@ -110,7 +110,7 @@ namespace Assembler.Parsers {
                         number = (byte)reader.CastCurrent<CharToken>().Value;
                         break;
                     default:
-                        throw new InvalidTokenClassException(reader.Current, TokenClass.Number | TokenClass.Char);
+                        throw new InvalidTokenClassException(reader.Current, TokenClass.Number | TokenClass.Char, labelsContext.CurrentModule, labelsContext.CurrentRegion);
                         //throw ParserException.Create($"Expected Number or Char token, got {reader.Current.Class}", reader.Current);
                 }
             } else {
@@ -146,7 +146,7 @@ namespace Assembler.Parsers {
 
             while (regsToResolveCount-- > 0 && reader.Read()) {
                 if (reader.Current is not RegisterToken registerToken) {
-                    throw new InvalidTokenClassException(reader.Current, TokenClass.Register);
+                    throw new InvalidTokenClassException(reader.Current, TokenClass.Register, labelsContext.CurrentModule, labelsContext.CurrentRegion);
                     //throw ParserException.Create($"Expected register token, got {reader.Current.Class}", reader.Current);
                 }
 
