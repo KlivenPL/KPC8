@@ -26,6 +26,8 @@ namespace Assembler.Commands {
             var udr = (UserDefinedRegion)labelsContext.CurrentRegion;
             if (!udr.IsExported) {
                 Defreg(reader, identifierToken, regToken);
+            } else {
+                AddDebugSymbol(identifierToken, regToken);
             }
         }
 
@@ -36,7 +38,11 @@ namespace Assembler.Commands {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
 
-            AddConstantDebugSymbol?.Invoke(new DebugData.ConstantValueSymbol(identifierToken.LineNumber, identifierToken.Value, regToken.Value.ToString(), true));
+            AddDebugSymbol(identifierToken, regToken);
+        }
+
+        private void AddDebugSymbol(IdentifierToken identifierToken, RegisterToken regToken) {
+            AddConstantDebugSymbol?.Invoke(new DebugData.ConstantValueSymbol(identifierToken.FilePath, identifierToken.LineNumber, identifierToken.Value, regToken.Value.ToString(), true));
         }
     }
 }

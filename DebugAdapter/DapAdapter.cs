@@ -20,7 +20,8 @@ namespace DebugAdapter {
 
         private readonly DapAdapterConfiguration configuration;
         private readonly DebugSessionController sessionController;
-        private readonly Source source;
+        private readonly IEnumerable<Source> sources;
+        //private readonly IEnumerable<string> filePaths;
 
         private DebugInfo debugInfo;
         private bool pauseAtEntry;
@@ -33,7 +34,7 @@ namespace DebugAdapter {
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
             this.sessionController = sessionController;
-            source = new Source { Path = configuration?.SourceFilePath };
+            sources = configuration.SourceFilePaths.Select(x => new Source { Path = x }).ToList();
 
             InitializeProtocolClient(stdIn, stdOut);
         }
@@ -82,9 +83,9 @@ namespace DebugAdapter {
             Console.WriteLine("are equal: " + ComparePaths(arguments.Source.Path, this.source.Path));*/
 
             // PRZYWROCOC
-            if (!PathComparer.Compare(arguments.Source.Path, this.source.Path)) {
+            if (!PathComparer.Contains(arguments.Source.Path, configuration.SourceFilePaths)) {
                 return new SetBreakpointsResponse {
-                    Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint()).ToList()
+                    Breakpoints = arguments.Breakpoints.Select(x => x.ToUnverifiedBreakpoint(arguments.Source.Path)).ToList()
                 };
             }
 
@@ -102,15 +103,15 @@ namespace DebugAdapter {
             var verified = possibleBreakpoints.Where(pb => arguments.Breakpoints.Any(abp => pb.Line == abp.Line && pb.Column == abp.Column));*/
 
             List<Breakpoint> resultBps = new List<Breakpoint>(arguments.Breakpoints.Count);
-            List<(int line, int column)> acceptedBreakpoints = new List<(int line, int column)>();
+            List<(string filePath, int line, int column)> acceptedBreakpoints = new List<(string filePath, int line, int column)>();
 
             foreach (var abp in arguments.Breakpoints) {
-                var acceptedBp = possibleBreakpoints.FirstOrDefault(pb => pb.Line == abp.Line && (pb.Column == abp.Column || abp.Column == null));
+                var acceptedBp = possibleBreakpoints.FirstOrDefault(pb => pb.FilePath.ComparePath(arguments.Source.Path) && pb.Line == abp.Line && (pb.Column == abp.Column || abp.Column == null));
                 if (acceptedBp != null) {
-                    resultBps.Add(acceptedBp.ToVerifiedBreakpoint(source));
-                    acceptedBreakpoints.Add((acceptedBp.Line, acceptedBp.Column));
+                    resultBps.Add(acceptedBp.ToVerifiedBreakpoint());
+                    acceptedBreakpoints.Add((acceptedBp.FilePath, acceptedBp.Line, acceptedBp.Column));
                 } else {
-                    resultBps.Add(abp.ToUnverifiedBreakpoint());
+                    resultBps.Add(abp.ToUnverifiedBreakpoint(arguments.Source.Path));
                 }
             }
 
@@ -218,7 +219,7 @@ namespace DebugAdapter {
         protected override StackTraceResponse HandleStackTraceRequest(StackTraceArguments arguments) {
             return new StackTraceResponse {
                 StackFrames = debugInfo.Frames
-                    .Select(x => x.ToStackFrame(source, arguments))
+                    .Select(x => x.ToStackFrame(arguments))
                     .ToList()
             };
         }
@@ -227,7 +228,7 @@ namespace DebugAdapter {
             return new ScopesResponse {
                 Scopes = debugInfo.Frames
                     .First().Scopes
-                    .Select(s => s.ToScope(source))
+                    .Select(s => s.ToScope())
                     .ToList()
             };
         }
@@ -274,14 +275,15 @@ namespace DebugAdapter {
         }
 
         protected override EvaluateResponse HandleEvaluateRequest(EvaluateArguments arguments) {
-            var split = arguments.Expression.Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries);
+            var split = arguments.Expression.Split(new string[] { ":/?" }, StringSplitOptions.RemoveEmptyEntries);
 
-            if (split.Length != 2) {
+            if (split.Length != 3) {
                 return new EvaluateResponse { Result = null };
             }
 
             var name = split[0];
             int.TryParse(split[1], out var line);
+            var filePath = split[2];
 
             try {
                 if (name.StartsWith('$')) {
@@ -291,7 +293,7 @@ namespace DebugAdapter {
                     };
                 }
 
-                var constantValue = debugInfo.ConstantValues.First(x => x.Line <= line + 1 && x.Name == name);
+                var constantValue = debugInfo.ConstantValues.First(x => x.FilePath.ComparePath(filePath) && x.Line <= line + 1 && x.Name == name);
                 return new EvaluateResponse {
                     Result = constantValue.IsRegisterAlias
                         ? $"{constantValue.Name} (${constantValue.RegisterName}) = {constantValue.Value}"

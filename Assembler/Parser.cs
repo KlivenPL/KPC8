@@ -14,7 +14,7 @@ namespace Assembler {
     public class Parser {
 
         private readonly LabelsContext labelsContext;
-        private readonly RegionParser regionParser;
+        private readonly RegionPreParser regionParser;
         private readonly InstructionParser instructionParser;
         private readonly CommandParser commandParser;
         private readonly PseudoinstructionParser pseudoinstructionParser;
@@ -22,7 +22,7 @@ namespace Assembler {
         private readonly InstructionEncoder instructionEncoder;
 
         public Parser() {
-            regionParser = new RegionParser();
+            regionParser = new RegionPreParser();
             labelsContext = new LabelsContext(regionParser);
             instructionEncoder = new InstructionEncoder();
             instructionParser = new InstructionParser(new InstructionsContext(), instructionEncoder, labelsContext);
@@ -38,27 +38,51 @@ namespace Assembler {
             var debugSymbolList = new List<IDebugSymbol>();
             LabelToken lastUnresolvedLabelToken = null;
 
-            {
-                var clonedReader = reader.Clone();
+            reader.Read();
 
-                if (!labelsContext.TryPreParseRegions(clonedReader, out var mainLabelIdentifier, out var errorMessage)) {
-                    throw ParserException.Create($"Error while parsing regions: {errorMessage}", clonedReader.Current);
+            InsertModules(ref reader);
+
+            PreParseAllRegions(ref reader);
+
+            ParseTokens(ref reader, romBuilder, debugSymbolList, ref lastUnresolvedLabelToken);
+
+            labelsContext.ResetCurrentModuleAndRegion();
+
+            ResolvePseudoinstructions(romBuilder, debugSymbolList);
+
+            debugSymbols = debugSymbolList;
+            return romBuilder.Build();
+        }
+
+        private void InsertModules(ref TokenReader reader) {
+            var constRegion = regionParser.PreParseConstRegion(reader);
+            var tokens = reader.GetTokens();
+            tokens.AddRange(constRegion.InsertedModuleTokens);
+            reader = new TokenReader(tokens, 0);
+        }
+
+        private void ResolvePseudoinstructions(RomBuilder romBuilder, List<IDebugSymbol> debugSymbolList) {
+            foreach (var unresolvedPseudoinstruction in unresolvedPseudoinstructions) {
+                if (!labelsContext.TryResolveLabelNotResolvedException(unresolvedPseudoinstruction, out var address)) {
+                    throw ParserException.Create($"Unresolved label identifier: {unresolvedPseudoinstruction.ArgumentToken}", unresolvedPseudoinstruction.ArgumentToken);
                 }
 
-                var tokens = clonedReader.GetTokens();
-                var jlToken = new IdentifierToken("jl", 0, -1, null);
-                var mainIdentifier = new IdentifierToken(mainLabelIdentifier, 0, -1, null);
-                tokens.InsertRange(0, new IToken[] { jlToken, mainIdentifier });
-                reader = new TokenReader(tokens);
+                var pseudoinstruction = unresolvedPseudoinstruction.Resolve(address);
+                romBuilder.NextAddress = unresolvedPseudoinstruction.Address;
+                romBuilder.Unreserve(unresolvedPseudoinstruction.SizeInBytes);
+                romBuilder.AddPseudoinstruction(pseudoinstruction, out var loAddress);
+                debugSymbolList.Add(new ExecutableSymbol(unresolvedPseudoinstruction.PseudoinstructionToken, loAddress));
             }
+        }
 
+        private void ParseTokens(ref TokenReader reader, RomBuilder romBuilder, List<IDebugSymbol> debugSymbolList, ref LabelToken lastUnresolvedLabelToken) {
             var origReader = reader.Clone();
             while (reader.Read()) {
                 switch (reader.Current.Class) {
                     case TokenClass.Identifier:
                         // obejscie pierwszego jl do main label (romBuilder.NextAddress != 0)
-                        if (romBuilder.NextAddress != 0 && labelsContext.CurrentRegion.Name == RegionParser.ConstRegionName) {
-                            throw ParserException.Create($"Identifiers are not allowed in reserved region {RegionParser.ConstRegionName}", reader.Current);
+                        if (romBuilder.NextAddress != 0 && labelsContext.CurrentRegion.Name == RegionPreParser.ConstRegionName) {
+                            throw ParserException.Create($"Identifiers are not allowed in reserved region {RegionPreParser.ConstRegionName}", reader.Current);
                         }
                         reader = ParseIdentifier(reader, romBuilder, debugSymbolList, ref lastUnresolvedLabelToken);
                         break;
@@ -67,7 +91,7 @@ namespace Assembler {
                         break;
                     case TokenClass.Region:
                         var regionToken = reader.CastCurrent<RegionToken>();
-                        if (regionToken.Value.ToLower() == RegionParser.ModuleRegionName) {
+                        if (regionToken.Value.ToLower() == RegionPreParser.ModuleRegionName) {
                             reader.Read();
                             var moduleNameToken = reader.CastCurrent<IdentifierToken>();
                             labelsContext.SetCurrentModule(moduleNameToken);
@@ -83,30 +107,21 @@ namespace Assembler {
                 }
             }
             reader = origReader;
+        }
 
-            labelsContext.ResetCurrentModuleAndRegion();
+        private void PreParseAllRegions(ref TokenReader reader) {
+            //  var clonedReader = reader.Clone();
 
-            foreach (var unresolvedPseudoinstruction in unresolvedPseudoinstructions) {
-                /*var label = unresolvedPseudoinstruction.ArgumentToken.Value.Contains('.') ?
-                    unresolvedPseudoinstruction.ArgumentToken.Value : $"{unresolvedPseudoinstruction.Region}.{unresolvedPseudoinstruction.ArgumentToken.Value}";
-
-                if (!labelsContext.TryFindLabel(label, out var address) || !address.HasValue) {
-                    throw ParserException.Create($"Unresolved label identifier: {unresolvedPseudoinstruction.ArgumentToken}", unresolvedPseudoinstruction.ArgumentToken);
-                }*/
-
-                if (!labelsContext.TryResolveLabelNotResolvedException(unresolvedPseudoinstruction, out var address)) {
-                    throw ParserException.Create($"Unresolved label identifier: {unresolvedPseudoinstruction.ArgumentToken}", unresolvedPseudoinstruction.ArgumentToken);
-                }
-
-                var pseudoinstruction = unresolvedPseudoinstruction.Resolve(address);
-                romBuilder.NextAddress = unresolvedPseudoinstruction.Address;
-                romBuilder.Unreserve(unresolvedPseudoinstruction.SizeInBytes);
-                romBuilder.AddPseudoinstruction(pseudoinstruction, out var loAddress);
-                debugSymbolList.Add(new ExecutableSymbol(unresolvedPseudoinstruction.PseudoinstructionToken, loAddress));
+            if (!labelsContext.TryPreParseRegions(reader, out var mainLabelIdentifier, out var errorMessage)) {
+                throw ParserException.Create($"Error while parsing regions: {errorMessage}", reader.Current);
             }
 
-            debugSymbols = debugSymbolList;
-            return romBuilder.Build();
+            // var tokens = clonedReader.GetTokens();
+            var tokens = reader.GetTokens();
+            var jlToken = new IdentifierToken("jl", 0, -1, null);
+            var mainIdentifier = new IdentifierToken(mainLabelIdentifier, 0, -1, null);
+            tokens.InsertRange(0, new IToken[] { jlToken, mainIdentifier });
+            reader = new TokenReader(tokens);
         }
 
         private TokenReader ParseIdentifier(TokenReader reader, RomBuilder romBuilder, List<IDebugSymbol> debugSymbolList, ref LabelToken lastUnresolvedLabelToken) {

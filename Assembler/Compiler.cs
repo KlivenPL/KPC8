@@ -15,7 +15,7 @@ namespace Assembler {
             var defaultPath = Directory.GetCurrentDirectory();
             Directory.SetCurrentDirectory(fileDirectory.FullName);
 
-            var program = Compile(src, out debugSymbols);
+            var program = Compile(path, src, out debugSymbols);
 
             Directory.SetCurrentDirectory(defaultPath);
             return program;
@@ -34,9 +34,9 @@ namespace Assembler {
             return reader.ReadToEnd();
         }
 
-        private static BitArray[] Compile(string input, out IEnumerable<IDebugSymbol> debugSymbols) {
+        private static BitArray[] Compile(string path, string input, out IEnumerable<IDebugSymbol> debugSymbols) {
             using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            using var codeReader = new CodeReader(ms);
+            using var codeReader = new CodeReader(ms, path);
             var tokens = new Tokenizer().Tokenize(codeReader).ToList();
             var tokenReader = new TokenReader(tokens);
             var parser = new Parser();

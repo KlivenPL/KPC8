@@ -8,11 +8,11 @@ using System.Linq;
 
 namespace Assembler.Contexts.Labels {
     partial class LabelsContext {
-        private readonly RegionParser regionParser;
+        private readonly RegionPreParser regionParser;
 
         private ModuleRegion[] modules;
 
-        public LabelsContext(RegionParser regionParser) {
+        public LabelsContext(RegionPreParser regionParser) {
             this.regionParser = regionParser;
             CurrentModule = null;
             CurrentRegion = null;

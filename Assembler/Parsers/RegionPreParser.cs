@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Assembler.Parsers {
-    internal class RegionParser {
+    internal class RegionPreParser {
         public const string GlobalRegionName = "@global";
         public const string ConstRegionName = "@const";
         public const string ModuleRegionName = "@module";

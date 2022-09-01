@@ -53,6 +53,10 @@ namespace Player.Loaders {
             debugSymbols = null;
             compileErrors = null;
 
+            if (string.IsNullOrWhiteSpace(programContext.SourceFile?.FullName)) {
+                return false;
+            }
+
             try {
                 program = Compiler.CompileFromFile(programContext.SourceFile.FullName, out debugSymbols);
                 return true;

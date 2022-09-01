@@ -3,12 +3,16 @@
 namespace Assembler.DebugData {
     public class ConstantValueSymbol : IDebugSymbol {
 
-        public ConstantValueSymbol(int line, string name, string value, bool isRegisterAlias) {
+        public ConstantValueSymbol(string filePath, int line, string name, string value, bool isRegisterAlias) {
+            FilePath = filePath;
             Line = line;
             Name = name;
             Value = value;
             IsRegisterAlias = isRegisterAlias;
         }
+
+        [JsonProperty("f")]
+        public string FilePath { get; init; }
 
         [JsonProperty("l")]
         public int Line { get; init; }

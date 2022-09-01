@@ -6,6 +6,7 @@ namespace Assembler.Tokens {
         bool TryAccept(CodeReader reader);
         int CodePosition { get; }
         int LineNumber { get; }
+        string FilePath { get; }
 
         IToken DeepCopy();
     }

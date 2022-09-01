@@ -24,7 +24,7 @@ namespace Assembler._Infrastructure {
         }
 
         private static string CreateExceptionDetails(CodeReader codeReader) {
-            return $"At line {codeReader.Line}, pos {codeReader.Position}, near ...{codeReader.LineText.Right(30)}...";
+            return $"In file {codeReader.FilePath}:{codeReader.Line}, pos {codeReader.Position}, near ...{codeReader.LineText.Right(30)}...";
         }
     }
 }

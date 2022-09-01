@@ -1,4 +1,5 @@
 ﻿using _Infrastructure.BitArrays;
+using _Infrastructure.Paths;
 using Assembler.DebugData;
 using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
@@ -13,6 +14,7 @@ using Runner.Debugger.Managers;
 using Simulation.Loops;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -179,13 +181,15 @@ namespace Runner.Debugger {
 
             var registersVariableInfos = GetRegisters();
             var internalRegistersVariableInfos = GetInternalRegisters().ToArray();
+            breakpointManager.GetBreakpointData(hitBreakpointId, out var filePath, out var line);
 
             DebugInfo data = new DebugInfo {
                 HitBreakpointId = hitBreakpointId,
                 ConstantValues = constantValuesManager.GetValues(registersVariableInfos.Concat(internalRegistersVariableInfos)).OrderByDescending(x => x.Line),
                 Frames = new StackFrameInfo[] {
                     new StackFrameInfo {
-                        Line = breakpointManager.GetLineOfBreakpoint(hitBreakpointId),
+                        Line = line,
+                        FilePath = filePath,
                         Scopes = new ScopeInfo [] {
                             new ScopeInfo {
                                 Name = "Registers",
@@ -242,8 +246,8 @@ namespace Runner.Debugger {
 
         private void HandleDebugWrite(IEnumerable<DebugWriteSymbol> debugWrites, IEnumerable<VariableInfo> allRegisterInfos, IEnumerable<ConstantValueInfo> constantValues) {
 
-            foreach (var (debugMessage, line) in debugWriteManager.GetValues(debugWrites, TryGetRegister, TryGetConstant, TryEvaluateExpression)) {
-                OutputEvent?.Invoke(OutputType.Stdout, $"[DebugWrite:{line}] {debugMessage}\n");
+            foreach (var (debugMessage, filePath, line) in debugWriteManager.GetValues(debugWrites, TryGetRegister, TryGetConstant, TryEvaluateExpression)) {
+                OutputEvent?.Invoke(OutputType.Stdout, $"[DebugWrite {Path.GetFileName(filePath)}:{line}] {debugMessage}\n");
             }
 
             bool TryGetRegister(string name, out string value) {
@@ -251,18 +255,18 @@ namespace Runner.Debugger {
                 return value != null;
             }
 
-            bool TryGetConstant(string name, int line, out string value) {
-                value = constantValues.FirstOrDefault(x => x.Name == name && x.Line <= line + 1)?.Value;
+            bool TryGetConstant(string name, string filePath, int line, out string value) {
+                value = constantValues.FirstOrDefault(x => x.FilePath.ComparePath(filePath) && x.Name == name && x.Line <= line + 1)?.Value;
                 return value != null;
             }
 
-            bool TryEvaluateExpression(string expression, int line, out string value) {
+            bool TryEvaluateExpression(string expression, string filePath, int line, out string value) {
                 if (expression.Equals("time", StringComparison.OrdinalIgnoreCase)) {
                     value = DateTime.Now.ToString("HH:mm:ss:fff");
                     return true;
                 }
 
-                var parameters = GetAllParameters(expression, line).ToArray();
+                var parameters = GetAllParameters(expression, filePath, line).ToArray();
 
                 if (expression.StartsWith("ram", StringComparison.OrdinalIgnoreCase)) {
                     if (parameters.Length != 1) {
@@ -285,21 +289,21 @@ namespace Runner.Debugger {
                 value = "Unknown expression";
                 return false;
 
-                IEnumerable<ushort> GetAllParameters(string str, int line) {
+                IEnumerable<ushort> GetAllParameters(string str, string filePath, int line) {
                     var matches = Regex.Matches(str, @"\((.*?)\)");
 
                     foreach (Match match in matches.Where(m => m.Success && m.Groups.Count == 2)) {
                         var split = match.Groups[1].Value.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                         foreach (var arg in split) {
-                            if (TryGetValueFromRegisterOrConstant(arg, line, out var result)) {
+                            if (TryGetValueFromRegisterOrConstant(arg, filePath, line, out var result)) {
                                 yield return result;
                             }
                         }
                     }
                 }
 
-                bool TryGetValueFromRegisterOrConstant(string value, int line, out ushort result) {
+                bool TryGetValueFromRegisterOrConstant(string value, string filePath, int line, out ushort result) {
                     if (value[0] == '-') {
                         if (short.TryParse(value, out var signedResult)) {
                             result = (ushort)signedResult;
@@ -330,7 +334,7 @@ namespace Runner.Debugger {
                         return TryGetRegister(value[1..], out result);
                     }
 
-                    return TryGetConstant(value, line, out result);
+                    return TryGetConstant(value, filePath, line, out result);
                 }
 
                 bool TryGetRegister(string name, out ushort value) {
@@ -340,9 +344,9 @@ namespace Runner.Debugger {
                     return posValue.HasValue;
                 }
 
-                bool TryGetConstant(string name, int line, out ushort value) {
+                bool TryGetConstant(string name, string filePath, int line, out ushort value) {
                     value = 0;
-                    var posValue = constantValues.FirstOrDefault(x => x.Name == name && x.Line <= line + 1)?.ValueRaw;
+                    var posValue = constantValues.FirstOrDefault(x => x.FilePath.ComparePath(filePath) && x.Name == name && x.Line <= line + 1)?.ValueRaw;
                     value = posValue ?? 0;
                     return posValue.HasValue;
                 }
@@ -393,7 +397,7 @@ namespace Runner.Debugger {
         }
 
         /// <returns>Successfully placed breakpoints</returns>
-        internal IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
+        internal IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(string filePath, int line, int column)> proposedBreakpoints) {
             //OutputEvent(OutputType.Stdout, "SET BRP: " + breakpointManager);
             return breakpointManager.SetBreakpoints(proposedBreakpoints);
         }

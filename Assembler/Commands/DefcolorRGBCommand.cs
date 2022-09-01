@@ -26,6 +26,12 @@ namespace Assembler.Commands {
             var udr = (UserDefinedRegion)labelsContext.CurrentRegion;
             if (!udr.IsExported) {
                 DefcolorRGB(reader, identifierToken, r8Token, g8Token, b8Token);
+            } else {
+                byte r5b = (byte)(r8Token.Value / 8);
+                byte g5b = (byte)(g8Token.Value / 8);
+                byte b5b = (byte)(b8Token.Value / 8);
+
+                AddDebugSymbol(identifierToken, r5b, g5b, b5b);
             }
         }
 
@@ -49,7 +55,11 @@ namespace Assembler.Commands {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
 
-            AddConstantDebugSymbol?.Invoke(new DebugData.ConstantValueSymbol(identifierToken.LineNumber, identifierToken.Value, $"R:{r5b} G:{g5b} B:{b5b}", false));
+            AddDebugSymbol(identifierToken, r5b, g5b, b5b);
+        }
+
+        private void AddDebugSymbol(IdentifierToken identifierToken, byte r5b, byte g5b, byte b5b) {
+            AddConstantDebugSymbol?.Invoke(new DebugData.ConstantValueSymbol(identifierToken.FilePath, identifierToken.LineNumber, identifierToken.Value, $"R:{r5b} G:{g5b} B:{b5b}", false));
         }
     }
 }

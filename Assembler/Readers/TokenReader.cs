@@ -32,7 +32,7 @@ namespace Assembler.Readers {
             size = this.tokens.Length;
         }
 
-        private TokenReader(IEnumerable<IToken> tokens, int position) : this(tokens) {
+        public TokenReader(IEnumerable<IToken> tokens, int position) : this(tokens) {
             Position = position == -1 ? -1 : position - 1;
             Read();
         }

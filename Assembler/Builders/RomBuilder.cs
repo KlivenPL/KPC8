@@ -57,7 +57,7 @@ namespace Assembler.Builders {
 
         public RomBuilder AddByte(BitArray @byte) {
             if (overflow) {
-                throw new System.Exception("Out of memory");
+                throw new System.Exception("Out of memory or tried to write outside the bounds (64k ROM is MAX)");
             }
 
             if (@byte.Length != 8) {
@@ -75,6 +75,10 @@ namespace Assembler.Builders {
         }
 
         public void Reserve(int size) {
+            if (nextAddress + size > reservedAddresses.Length) {
+                throw new System.Exception("Out of memory or tried to write outside the bounds (64k ROM is MAX)");
+            }
+
             for (int i = 0; i < size; i++) {
                 reservedAddresses[nextAddress + i] = true;
             }

@@ -5,6 +5,7 @@ using System.Linq;
 namespace Runner.Debugger.DebugData {
     public class ConstantValueInfo {
 
+        public string FilePath { get; init; }
         public int Line { get; init; }
         public string Name { get; init; }
         public string Value { get; init; }
@@ -13,7 +14,8 @@ namespace Runner.Debugger.DebugData {
         public bool IsRegisterAlias { get; init; }
         public string RegisterName { get; init; }
 
-        internal ConstantValueInfo(int line, string name, string value) {
+        internal ConstantValueInfo(string filePath, int line, string name, string value) {
+            FilePath = filePath;
             Line = line;
             Name = name;
             Value = value;
@@ -22,7 +24,7 @@ namespace Runner.Debugger.DebugData {
             }
         }
 
-        internal ConstantValueInfo(int line, string name, string registerName, IEnumerable<VariableInfo> variables) {
+        internal ConstantValueInfo(string filePath, int line, string name, string registerName, IEnumerable<VariableInfo> variables) {
             Line = line;
             Name = name;
             var reg = variables.FirstOrDefault(x => x.Name == registerName);
@@ -30,6 +32,7 @@ namespace Runner.Debugger.DebugData {
             ValueRaw = reg?.ValueRaw?.ToUShortLE();
             IsRegisterAlias = reg != null;
             RegisterName = registerName;
+            FilePath = filePath;
         }
     }
 }

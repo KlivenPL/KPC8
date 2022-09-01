@@ -48,7 +48,7 @@ namespace Assembler {
 
         private static void Process(string inputFilePath, string outputFilePath, string outputDebugSymbolsFilePath, out IEnumerable<IDebugSymbol> debugSymbols) {
             var src = LoadSourceFile(inputFilePath);
-            var compiled = Compile(src, out debugSymbols);
+            var compiled = Compile(inputFilePath, src, out debugSymbols);
             SaveToBinaryFile(compiled, outputFilePath);
             SaveDebugSymbolsToJson(debugSymbols, outputDebugSymbolsFilePath);
         }
@@ -60,9 +60,9 @@ namespace Assembler {
             return reader.ReadToEnd();
         }
 
-        private static BitArray[] Compile(string input, out IEnumerable<IDebugSymbol> debugSymbols) {
+        private static BitArray[] Compile(string path, string input, out IEnumerable<IDebugSymbol> debugSymbols) {
             using var ms = new MemoryStream(Encoding.ASCII.GetBytes(input));
-            using var codeReader = new CodeReader(ms);
+            using var codeReader = new CodeReader(ms, path);
             var tokens = new Tokenizer().Tokenize(codeReader).ToList();
             var tokenReader = new TokenReader(tokens);
             var parser = new Parser();

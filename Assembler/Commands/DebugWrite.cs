@@ -12,7 +12,7 @@ namespace Assembler.Commands {
 
         protected override void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder) {
             ParseParameters<StringToken>(reader, out var dbgStrToken);
-            AddDebugWriteSymbol(new DebugWriteSymbol((ushort)(romBuilder.NextAddress + 1), dbgStrToken.LineNumber, dbgStrToken.Value));
+            AddDebugWriteSymbol(new DebugWriteSymbol(dbgStrToken.FilePath, (ushort)(romBuilder.NextAddress + 1), dbgStrToken.LineNumber, dbgStrToken.Value));
         }
     }
 }

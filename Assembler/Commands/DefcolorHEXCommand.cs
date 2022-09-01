@@ -26,6 +26,23 @@ namespace Assembler.Commands {
             var udr = (UserDefinedRegion)labelsContext.CurrentRegion;
             if (!udr.IsExported) {
                 DefcolorHEX(reader, identifierToken, hexColorToken);
+            } else {
+                if (!byte.TryParse(hexColorToken.Value.Substring(1, 2), System.Globalization.NumberStyles.HexNumber, null, out var r8b)) {
+                    throw ParserException.Create("HEX Color must be in format #XXXXXX. Then it is converted to 15-bit space.", identifierToken);
+                }
+
+                if (!byte.TryParse(hexColorToken.Value.Substring(3, 2), System.Globalization.NumberStyles.HexNumber, null, out var g8b)) {
+                    throw ParserException.Create("HEX Color must be in format #XXXXXX. Then it is converted to 15-bit space.", identifierToken);
+                }
+
+                if (!byte.TryParse(hexColorToken.Value.Substring(5, 2), System.Globalization.NumberStyles.HexNumber, null, out var b8b)) {
+                    throw ParserException.Create("HEX Color must be in format #XXXXXX. Then it is converted to 15-bit space.", identifierToken);
+                }
+
+                byte r5b = (byte)(r8b / 8);
+                byte g5b = (byte)(g8b / 8);
+                byte b5b = (byte)(b8b / 8);
+                AddDebugSymbol(identifierToken, r5b, g5b, b5b);
             }
         }
 
@@ -61,7 +78,11 @@ namespace Assembler.Commands {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
 
-            AddConstantDebugSymbol?.Invoke(new DebugData.ConstantValueSymbol(identifierToken.LineNumber, identifierToken.Value, $"R:{r5b} G:{g5b} B:{b5b}", false));
+            AddDebugSymbol(identifierToken, r5b, g5b, b5b);
+        }
+
+        private void AddDebugSymbol(IdentifierToken identifierToken, byte r5b, byte g5b, byte b5b) {
+            AddConstantDebugSymbol?.Invoke(new DebugData.ConstantValueSymbol(identifierToken.FilePath, identifierToken.LineNumber, identifierToken.Value, $"R:{r5b} G:{g5b} B:{b5b}", false));
         }
     }
 }

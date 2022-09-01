@@ -106,7 +106,7 @@ namespace Tests.AssemblerTests.Parsers {
         }
 
         private static InstructionParser CreateParser() {
-            return new InstructionParser(new InstructionsContext(), new InstructionEncoder(), new LabelsContext(new RegionParser()));
+            return new InstructionParser(new InstructionsContext(), new InstructionEncoder(), new LabelsContext(new RegionPreParser()));
         }
     }
 }

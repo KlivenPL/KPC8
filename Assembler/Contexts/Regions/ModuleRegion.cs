@@ -85,7 +85,7 @@ namespace Assembler.Contexts.Regions {
         }
 
         public void InsertToken(string name, IToken token) {
-            throw new OtherInnerException($"Constant definition is not allowd in reserved {RegionParser.ModuleRegionName} regions");
+            throw new OtherInnerException($"Constant definition is not allowd in reserved {RegionPreParser.ModuleRegionName} regions");
         }
 
         public void AddAwaitingForExportRegionName(string awaitingForExportRegionName) {
@@ -102,11 +102,11 @@ namespace Assembler.Contexts.Regions {
         }
 
         public LabelInfo GetLabel(string labelName) {
-            throw new OtherInnerException($"{RegionParser.ModuleRegionName} region cannot contain labels");
+            throw new OtherInnerException($"{RegionPreParser.ModuleRegionName} region cannot contain labels");
         }
 
         public TokenInfo GetToken(string tokenName) {
-            throw new OtherInnerException($"{RegionParser.ModuleRegionName} region cannot contain tokens");
+            throw new OtherInnerException($"{RegionPreParser.ModuleRegionName} region cannot contain tokens");
         }
 
         private static void PreParseCommand(TokenReader reader, ModuleRegion region, CommandToken commandToken) {

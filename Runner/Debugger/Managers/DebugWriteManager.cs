@@ -8,8 +8,8 @@ namespace Runner.Debugger.Managers {
         private readonly DebugWriteSymbol[] _debugWrites;
 
         public delegate bool TryGetRegisterDelegate(string name, out string value);
-        public delegate bool TryGetConstantDelegate(string name, int line, out string value);
-        public delegate bool TryEvaluateExpressionDelegate(string expression, int line, out string value);
+        public delegate bool TryGetConstantDelegate(string name, string filePath, int line, out string value);
+        public delegate bool TryEvaluateExpressionDelegate(string expression, string filePath, int line, out string value);
 
         internal DebugWriteManager(IEnumerable<IDebugSymbol> debugSymbols) {
             _debugWrites = debugSymbols
@@ -22,7 +22,7 @@ namespace Runner.Debugger.Managers {
             return debugWrites.Any();
         }
 
-        public IEnumerable<(string, int)> GetValues(IEnumerable<DebugWriteSymbol> debugWriteSymbols, TryGetRegisterDelegate tryGetRegisterValue, TryGetConstantDelegate tryGetConstantValue, TryEvaluateExpressionDelegate tryEvaluateExpression) {
+        public IEnumerable<(string, string, int)> GetValues(IEnumerable<DebugWriteSymbol> debugWriteSymbols, TryGetRegisterDelegate tryGetRegisterValue, TryGetConstantDelegate tryGetConstantValue, TryEvaluateExpressionDelegate tryEvaluateExpression) {
             return debugWriteSymbols.Select(debugWriteSymbol =>
                 (Regex.Replace(debugWriteSymbol.Value, "{(.*?)}", match => {
                     var line = debugWriteSymbol.Line;
@@ -37,18 +37,18 @@ namespace Runner.Debugger.Managers {
                     }
 
                     if (matchValue.StartsWith('%') && matchValue.EndsWith('%') && matchValue.Length > 2) {
-                        if (tryEvaluateExpression(matchValue[1..^1], debugWriteSymbol.Line, out var evalResult)) {
+                        if (tryEvaluateExpression(matchValue[1..^1], debugWriteSymbol.FilePath, debugWriteSymbol.Line, out var evalResult)) {
                             return evalResult;
                         }
                         return $"({evalResult})";
                     }
 
-                    if (tryGetConstantValue(matchValue, debugWriteSymbol.Line, out var constantValue)) {
+                    if (tryGetConstantValue(matchValue, debugWriteSymbol.FilePath, debugWriteSymbol.Line, out var constantValue)) {
                         return constantValue;
                     }
                     return "(undefined)";
 
-                }, RegexOptions.IgnoreCase), debugWriteSymbol.Line));
+                }, RegexOptions.IgnoreCase), debugWriteSymbol.FilePath, debugWriteSymbol.Line));
         }
     }
 }

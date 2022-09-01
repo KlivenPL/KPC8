@@ -8,14 +8,18 @@ using System.Linq;
 
 namespace Assembler.Contexts.Regions {
     internal class ConstRegion : IRegion {
+        private static readonly CommandsContext commandsContext = new CommandsContext();
         private readonly List<TokenInfo> tokens;
+        private readonly List<IToken> insertedModules;
 
         public ConstRegion() {
             tokens = new List<TokenInfo>();
+            insertedModules = new List<IToken>();
         }
 
-        public string Name => RegionParser.ConstRegionName;
+        public string Name => RegionPreParser.ConstRegionName;
         public bool IsReserved => true;
+        public IEnumerable<IToken> InsertedModuleTokens => insertedModules;
 
         public static IRegion PreParse(TokenReader reader) {
             if (reader.Current is not RegionToken) {
@@ -27,6 +31,10 @@ namespace Assembler.Contexts.Regions {
             do {
                 if (reader.Current is LabelToken) {
                     throw new OtherInnerException($"Cannot declare labels in reserved {region.Name} region");
+                }
+
+                if (reader.Current is CommandToken commandToken) {
+                    PreParseCommand(reader, region, commandToken);
                 }
             } while (reader.Read() && reader.Current is not RegionToken);
 
@@ -47,7 +55,17 @@ namespace Assembler.Contexts.Regions {
         }
 
         public LabelInfo GetLabel(string labelName) {
-            throw new OtherInnerException($"{RegionParser.ConstRegionName} region cannot contain labels");
+            throw new OtherInnerException($"{RegionPreParser.ConstRegionName} region cannot contain labels");
+        }
+
+        public void InsertModule(List<IToken> tokens) {
+            insertedModules.AddRange(tokens);
+        }
+
+        private static void PreParseCommand(TokenReader reader, ConstRegion region, CommandToken commandToken) {
+            if (commandsContext.TryGetPreCommand(commandToken.Value, out var command)) {
+                command.PreParse(reader, region);
+            }
         }
     }
 }

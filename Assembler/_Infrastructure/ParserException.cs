@@ -23,7 +23,7 @@ namespace Assembler._Infrastructure {
         }
 
         private static string CreateExceptionDetails(IToken token) {
-            return $"At line {token.LineNumber}, pos {token.CodePosition}, near ...{token}...";
+            return $"In file {token.FilePath}:{token.LineNumber}, pos {token.CodePosition}, near ...{token}...";
         }
     }
 }

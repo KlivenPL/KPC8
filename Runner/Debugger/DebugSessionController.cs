@@ -63,7 +63,7 @@ namespace Runner.Debugger {
             return debugSession.GetPossibleBreakpointLocations();
         }
 
-        public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
+        public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(string filePath, int line, int column)> proposedBreakpoints) {
             return debugSession.SetBreakpoints(proposedBreakpoints);
         }
 

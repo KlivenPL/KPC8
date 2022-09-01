@@ -29,7 +29,8 @@ namespace Player.Debugger {
             };
 
             var dapAdapterConfiguration = new DapAdapterConfiguration {
-                SourceFilePath = debugArgs.SourceFilePath,
+                SourceFilePaths = debugSymbols.OfType<ExecutableSymbol>().Select(x => x.FilePath).Distinct().Where(x => !string.IsNullOrWhiteSpace(x))
+                // SourceFilePath = debugArgs.SourceFilePath,
             };
 
             var debugSessionController = DebugSessionController.Factory.Create(kpc8Configuration, debugSessionConfiguration);

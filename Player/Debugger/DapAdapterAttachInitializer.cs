@@ -1,4 +1,5 @@
-﻿using DebugAdapter;
+﻿using Assembler.DebugData;
+using DebugAdapter;
 using DebugAdapter.Configuration;
 using Player._Configuration;
 using Player._Infrastructure.Events;
@@ -73,7 +74,8 @@ namespace Player.Debugger {
                 };
 
                 var dapAdapterConfiguration = new DapAdapterConfiguration {
-                    SourceFilePath = attachArgs.SourceFilePath,
+                    SourceFilePaths = attachArgs.DebugSymbols.OfType<ExecutableSymbol>().Select(x => x.FilePath).Distinct().Where(x => !string.IsNullOrWhiteSpace(x))
+                    // todo reszta konfiguracji
                 };
 
                 var kpcConfiguration = new KPC8Configuration {

@@ -1,4 +1,5 @@
-﻿using Assembler.DebugData;
+﻿using _Infrastructure.Paths;
+using Assembler.DebugData;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.DebugData.Internal;
 using System.Collections.Generic;
@@ -27,15 +28,14 @@ namespace Runner.Debugger.Managers {
             return possibleBps.Select(x => new BreakpointInfo(x));
         }
 
-        public int GetLineOfBreakpoint(int? breakpointId) {
-            if (breakpointId == null) {
-                return possibleBps.Last().Symbol.Line;
-            }
-            return possibleBps.First(x => x.Id == breakpointId).Symbol.Line;
+        public void GetBreakpointData(int? breakpointId, out string filePath, out int line) {
+            var bp = breakpointId == null ? possibleBps.Last() : possibleBps.First(x => x.Id == breakpointId);
+            filePath = bp.Symbol.FilePath;
+            line = bp.Symbol.Line;
         }
 
-        public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(int line, int column)> proposedBreakpoints) {
-            placedBps = possibleBps.Where(s => proposedBreakpoints.Any(pb => pb.line == s.Symbol.Line /*&& pb.column == s.Symbol.ColumnStart*/)).ToArray();
+        public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(string filePath, int line, int column)> proposedBreakpoints) {
+            placedBps = possibleBps.Where(s => proposedBreakpoints.Any(pb => pb.line == s.Symbol.Line && pb.filePath.ComparePath(s.Symbol.FilePath))).ToArray();
 
             if (placedBps.Any()) {
                 loAddressToPlacedBpId = placedBps.ToDictionary(x => x.Symbol.LoAddress, x => x.Id);

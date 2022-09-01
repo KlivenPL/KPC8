@@ -7,6 +7,7 @@ namespace Assembler.DebugData {
         private ushort? loAddress = null;
 
         internal ExecutableSymbol(IdentifierToken identifierToken) {
+            FilePath = identifierToken.FilePath;
             Line = identifierToken.LineNumber;
             ColumnStart = identifierToken.CodePosition;
             ColumnEnd = identifierToken.CodePosition + identifierToken.Value.Trim().Length;
@@ -15,6 +16,9 @@ namespace Assembler.DebugData {
         internal ExecutableSymbol(IdentifierToken identifierToken, ushort loAddress) : this(identifierToken) {
             Resolve(loAddress);
         }
+
+        [JsonProperty("f")]
+        public string FilePath { get; init; }
 
         [JsonProperty("l")]
         public int Line { get; init; }

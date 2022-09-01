@@ -15,7 +15,7 @@ namespace Runner.Debugger.Managers {
         }
 
         public IEnumerable<ConstantValueInfo> GetValues(IEnumerable<VariableInfo> variables) {
-            return _constantValues.Select(cv => cv.IsRegisterAlias ? new ConstantValueInfo(cv.Line, cv.Name, cv.Value, variables) : new ConstantValueInfo(cv.Line, cv.Name, cv.Value));
+            return _constantValues.Select(cv => cv.IsRegisterAlias ? new ConstantValueInfo(cv.FilePath, cv.Line, cv.Name, cv.Value, variables) : new ConstantValueInfo(cv.FilePath, cv.Line, cv.Name, cv.Value));
         }
     }
 }
