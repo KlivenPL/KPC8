@@ -38,14 +38,10 @@
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
-    <PackageReference Include="OpenGL.Net.WinForms" Version="0.8.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DebugAdapter\DebugAdapter.csproj" />
-    <ProjectReference Include="..\Infrastructure\_Infrastructure.csproj" />
-    <ProjectReference Include="..\KPC8\KPC8.csproj" />
-    <ProjectReference Include="..\Runner\Runner.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,10 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Components\Components.csproj" />
     <ProjectReference Include="..\ExternalDevices\ExternalDevices.csproj" />
-    <ProjectReference Include="..\Infrastructure\_Infrastructure.csproj" />
-    <ProjectReference Include="..\Simulation\Simulation.csproj" />
   </ItemGroup>
 
   <ItemGroup>

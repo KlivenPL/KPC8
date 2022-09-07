@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Assembler\Assembler.csproj" />
-    <ProjectReference Include="..\KPC8\KPC8.csproj" />
   </ItemGroup>
 
   <ItemGroup>
