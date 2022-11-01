@@ -1,5 +1,6 @@
 ﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
+using ExternalDevices._Infrastructure;
 using Infrastructure.BitArrays;
 using Simulation.Updates;
 using System;
@@ -8,9 +9,10 @@ using System.Text;
 using Vortice.XInput;
 
 namespace ExternalDevices.HID {
-    public class KPad : IODeviceBase, IExternalDevice, IUpdate {
+    public class KPad : IODeviceBase, IExternalDevice, IUpdate, IDisposable {
         private const int Size = 8;
         protected BitArray mainBuffer;
+        private readonly LowLevelKeyboardListener keyboardListener;
         public BitArray Content => new(mainBuffer);
         public SignalPort ChipSelect { get; set; }
         public SignalPort ExtIn { get; set; }
@@ -18,14 +20,47 @@ namespace ExternalDevices.HID {
         public KPadButtons SimulatedButtons { get; set; } = KPadButtons.None;
         public int Priority => -2;
 
+        private KPadButtons keyboardButtons = KPadButtons.None;
+
         public KPad(string name) : base(name) {
             mainBuffer = new(Size);
+            keyboardListener = new LowLevelKeyboardListener();
             base.Initialize(0, Size);
         }
 
         void IExternalDevice.InitializeExternalDevice() {
-            // ChipSelect.OnEdgeRise += ChipEnable_OnEdgeRise;
             this.RegisterUpdate();
+            keyboardListener.OnKeyPressed += OnKeyboardButtonPressed;
+            keyboardListener.HookKeyboard();
+        }
+
+        private void OnKeyboardButtonPressed(object sender, KeyPressedArgs e) {
+            switch (e.KeyPressed) {
+                case VirtualKey.A:
+                    keyboardButtons |= KPadButtons.Left;
+                    break;
+                case VirtualKey.D:
+                    keyboardButtons |= KPadButtons.Right;
+                    break;
+                case VirtualKey.S:
+                    keyboardButtons |= KPadButtons.Down;
+                    break;
+                case VirtualKey.W:
+                    keyboardButtons |= KPadButtons.Up;
+                    break;
+                case VirtualKey.Space:
+                    keyboardButtons |= KPadButtons.A;
+                    break;
+                case VirtualKey.Shift:
+                    keyboardButtons |= KPadButtons.B;
+                    break;
+                case VirtualKey.Tab:
+                    keyboardButtons |= KPadButtons.Select;
+                    break;
+                case VirtualKey.Enter:
+                    keyboardButtons |= KPadButtons.Start;
+                    break;
+            }
         }
 
         public void SetContent(BitArray value) {
@@ -34,14 +69,8 @@ namespace ExternalDevices.HID {
             }
         }
 
-        /*private void ChipEnable_OnEdgeRise() {
-
-
-            mainBuffer.SetAll(false);
-        }*/
-
         public virtual void Update() {
-            var buttons = SimulatedButtons;
+            var buttons = SimulatedButtons | keyboardButtons;
 
             if (XInput.GetState(0, out var state)) {
                 var padButtons = state.Gamepad.Buttons;
@@ -80,39 +109,6 @@ namespace ExternalDevices.HID {
 
             }
 
-            /* if (Console.KeyAvailable) {
-                 var keyInfo = Console.ReadKey(true);
-                 if (keyInfo.Key == ConsoleKey.E || keyInfo.Modifiers == ConsoleModifiers.Shift) {
-                     buttons |= KPadButtons.B;
-                 }
-
-                 if (keyInfo.Key == ConsoleKey.Spacebar) {
-                     buttons |= KPadButtons.A;
-                 }
-
-                 if (keyInfo.Key == ConsoleKey.Enter) {
-                     buttons |= KPadButtons.Start;
-                 } else if (keyInfo.Key == ConsoleKey.Tab) {
-                     buttons |= KPadButtons.Select;
-                 }
-
-                 if (keyInfo.Key == ConsoleKey.W) {
-                     buttons |= KPadButtons.Up;
-                 }
-
-                 if (keyInfo.Key == ConsoleKey.A) {
-                     buttons |= KPadButtons.Left;
-                 }
-
-                 if (keyInfo.Key == ConsoleKey.S) {
-                     buttons |= KPadButtons.Down;
-                 }
-
-                 if (keyInfo.Key == ConsoleKey.D) {
-                     buttons |= KPadButtons.Right;
-                 }
-             }*/
-
             if (buttons != KPadButtons.None) {
                 Console.WriteLine(buttons);
                 mainBuffer = BitArrayHelper.FromByteLE((byte)buttons);
@@ -123,6 +119,7 @@ namespace ExternalDevices.HID {
                     Outputs[i].Write(mainBuffer[i]);
                 }
                 mainBuffer.SetAll(false);
+                keyboardButtons = KPadButtons.None;
             }
         }
 
@@ -135,6 +132,7 @@ namespace ExternalDevices.HID {
         }
 
         public void Dispose() {
+            keyboardListener.UnHookKeyboard();
             this.UnregisterUpdate();
         }
     }

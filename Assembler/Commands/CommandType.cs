@@ -2,6 +2,7 @@
     public enum CommandType {
         None,
         SetAddress,
+        SetModuleAddress,
         Reserve,
         Ascii,
         Asciiz,

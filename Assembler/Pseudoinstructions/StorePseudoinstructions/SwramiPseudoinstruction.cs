@@ -1,4 +1,5 @@
-﻿using Assembler.Readers;
+﻿using Assembler._Infrastructure;
+using Assembler.Readers;
 using Assembler.Tokens;
 using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
@@ -17,6 +18,10 @@ namespace Assembler.Pseudoinstructions.StorePseudoinstructions {
 
             var rA = rAToken.Value;
             SplitWord(address16Token.Value, out var lower, out var higher);
+
+            if (DoesDestRegisterViolateDefaultRestrictions(rAToken)) {
+                throw ParserException.Create("Expected T1, T2 or T3 register", rAToken);
+            }
 
             yield return InstructionEncoder.Encode(McInstructionType.SetI, Regs.Ass, lower);
             yield return InstructionEncoder.Encode(McInstructionType.SethI, Regs.Ass, higher);

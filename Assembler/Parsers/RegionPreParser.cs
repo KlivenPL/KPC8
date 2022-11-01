@@ -42,12 +42,11 @@ namespace Assembler.Parsers {
             return mr;
         }
 
-        public void PreParseAllRegions(TokenReader reader, out string mainLabelIdentifier, out ConstRegion constRegion, out List<ModuleRegion> modules) {
+        public void PreParseAllRegions(TokenReader reader, ConstRegion constRegion, out string mainLabelIdentifier, out List<ModuleRegion> modules) {
             if (reader.Current is not RegionToken) {
                 throw new OtherInnerException("Could not parse required regions: given token is not region token");
             }
 
-            constRegion = PreParseConstRegion(reader);
             var prevModuleRegion = PreParseModuleRegion(reader, constRegion);
 
             mainLabelIdentifier = null;

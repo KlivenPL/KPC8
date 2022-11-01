@@ -2,6 +2,7 @@
 using Assembler.Builders;
 using Assembler.Contexts;
 using Assembler.Contexts.Labels;
+using Assembler.Contexts.Regions;
 using Assembler.DebugData;
 using Assembler.Encoders;
 using Assembler.Parsers;
@@ -40,9 +41,9 @@ namespace Assembler {
 
             reader.Read();
 
-            InsertModules(ref reader);
+            InsertModules(ref reader, out var constRegion);
 
-            PreParseAllRegions(ref reader);
+            PreParseAllRegions(ref reader, constRegion);
 
             ParseTokens(ref reader, romBuilder, debugSymbolList, ref lastUnresolvedLabelToken);
 
@@ -54,11 +55,12 @@ namespace Assembler {
             return romBuilder.Build();
         }
 
-        private void InsertModules(ref TokenReader reader) {
-            var constRegion = regionParser.PreParseConstRegion(reader);
+        private void InsertModules(ref TokenReader reader, out ConstRegion constRegion) {
+            constRegion = regionParser.PreParseConstRegion(reader);
+            var origPos = reader.Position;
             var tokens = reader.GetTokens();
             tokens.AddRange(constRegion.InsertedModuleTokens);
-            reader = new TokenReader(tokens, 0);
+            reader = new TokenReader(tokens, origPos);
         }
 
         private void ResolvePseudoinstructions(RomBuilder romBuilder, List<IDebugSymbol> debugSymbolList) {
@@ -109,10 +111,10 @@ namespace Assembler {
             reader = origReader;
         }
 
-        private void PreParseAllRegions(ref TokenReader reader) {
+        private void PreParseAllRegions(ref TokenReader reader, ConstRegion constRegion) {
             //  var clonedReader = reader.Clone();
 
-            if (!labelsContext.TryPreParseRegions(reader, out var mainLabelIdentifier, out var errorMessage)) {
+            if (!labelsContext.TryPreParseRegions(reader, constRegion, out var mainLabelIdentifier, out var errorMessage)) {
                 throw ParserException.Create($"Error while parsing regions: {errorMessage}", reader.Current);
             }
 

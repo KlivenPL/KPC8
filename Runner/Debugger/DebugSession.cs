@@ -81,7 +81,7 @@ namespace Runner.Debugger {
                 if (!paused) {
                     var pcCurrInstrAddress = (ushort)(kpc.ModulePanel.Memory.PcContent.ToUShortLE() - 1);
 
-                    if (debugWriteManager.IsDebugWriteHit(pcCurrInstrAddress, out var debugWrites)) {
+                    if (debugWriteManager.IsDebugWriteHit((ushort)(pcCurrInstrAddress + 2), out var debugWrites)) {
                         var allRegisters = GetRegisters().Concat(GetInternalRegisters());
                         HandleDebugWrite(debugWrites, allRegisters, constantValuesManager.GetValues(allRegisters).OrderByDescending(x => x.Line));
                     }
