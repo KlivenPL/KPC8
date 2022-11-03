@@ -13,8 +13,9 @@ namespace Runner.GraphicsRending {
         private const ushort SpriteSheetAddr = 0x10;
         private const ushort TilemapAddr = 0xF000;
         private const ushort AttribAddr = 0xF3C0;
-        private const ushort PaletteAddr = 0xF3FC;
-        private const ushort OemAddr = 0xF43D;
+        private const ushort SpritePaletteAddr = 0xF5A0;
+        private const ushort BgPaletteAddr = 0xF5E0;
+        private const ushort OemAddr = 0xF660;
 
         private const ushort SpritesheetColumnOffset = 16;
         private const ushort SpritesheetRowOffset = 0x100;
@@ -53,12 +54,12 @@ namespace Runner.GraphicsRending {
                 int pixelY = y % 8;
 
                 for (int x = 0; x < 40 * 8; x++) {
-                    byte tileId = ram((ushort)(TilemapAddr + y / 8 * 40 + x / 8)).ToByteLE();
+                    byte ssTileId = ram((ushort)(TilemapAddr + y / 8 * 40 + x / 8)).ToByteLE();
 
                     var pixelX = x % 8;
 
-                    var row = tileId / 16;
-                    var col = tileId % 16;
+                    var row = ssTileId / 16;
+                    var col = ssTileId % 16;
 
                     var mainOffset = (ushort)(SpriteSheetAddr + SpritesheetColumnOffset * col + row * SpritesheetRowOffset + pixelY);
 
@@ -67,10 +68,19 @@ namespace Runner.GraphicsRending {
 
                     byte bgColorByte = (byte)((bitA) | (bitB << 1)); // 0, 1, 2 or 3
 
-                    byte attribId = (byte)(y / 32 * 10 + x / 32);
+                    ushort tmTileId = (ushort)(y / 8 * 40 + x / 8);
+                    ushort attribId = (ushort)(tmTileId / 2);
                     byte paletteByte = ram((ushort)(AttribAddr + attribId)).ToByteLE();
 
-                    var bgColor = GetColorFromPalette(bgColorByte, paletteByte);
+                    var attribHalf = tmTileId % 2 == 0;
+
+                    if (attribHalf) {
+                        paletteByte = (byte)((paletteByte & 0b11110000) >> 4);
+                    } else {
+                        paletteByte = (byte)(paletteByte & 0b00001111);
+                    }
+
+                    var bgColor = GetColorFromPalette(BgPaletteAddr, bgColorByte, paletteByte);
 
                     Color colorToDisplay = bgColor;
 
@@ -95,15 +105,15 @@ namespace Runner.GraphicsRending {
             return true;
         }
 
-        private Color GetColorFromPalette(byte colorByte, byte paletteByte) {
+        private Color GetColorFromPalette(ushort paletteAddress, byte colorByte, byte paletteByte) {
             byte b1 = 0;
             byte b2 = 0;
 
             if (colorByte == 0) {
-                b1 = ram(PaletteAddr + 0).ToByteLE();
-                b2 = ram(PaletteAddr + 1).ToByteLE();
+                b1 = ram((ushort)(paletteAddress + 0)).ToByteLE();
+                b2 = ram((ushort)(paletteAddress + 1)).ToByteLE();
             } else {
-                var baseAddress = PaletteAddr + 2 + paletteByte * 8 + (colorByte - 1) * 2;
+                var baseAddress = paletteAddress + 2 + paletteByte * 8 + (colorByte - 1) * 2;
 
                 b1 = ram((ushort)(baseAddress + 0)).ToByteLE();
                 b2 = ram((ushort)(baseAddress + 1)).ToByteLE();
@@ -144,7 +154,7 @@ namespace Runner.GraphicsRending {
                 return false;
             }
 
-            color = GetColorFromPalette(colorByte, sprite.CachedPalette);
+            color = GetColorFromPalette(SpritePaletteAddr, colorByte, sprite.CachedPalette);
             return true;
         }
     }

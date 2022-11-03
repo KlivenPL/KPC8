@@ -16,6 +16,9 @@
         SwramoI,
         SbextI,
 
+        PushbI,
+        PushwI,
+
         AddwI,
 
         Notw,
