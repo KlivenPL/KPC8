@@ -11,6 +11,7 @@ namespace Components.Multiplexers {
         public SignalPort SelectB { get; protected set; } = new SignalPort();
         public SignalPort[] InputsA => Inputs.Take(singleInputSize).ToArray();
         public SignalPort[] InputsB => Inputs.Skip(singleInputSize).ToArray();
+        public SignalPort Clk { get; protected set; } = new SignalPort();
 
         private readonly int singleInputSize;
 
@@ -26,7 +27,9 @@ namespace Components.Multiplexers {
         }
 
         public void Update() {
-            WriteOutput();
+            if (Clk) {
+                WriteOutput();
+            }
         }
 
         private void WriteOutput() {

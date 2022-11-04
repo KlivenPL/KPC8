@@ -22,8 +22,6 @@ namespace KPC8.Modules {
         private readonly HLRam ram;
         private readonly HLRom rom;
         private readonly HLTransciever marToAddressBus;
-        private readonly SingleOrGate pc_leHi_leLo_to_le;
-        private readonly SingleOrGate mar_leHi_leLo_to_le;
 
         private readonly HLSingleSwitch2NToNMux busSelectPc;
         private readonly HLSingleSwitch2NToNMux busSelectMar;
@@ -65,8 +63,6 @@ namespace KPC8.Modules {
             rom = new HLRom(nameof(rom), 8, 16, MemorySize, romData);
             ram = new HLRam(nameof(ram), 8, 16, MemorySize, ramData);
             marToAddressBus = new HLTransciever(nameof(marToAddressBus), 16);
-            pc_leHi_leLo_to_le = new SingleOrGate(nameof(pc_leHi_leLo_to_le), 2);
-            mar_leHi_leLo_to_le = new SingleOrGate(nameof(mar_leHi_leLo_to_le), 2);
             busSelectPc = new HLSingleSwitch2NToNMux(nameof(busSelectPc), 16);
             busSelectMar = new HLSingleSwitch2NToNMux(nameof(busSelectMar), 16);
             pc_leHi_and_leLo_to_addressBusSelect = new SingleAndGate(nameof(pc_leHi_and_leLo_to_addressBusSelect), 2);
@@ -84,15 +80,14 @@ namespace KPC8.Modules {
             pc.Clk.PlugIn(mainClock);
             mar.Clk.PlugIn(mainClock);
             ram.Clk.PlugIn(mainClock);
+            busSelectPc.Clk.PlugIn(mainClock);
+            busSelectMar.Clk.PlugIn(mainClock);
         }
 
         protected override void ConnectInternals() {
             Signal.Factory.CreateAndConnectPorts(nameof(marToAddressBus), mar.Outputs, marToAddressBus.Inputs);
             Signal.Factory.CreateAndConnectPorts("MarToRom", mar.Outputs, rom.AddressInputs);
             Signal.Factory.CreateAndConnectPorts("MarToRam", mar.Outputs, ram.AddressInputs);
-
-            Signal.Factory.CreateAndConnectPort(nameof(pc_leHi_leLo_to_le), pc_leHi_leLo_to_le.Output, pc.LoadEnable);
-            Signal.Factory.CreateAndConnectPort(nameof(mar_leHi_leLo_to_le), mar_leHi_leLo_to_le.Output, mar.LoadEnable);
 
             Signal.Factory.CreateAndConnectPort(nameof(pc_leHi_and_leLo_to_addressBusSelect), pc_leHi_and_leLo_to_addressBusSelect.Output, busSelectPc.SelectB);
             Signal.Factory.CreateAndConnectPort(nameof(mar_leHi_and_leLo_to_addressBusSelect), mar_leHi_and_leLo_to_addressBusSelect.Output, busSelectMar.SelectB);
@@ -153,13 +148,13 @@ namespace KPC8.Modules {
             mar_leHi_and_leLo_to_addressBusSelect.Inputs[1].PlugIn(controlBus.GetControlSignal(ControlSignalType.Mar_le_lo));
 
             return new CsPanel.MemoryPanel {
-                Pc_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_le_hi, pc_leHi_leLo_to_le.Inputs[0]),
-                Pc_le_lo = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_le_lo, pc_leHi_leLo_to_le.Inputs[1]),
+                Pc_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_le_hi, pc.LoadEnable),
+                Pc_le_lo = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_le_lo, pc.LoadEnable),
                 Pc_oe = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_oe, pc.OutputEnable),
                 Pc_ce = controlBus.ConnectAsControlSignal(ControlSignalType.Pc_ce, pc.CountEnable),
 
-                Mar_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Mar_le_hi, mar_leHi_leLo_to_le.Inputs[0]),
-                Mar_le_lo = controlBus.ConnectAsControlSignal(ControlSignalType.Mar_le_lo, mar_leHi_leLo_to_le.Inputs[1]),
+                Mar_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Mar_le_hi, mar.LoadEnable),
+                Mar_le_lo = controlBus.ConnectAsControlSignal(ControlSignalType.Mar_le_lo, mar.LoadEnable),
                 MarToBus_oe = controlBus.ConnectAsControlSignal(ControlSignalType.MarToBus_oe, marToAddressBus.OutputEnable),
                 Mar_ce = controlBus.ConnectAsControlSignal(ControlSignalType.Mar_ce, mar.CountEnable),
 

@@ -88,11 +88,12 @@ namespace Assembler.Contexts.Labels {
 
             try {
                 address = TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule);
+                return true;
             } catch (Exception) {
                 return false;
             }
 
-            return true;
+            return false;
 
             ushort GetFromLocalRegion() {
                 if (moduleStr != null || regionStr != null) {
@@ -126,11 +127,12 @@ namespace Assembler.Contexts.Labels {
 
             try {
                 token = TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule).DeepCopy();
+                return true;
             } catch (Exception) {
                 return false;
             }
 
-            return true;
+            return false;
 
             IToken GetFromLocalRegion() {
                 if (moduleStr != null || regionStr != null) {
@@ -171,7 +173,7 @@ namespace Assembler.Contexts.Labels {
                 return false;
             }
 
-            return true;
+            return false;
 
             IToken GetFromLocalRegion() {
                 if (moduleStr != null || regionStr != null) {

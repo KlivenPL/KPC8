@@ -1,7 +1,7 @@
 ﻿namespace ExternalDevices._Infrastructure {
     internal enum VirtualKey {
         Unknown = 0,
-        Shift = 0x10,
+        Shift = 160,
         Space = 0x20,
         Enter = 0x0D,
         Tab = 0x09,

@@ -14,7 +14,7 @@ namespace Player.Contexts {
         private const string SelectKpcRomDialogFilter = "KPC8 ROM file|*.kpcrom|All files|*.*";
 
         private const string SelectKpcRomOrSourceDialogTitle = "Select KPC8 ROM file or KPC8 source file";
-        private const string SelectKpcRomOrSourceDialogFilter = "KPC8 ROM file|*.kpcrom|KPC8 source file|*.kpc";
+        private const string SelectKpcRomOrSourceDialogFilter = "KPC8 ROM or source file|*.kpcrom;*.kpc";
 
         public FileInfo RomFile {
             get => romFile;

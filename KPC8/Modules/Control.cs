@@ -42,7 +42,6 @@ namespace KPC8.Modules {
         private readonly HLIRRSequencer irr;
         private readonly HLRom irrRom;
 
-        private readonly SingleOrGate ir_leHi_leLo_to_le;
         private readonly SingleAndGate condInstructionDetector;
 
         private Signal ir_oe_const;
@@ -77,7 +76,6 @@ namespace KPC8.Modules {
             decB = new HLDecoder(nameof(decB), BRegEncodedSize);
             ir8LsbToBus = new HLTransciever(nameof(ir8LsbToBus), 8);
             instructionSelectMux = new HLSingleSwitch2NToNMux(nameof(instructionSelectMux), 10);
-            ir_leHi_leLo_to_le = new SingleOrGate(nameof(ir_leHi_leLo_to_le), 2);
             condInstructionDetector = new SingleAndGate(nameof(condInstructionDetector), 3);
 
             irr = new HLIRRSequencer(nameof(irr));
@@ -116,6 +114,8 @@ namespace KPC8.Modules {
             ir.Clk.PlugIn(mainClockBar);
             ic.Clk.PlugIn(mainClockBar);
             irr.MainClockBar.PlugIn(mainClockBar);
+            instructionSelectMux.Clk.PlugIn(mainClockBar);
+            irBusSelectMux.Clk.PlugIn(mainClockBar);
         }
 
         protected override void ConnectInternals() {
@@ -164,8 +164,6 @@ namespace KPC8.Modules {
                     .Skip(1),
                 instructionSelectMux.InputsB
                     .Skip(CondOpCodeLength + FlagBusLength));
-
-            Signal.Factory.CreateAndConnectPort(nameof(ir_leHi_leLo_to_le), ir_leHi_leLo_to_le.Output, ir.LoadEnable);
 
             Signal.Factory.CreateAndConnectPorts("MuxToInstRom", instructionSelectMux.Outputs, instRom.AddressInputs.Skip(1));
 
@@ -219,8 +217,8 @@ namespace KPC8.Modules {
             irr.Ir_le.PlugIn(controlBus.GetControlSignal(ControlSignalType.Ir_le_lo));
 
             return new CsPanel.ControlPanel {
-                Ir_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Ir_le_hi, ir_leHi_leLo_to_le.Inputs[0]),
-                Ir_le_lo = controlBus.ConnectAsControlSignal(ControlSignalType.Ir_le_lo, ir_leHi_leLo_to_le.Inputs[1]),
+                Ir_le_hi = controlBus.ConnectAsControlSignal(ControlSignalType.Ir_le_hi, ir.LoadEnable),
+                Ir_le_lo = controlBus.ConnectAsControlSignal(ControlSignalType.Ir_le_lo, ir.LoadEnable),
                 Ir8LSBToBus_oe = controlBus.ConnectAsControlSignal(ControlSignalType.Ir8LSBToBus_oe, ir8LsbToBus.OutputEnable),
 
                 Ic_clr = controlBus.ConnectAsControlSignal(ControlSignalType.Ic_clr, ic.Clear),

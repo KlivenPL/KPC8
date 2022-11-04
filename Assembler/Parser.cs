@@ -160,7 +160,13 @@ namespace Assembler {
 
             } catch (ParserException) {
                 if (readerClone.CastCurrent<IdentifierToken>().IsPseudoinstruction(out _)) {
-                    var pseudoinstructionToken = reader.CastCurrent<IdentifierToken>();
+                    IdentifierToken pseudoinstructionToken = null;
+                    try {
+                        pseudoinstructionToken = reader.CastCurrent<IdentifierToken>();
+
+                    } catch {
+                        throw;
+                    }
                     try {
                         var pseudoinstruction = pseudoinstructionParser.Parse(readerClone);
                         romBuilder.AddPseudoinstruction(pseudoinstruction, out var loAddress);

@@ -10,7 +10,7 @@
         LwramoI,
         LbextI,
 
-        SbramI,
+        //SbramI,
         SbramoI,
         SwramI,
         SwramoI,
@@ -20,6 +20,11 @@
         PushwI,
 
         AddwI,
+
+        CmpSubI,
+        CmpOrI,
+        CmpAndI,
+        CmpXorI,
 
         Notw,
         OrI,
