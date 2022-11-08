@@ -8,7 +8,16 @@ using Player.Persistence;
 
 namespace Player.Loaders {
     internal class KPC8ConfigurationLoader {
+        private readonly static JSchema kPC8ConfigurationSaveSchema;
         private readonly ProgramContext programContext;
+
+        static KPC8ConfigurationLoader() {
+            var schemaGenerator = new JSchemaGenerator {
+                DefaultRequired = Required.DisallowNull
+            };
+
+            kPC8ConfigurationSaveSchema = schemaGenerator.Generate(typeof(KPC8ConfigurationSave));
+        }
 
         public KPC8ConfigurationLoader(ProgramContext programContext) {
             this.programContext = programContext;
@@ -49,16 +58,12 @@ namespace Player.Loaders {
             kPC8ConfigurationSave = null;
             configValidationErrors = null;
 
-            JSchemaGenerator generator = new JSchemaGenerator {
-                DefaultRequired = Required.DisallowNull
-            };
-
-            JSchema schema = generator.Generate(typeof(KPC8ConfigurationSave));
-
             using StreamReader file = fileInfo.OpenText();
             using JsonTextReader reader = new JsonTextReader(file);
+
             JObject o2 = (JObject)JToken.ReadFrom(reader);
-            if (o2.IsValid(schema, out IList<string> errors)) {
+
+            if (o2.IsValid(kPC8ConfigurationSaveSchema, out IList<string> errors)) {
                 kPC8ConfigurationSave = o2.ToObject<KPC8ConfigurationSave>();
                 return true;
             } else {

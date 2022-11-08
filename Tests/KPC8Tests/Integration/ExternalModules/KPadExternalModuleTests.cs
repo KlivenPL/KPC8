@@ -72,10 +72,6 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             var romData = new BitArray[] {
                 instructionHigh1,
                 instructionLow1,
-                instructionHigh1,
-                instructionLow1,
-                instructionHigh2,
-                instructionLow2,
                 instructionHigh2,
                 instructionLow2,
             };
@@ -95,8 +91,6 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             kPadExternalModule1.SimulateButtons(simulatedButtons1);
             kPadExternalModule2.SimulateButtons(simulatedButtons2);
 
-            StepThroughProceduralInstruction(modules, instruction);
-            StepThroughProceduralInstruction(modules, instruction);
             StepThroughProceduralInstruction(modules, instruction);
             StepThroughProceduralInstruction(modules, instruction);
 

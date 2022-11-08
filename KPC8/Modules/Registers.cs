@@ -55,11 +55,6 @@ namespace KPC8.Modules {
         }
 
         protected override void ConnectRegisterSelectBus(IBus registerSelectBus) {
-            /*for (int i = 0; i < RegistersCount; i++) {
-                var index = (int)Math.Log2();
-                registerSelectBus.Connect(i, regs[i].ChipEnable);
-            }*/
-
             foreach (var reg in Enum.GetValues<Regs>().Skip(1)) {
                 var index = reg.GetIndex();
                 registerSelectBus.Connect(index, regs[index].ChipEnable);

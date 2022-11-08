@@ -61,6 +61,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var testVal = BitArrayHelper.FromShortLE(2137);
             var addrFive = BitArrayHelper.FromShortLE(5);
             var fullAdr = BitArrayHelper.FromUShortLE(fullAdrStr);
+            var flagsValue = BitArrayHelper.FromByteLE(0);
 
             EncodeInstruction(nop, Regs.Zero, Regs.Zero, Regs.Zero, out var nopHigh, out var nopLow);
             EncodeInstruction(irren, Regs.Zero, zero, out var irrenHigh, out var irrenLow);
@@ -87,14 +88,18 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             StepThroughProceduralInstruction(modules, nop);
 
+            modules.Alu.SetRegFlagsContent(flagsValue.Skip(4));
             // Irrex is not stored in ROM - it is initiated by interrupt bus
             StepThroughProceduralInstruction(modules, irrex);
 
-            BitAssert.Equality(addrFive.Take(8), modules.Memory.GetRamAt(0xFF01));
-            BitAssert.Equality(addrFive.Skip(8), modules.Memory.GetRamAt(0xFF00));
+            BitAssert.Equality(flagsValue, modules.Memory.GetRamAt(0xFF00));
 
-            BitAssert.Equality(testVal.Take(8), modules.Memory.GetRamAt(0xFF02));
-            BitAssert.Equality(testVal.Skip(8), modules.Memory.GetRamAt(0xFF03));
+            BitAssert.Equality(addrFive.Take(8), modules.Memory.GetRamAt(0xFF02));
+            BitAssert.Equality(addrFive.Skip(8), modules.Memory.GetRamAt(0xFF01));
+
+            BitAssert.Equality(testVal.Take(8), modules.Memory.GetRamAt(0xFF03));
+            BitAssert.Equality(testVal.Skip(8), modules.Memory.GetRamAt(0xFF04));
+
 
             BitAssert.Equality(fullAdr, modules.Memory.PcContent);
         }
@@ -117,6 +122,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var testVal = BitArrayHelper.FromShortLE(2137);
             var addrFour = BitArrayHelper.FromShortLE(4);
             var fullAdr = BitArrayHelper.FromUShortLE(fullAdrStr);
+            var flagsValue = BitArrayHelper.FromByteLE(14);
 
             EncodeInstruction(nop, Regs.Zero, Regs.Zero, Regs.Zero, out var nopHigh, out var nopLow);
             // EncodeInstruction(irrex, Regs.T1, addrLo, out var irrexHigh, out var irrexLow);
@@ -143,6 +149,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             StepThroughProceduralInstruction(modules, nop);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), testVal);
+            modules.Alu.SetRegFlagsContent(flagsValue.Skip(4));
             StepThroughProceduralInstruction(modules, irrex);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), zero16);
@@ -150,6 +157,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             BitAssert.Equality(testVal, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(addrFour, modules.Memory.PcContent);
+            BitAssert.Equality(flagsValue.Skip(4), modules.Alu.RegFlagsContent);
         }
 
         [Theory]
@@ -212,11 +220,13 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             Assert.True(modules.InterruptsBus.Lanes[3]);
 
             StepThroughProceduralInstruction(modules, add);
+            var flagsValue = modules.Alu.RegFlagsContent;
             BitAssert.Equality(eight, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
 
             StepThroughProceduralInstruction(modules, irrret);
             BitAssert.Equality(five, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             Assert.True(modules.InterruptsBus.Lanes[1]);
+            BitAssert.Equality(flagsValue, modules.Alu.RegFlagsContent);
 
             StepThroughProceduralInstruction(modules, add);
             BitAssert.Equality(ten, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));

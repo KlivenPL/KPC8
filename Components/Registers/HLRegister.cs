@@ -17,6 +17,12 @@ namespace Components.Registers {
 
         public BitArray Content => new(mainBuffer);
 
+        public void SetContent(BitArray value) {
+            for (int i = 0; i < mainBuffer.Length; i++) {
+                mainBuffer[i] = value[i];
+            }
+        }
+
         private bool clkEdgeRise = false;
 
         public HLRegister(string name, int size) : base(name) {
@@ -44,7 +50,7 @@ namespace Components.Registers {
                 clkEdgeRise = false;
             }
 
-            if (OutputEnable) {
+            if (OutputEnable && Clk) {
                 WriteOutput();
             }
         }

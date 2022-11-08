@@ -63,13 +63,8 @@ namespace ExternalDevices.HID {
             }
         }
 
-        public void SetContent(BitArray value) {
-            for (int i = 0; i < mainBuffer.Length; i++) {
-                mainBuffer[i] = value[i];
-            }
-        }
-
         public virtual void Update() {
+
             var buttons = SimulatedButtons | keyboardButtons;
 
             if (XInput.GetState(0, out var state)) {
@@ -109,15 +104,13 @@ namespace ExternalDevices.HID {
 
             }
 
-            if (buttons != KPadButtons.None) {
-                Console.WriteLine(buttons);
-                mainBuffer = BitArrayHelper.FromByteLE((byte)buttons);
+            mainBuffer = BitArrayHelper.FromByteLE((byte)buttons);
+
+            for (int i = 0; i < Size; i++) {
+                Outputs[i].Write(mainBuffer[i]);
             }
 
             if (ChipSelect) {
-                for (int i = 0; i < Size; i++) {
-                    Outputs[i].Write(mainBuffer[i]);
-                }
                 mainBuffer.SetAll(false);
                 keyboardButtons = KPadButtons.None;
             }
