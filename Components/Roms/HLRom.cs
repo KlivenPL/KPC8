@@ -9,13 +9,14 @@ using System.Text;
 
 namespace Components.Roms {
     public class HLRom : IODeviceBase, IRom, IUpdate {
+        public int Priority { get; set; } = -2;
+
         private readonly int MemorySizeInBytes;
         private readonly int AddressSize;
         private readonly int DataSize;
 
         private readonly BitArray[] memory;
 
-        public int Priority => -2;
         public BitArray[] Content => memory;
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
 

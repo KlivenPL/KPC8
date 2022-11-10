@@ -68,19 +68,19 @@ namespace KPC8.Modules {
         public ControlSignalType[] DumpInstrRomToControlSignals() => instRom.Content.Select(ba => ControlSignalTypeExtensions.FromBitArray(ba)).ToArray();
 
         public Control(BitArray[] instrData, Signal mainClockBar, IBus dataBus, IBus registerSelectBus, IBus flagsBus, IBus interruptsBus) {
-            ir = new HLHiLoRegister(nameof(ir), 16);
-            ic = new HLCounter(nameof(ic), 4);
-            instRom = new HLRom(nameof(instRom), 40, 11, InstRomSize, instrData);
-            decDest = new HLDecoder(nameof(decDest), DestRegEncodedLength + 2);
-            decA = new HLDecoder(nameof(decA), ARegEncodedSize);
-            decB = new HLDecoder(nameof(decB), BRegEncodedSize);
-            ir8LsbToBus = new HLTransciever(nameof(ir8LsbToBus), 8);
-            instructionSelectMux = new HLSingleSwitch2NToNMux(nameof(instructionSelectMux), 10);
-            condInstructionDetector = new SingleAndGate(nameof(condInstructionDetector), 3);
+            ir = new HLHiLoRegister(nameof(ir), 16); ir.Priority = 6;
+            ic = new HLCounter(nameof(ic), 4); ic.Priority = 6;
+            instRom = new HLRom(nameof(instRom), 40, 11, InstRomSize, instrData); instRom.Priority = 3;
+            decDest = new HLDecoder(nameof(decDest), DestRegEncodedLength + 2); decDest.Priority = 4;
+            decA = new HLDecoder(nameof(decA), ARegEncodedSize); decA.Priority = 4;
+            decB = new HLDecoder(nameof(decB), BRegEncodedSize); decB.Priority = 4;
+            ir8LsbToBus = new HLTransciever(nameof(ir8LsbToBus), 8); ir8LsbToBus.Priority = 4;
+            instructionSelectMux = new HLSingleSwitch2NToNMux(nameof(instructionSelectMux), 10); instructionSelectMux.Priority = 4;
+            condInstructionDetector = new SingleAndGate(nameof(condInstructionDetector), 3); condInstructionDetector.Priority = 5;
 
-            irr = new HLIRRSequencer(nameof(irr));
-            irrRom = new HLRom(nameof(irrRom), 16, 4, IrrRomSize, GetIrrRomData().ToArray());
-            irBusSelectMux = new HLSingleSwitch2NToNMux(nameof(irBusSelectMux), 16);
+            irr = new HLIRRSequencer(nameof(irr)); irr.Priority = 9;
+            irrRom = new HLRom(nameof(irrRom), 16, 4, IrrRomSize, GetIrrRomData().ToArray()); irrRom.Priority = 8;
+            irBusSelectMux = new HLSingleSwitch2NToNMux(nameof(irBusSelectMux), 16); irBusSelectMux.Priority = 7;
 
             ConnectInternals();
             CreateAndSetConstSignals();

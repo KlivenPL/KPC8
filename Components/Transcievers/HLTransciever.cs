@@ -7,6 +7,8 @@ using System.Text;
 
 namespace Components.Transcievers {
     public class HLTransciever : IODeviceBase, ITransciever, IUpdate {
+        public int Priority { get; set; } = 0;
+
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
         public HLTransciever(string name, int lanes) : base(name) {
             Initialize(lanes);

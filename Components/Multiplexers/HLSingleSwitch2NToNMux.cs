@@ -8,6 +8,8 @@ using System.Text;
 
 namespace Components.Multiplexers {
     public class HLSingleSwitch2NToNMux : IODeviceBase, IMux, IUpdate {
+        public int Priority { get; set; } = 0;
+
         public SignalPort SelectB { get; protected set; } = new SignalPort();
         public SignalPort[] InputsA => Inputs.Take(singleInputSize).ToArray();
         public SignalPort[] InputsB => Inputs.Skip(singleInputSize).ToArray();

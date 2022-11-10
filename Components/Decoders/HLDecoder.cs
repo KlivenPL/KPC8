@@ -9,6 +9,8 @@ using System.Text;
 
 namespace Components.Decoders {
     public class HLDecoder : IODeviceBase, IDecoder, IUpdate {
+        public int Priority { get; set; } = 0;
+
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
 
         public BitArray Input => Inputs.ToBitArray();

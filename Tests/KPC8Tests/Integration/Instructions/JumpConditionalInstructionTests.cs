@@ -17,6 +17,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         [InlineData(0x2137, 0xFF00)]
         [InlineData(0x0, 0x233)]
         [InlineData(0x911, 0x2137)]
+        [InlineData(5, 0x2137)]
         [InlineData(0x0, 0xFF00)]
         public void Jwz(ushort valueStr, ushort addrStr) {
             var instruction = McConditionalInstruction.CreateFromSteps(typeof(JumpConditionalInstructions), nameof(JumpConditionalInstructions.Jwz));
