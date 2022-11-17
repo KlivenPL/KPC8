@@ -34,7 +34,7 @@ namespace DebugAdapter {
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
             this.sessionController = sessionController;
-            sources = configuration.SourceFilePaths.Select(x => new Source { Path = x }).ToList();
+            sources = configuration?.SourceFilePaths.Select(x => new Source { Path = x }).ToList();
 
             InitializeProtocolClient(stdIn, stdOut);
         }

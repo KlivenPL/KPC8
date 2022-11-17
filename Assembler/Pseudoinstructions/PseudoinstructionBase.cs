@@ -61,6 +61,10 @@ namespace Assembler.Pseudoinstructions {
                 return parsed;
             } else {
                 if (reader.Current != null) {
+                    if (typeof(T) == typeof(NumberToken) && reader.Current is CharToken charToken) {
+                        return (T)(object)new NumberToken((byte)charToken.Value, charToken.CodePosition, charToken.LineNumber, charToken.FilePath);
+                    }
+
                     if (labelsContext.TryResolveInvalidToken<T>(reader.Current, out var resolvedToken)) {
                         return resolvedToken;
                     }

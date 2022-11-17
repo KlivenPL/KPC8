@@ -5,6 +5,7 @@ using Player._Configuration.CmdLine;
 using Runner.Configuration;
 using Runner.Debugger;
 using System.Collections;
+using System.Diagnostics;
 
 namespace Player.Debugger {
     internal class DapAdapterLaunchInitializer : DapAdapterInitializerBase {
@@ -61,7 +62,7 @@ namespace Player.Debugger {
         }
 
         private void RunAndExitWithErrorMessage(int code, string errorMessage) {
-            Console.Error.WriteLine(errorMessage);
+            Debug.WriteLine(errorMessage);
 
             new DapAdapter(null, null, Console.OpenStandardInput(), Console.OpenStandardOutput())
                 .RunAndExitWithErrorMessage(errorMessage);

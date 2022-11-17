@@ -3,6 +3,7 @@ using Assembler.Builders;
 using Assembler.Contexts;
 using Assembler.Contexts.Labels;
 using Assembler.Contexts.Regions;
+using Assembler.Contexts.Signatures;
 using Assembler.DebugData;
 using Assembler.Encoders;
 using Assembler.Parsers;
@@ -30,6 +31,10 @@ namespace Assembler {
             pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext(labelsContext));
             commandParser = new CommandParser(new CommandsContext(), labelsContext);
             unresolvedPseudoinstructions = new List<LabelNotResolvedException>();
+
+#if DEBUG
+            SignaturesContext.DumpToJson();
+#endif
         }
 
         public BitArray[] Parse(TokenReader reader) => Parse(reader, out _);
