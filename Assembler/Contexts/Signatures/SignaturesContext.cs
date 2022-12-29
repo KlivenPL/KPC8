@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿#if DEBUG
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 
 namespace Assembler.Contexts.Signatures {
     internal static class SignaturesContext {
-#if DEBUG
 
         private readonly static List<KpcSignature> signatures = new List<KpcSignature>();
 
@@ -18,7 +18,7 @@ namespace Assembler.Contexts.Signatures {
 
         public static string DumpToJson() {
             var json = JsonConvert.SerializeObject(signatures, jsonSerializerSettings);
-            return json;
+            return json; // before use, remove yield returns from pseudoinstructions
         }
 
         private static readonly JsonSerializerSettings jsonSerializerSettings = new() {
@@ -28,6 +28,6 @@ namespace Assembler.Contexts.Signatures {
             Converters = new[] { new Newtonsoft.Json.Converters.StringEnumConverter() },
         };
 
-#endif
     }
 }
+#endif
