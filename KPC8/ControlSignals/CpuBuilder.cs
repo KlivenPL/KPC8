@@ -1,11 +1,11 @@
-﻿using Components.Buses;
+﻿using _Infrastructure.Simulation.Loops;
+using Components.Buses;
 using Components.Clocks;
 using KPC8._Infrastructure.Components;
 using KPC8.ExternalModules;
 using KPC8.Microcode;
 using KPC8.Modules;
 using KPC8.RomProgrammers.Microcode;
-using Simulation.Loops;
 using System;
 using System.Collections;
 using System.Linq;

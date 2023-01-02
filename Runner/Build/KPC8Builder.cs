@@ -1,8 +1,8 @@
-﻿using Components.Clocks;
+﻿using _Infrastructure.Simulation.Loops;
+using Components.Clocks;
 using Components.Signals;
 using KPC8.ControlSignals;
 using Runner.Configuration;
-using Simulation.Loops;
 using System;
 using System.Collections.Generic;
 using System.Linq;

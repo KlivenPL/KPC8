@@ -1,5 +1,6 @@
 ﻿using _Infrastructure.BitArrays;
 using _Infrastructure.Paths;
+using _Infrastructure.Simulation.Loops;
 using Assembler.DebugData;
 using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
@@ -11,7 +12,6 @@ using Runner.Configuration;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.Enums;
 using Runner.Debugger.Managers;
-using Simulation.Loops;
 using System;
 using System.Collections.Generic;
 using System.IO;

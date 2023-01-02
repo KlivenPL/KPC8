@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KPC8", "KPC8\KPC8.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Components", "Components\Components.csproj", "{E79C3274-1DD5-4979-BB36-86DB63036DD7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Simulation", "Simulation\Simulation.csproj", "{E9D9B347-514D-469A-B792-365894C42896}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{3835115A-28C6-4DD0-854E-E2152210E7C1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_Infrastructure", "Infrastructure\_Infrastructure.csproj", "{FAA16EA4-45AB-43B0-ACBB-53903BF54F09}"
@@ -21,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Player", "Player\Player.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Runner", "Runner\Runner.csproj", "{F6D6F193-30EC-4961-BDA8-BB84FF7668C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugAdapter", "DebugAdapter\DebugAdapter.csproj", "{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugAdapter", "DebugAdapter\DebugAdapter.csproj", "{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +35,6 @@ Global
 		{E79C3274-1DD5-4979-BB36-86DB63036DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E79C3274-1DD5-4979-BB36-86DB63036DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E79C3274-1DD5-4979-BB36-86DB63036DD7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9D9B347-514D-469A-B792-365894C42896}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9D9B347-514D-469A-B792-365894C42896}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9D9B347-514D-469A-B792-365894C42896}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9D9B347-514D-469A-B792-365894C42896}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3835115A-28C6-4DD0-854E-E2152210E7C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3835115A-28C6-4DD0-854E-E2152210E7C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3835115A-28C6-4DD0-854E-E2152210E7C1}.Release|Any CPU.ActiveCfg = Release|Any CPU

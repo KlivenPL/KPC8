@@ -4,7 +4,7 @@ using KPC8.ExternalModules;
 using KPC8.Microcode;
 using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
-using Simulation.Loops;
+using _Infrastructure.Simulation.Loops;
 using System;
 using System.Collections;
 using System.Threading;

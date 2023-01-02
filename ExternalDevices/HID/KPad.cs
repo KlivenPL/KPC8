@@ -2,7 +2,7 @@
 using Components.Signals;
 using ExternalDevices._Infrastructure;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System;
 using System.Collections;
 using System.Text;

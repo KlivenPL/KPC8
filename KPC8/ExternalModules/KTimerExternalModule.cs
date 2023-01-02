@@ -1,11 +1,11 @@
-﻿using Components.Buses;
+﻿using _Infrastructure.Simulation.Loops;
+using Components.Buses;
 using Components.SignalMappers;
 using Components.Signals;
 using Components.Transcievers;
 using ExternalDevices;
 using ExternalDevices.Timers;
 using KPC8.ControlSignals;
-using Simulation.Loops;
 using System;
 
 namespace KPC8.ExternalModules {
