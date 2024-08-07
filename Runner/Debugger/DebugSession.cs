@@ -411,6 +411,15 @@ namespace Runner.Debugger {
             return kpc.ModulePanel.Memory.RamDumpToBytesLE();
         }
 
+        internal void SetRamByte(ushort address, byte value) {
+            if (!paused) {
+                OutputEvent(OutputType.Stderr, "Cannot set RAM bytes if not paused");
+                return;
+            }
+
+            kpc.ModulePanel.Memory.SetRamAt(address, value);
+        }
+
         internal byte[] GetRomBytes() {
             if (!paused) {
                 OutputEvent(OutputType.Stderr, "Cannot get ROM bytes if not paused");
@@ -418,6 +427,15 @@ namespace Runner.Debugger {
             }
 
             return kpc.ModulePanel.Memory.RomDumpToBytesLE();
+        }
+
+        internal void SetRegister(Regs register, ushort value) {
+            if (!paused) {
+                OutputEvent(OutputType.Stderr, "Cannot set register if not paused");
+                return;
+            }
+
+            kpc.ModulePanel.Registers.SetWholeRegContent(register.GetIndex(), BitArrayHelper.FromUShortLE(value));
         }
 
         internal void Continue() {

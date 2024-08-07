@@ -2,6 +2,7 @@
 using DebugAdapter.Configuration;
 using DebugAdapter.CustomRequests;
 using DebugAdapter.Mappers;
+using KPC8.ProgRegs;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Messages;
 using Microsoft.VisualStudio.Shared.VSCodeDebugProtocol.Utilities;
@@ -28,8 +29,8 @@ namespace DebugAdapter {
 
         private int pauseId;
         private int cachedRamPauseId;
-        private string cachedRamBase64;
-        private string cachedRomBase64;
+        private byte[] cachedRamBytes;
+        private byte[] cachedRomBytes;
 
         public DapAdapter(DapAdapterConfiguration configuration, DebugSessionController sessionController, Stream stdIn, Stream stdOut) {
             this.configuration = configuration;
@@ -65,6 +66,8 @@ namespace DebugAdapter {
                 SupportsConfigurationDoneRequest = true,
                 SupportsEvaluateForHovers = true,
                 SupportsReadMemoryRequest = true,
+                SupportsWriteMemoryRequest = true,
+                SupportsSetVariable = true,
                 //SupportsBreakpointLocationsRequest = true,
             };
         }
@@ -243,24 +246,36 @@ namespace DebugAdapter {
             };
         }
 
+        protected override SetVariableResponse HandleSetVariableRequest(SetVariableArguments arguments) {
+            if (!Enum.TryParse<Regs>(arguments.Name, out var register) || register == Regs.None || register == Regs.Zero || !ushort.TryParse(arguments.Value, out var value)) {
+                return new SetVariableResponse { };
+            }
+
+            sessionController.SetRegister(register, value);
+
+            return new SetVariableResponse {
+                Value = value.ToString()
+            };
+        }
+
         protected override ReadMemoryResponse HandleReadMemoryRequest(ReadMemoryArguments arguments) {
             if (arguments.MemoryReference == RamMemoryReference) {
                 if (cachedRamPauseId != pauseId) {
                     cachedRamPauseId = pauseId;
-                    cachedRamBase64 = Convert.ToBase64String(sessionController.GetRamBytes());
+                    cachedRamBytes = sessionController.GetRamBytes();
                 }
 
                 return new ReadMemoryResponse {
-                    Address = "0x0",
-                    Data = cachedRamBase64,
+                    Address = arguments.Offset?.ToString() ?? "0",
+                    Data = Convert.ToBase64String(cachedRamBytes.Skip(arguments.Offset ?? 0).Take(arguments.Count).ToArray()),
                     UnreadableBytes = 0
                 };
             } else if (arguments.MemoryReference == RomMemoryReference) {
-                cachedRomBase64 ??= Convert.ToBase64String(sessionController.GetRomBytes());
+                cachedRomBytes ??= sessionController.GetRomBytes();
 
                 return new ReadMemoryResponse {
-                    Address = "0x0",
-                    Data = cachedRomBase64,
+                    Address = arguments.Offset?.ToString() ?? "0",
+                    Data = Convert.ToBase64String(cachedRomBytes.Skip(arguments.Offset ?? 0).Take(arguments.Count).ToArray()),
                     UnreadableBytes = 0
                 };
 
@@ -272,6 +287,36 @@ namespace DebugAdapter {
                     UnreadableBytes = 0
                 };
             }
+        }
+
+        protected override WriteMemoryResponse HandleWriteMemoryRequest(WriteMemoryArguments arguments) {
+            if (arguments.MemoryReference != RamMemoryReference) {
+                return new WriteMemoryResponse {
+                    BytesWritten = 0,
+                    Offset = 0,
+                };
+            }
+
+            var rawData = Convert.FromBase64String(arguments.Data);
+            if (rawData.Length == 0 || rawData.Length > ushort.MaxValue) {
+                return new WriteMemoryResponse {
+                    BytesWritten = 0,
+                    Offset = 0,
+                };
+            }
+
+            var offset = (ushort)(arguments.Offset ?? 0);
+
+            for (ushort i = 0; i < rawData.Length; i++) {
+                sessionController.SetRamBytes((ushort)(i + offset), rawData[i]);
+            }
+
+            cachedRamPauseId = -1;
+
+            return new WriteMemoryResponse {
+                Offset = offset,
+                BytesWritten = rawData.Length
+            };
         }
 
         protected override EvaluateResponse HandleEvaluateRequest(EvaluateArguments arguments) {
