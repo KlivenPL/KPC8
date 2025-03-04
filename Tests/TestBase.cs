@@ -3,7 +3,7 @@ using Components.Clocks;
 using Components.Signals;
 using KPC8.Clocks;
 using KPC8.ControlSignals;
-using Simulation.Loops;
+using _Infrastructure.Simulation.Loops;
 using System.Collections.Generic;
 
 namespace Tests {

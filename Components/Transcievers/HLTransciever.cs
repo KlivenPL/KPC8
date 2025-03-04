@@ -2,11 +2,13 @@
 using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System.Text;
 
 namespace Components.Transcievers {
     public class HLTransciever : IODeviceBase, ITransciever, IUpdate {
+        public int Priority { get; set; } = 0;
+
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
         public HLTransciever(string name, int lanes) : base(name) {
             Initialize(lanes);

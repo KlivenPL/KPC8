@@ -9,18 +9,17 @@ namespace Assembler.Pseudoinstructions.StorePseudoinstructions {
     /// <summary>
     /// AddwI $rDest, #value16
     /// </summary>
-    class SbramiPseudoinstruction : PseudoinstructionBase {
-        public override PseudoinstructionType Type => PseudoinstructionType.SbramI;
+    class PushbiPseudoinstruction : PseudoinstructionBase {
+        public override PseudoinstructionType Type => PseudoinstructionType.PushbI;
 
         protected override IEnumerable<IEnumerable<BitArray>> ParseInner(TokenReader reader) {
-            ParseParameters<RegisterToken, NumberToken>(reader, out var rAToken, out var address16Token);
+            ParseParameters<NumberToken, RegisterToken>(reader, out var valueToken, out var rAToken);
 
             var rA = rAToken.Value;
-            SplitWord(address16Token.Value, out var lower, out var higher);
+            SplitWord(valueToken.Value, out var lower, out _);
 
             yield return InstructionEncoder.Encode(McInstructionType.SetI, Regs.Ass, lower);
-            yield return InstructionEncoder.Encode(McInstructionType.SethI, Regs.Ass, higher);
-            yield return InstructionEncoder.Encode(McInstructionType.Sbram, Regs.Zero, rA, Regs.Ass);
+            yield return InstructionEncoder.Encode(McInstructionType.Pushb, Regs.Zero, Regs.Ass, rA);
         }
     }
 }

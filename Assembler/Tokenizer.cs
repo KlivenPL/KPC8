@@ -31,7 +31,7 @@ namespace Assembler {
             var line = reader.Line;
             var filePath = reader.FilePath;
 
-            if (char.IsDigit(reader.Current) || reader.Current == '-') {
+            if (char.IsDigit(reader.Current) || reader.Current == '-' || reader.Current == '{') {
                 return new NumberToken().AddDebugData(position, line, filePath);
             } else if (char.IsLetter(reader.Current) || reader.Current == '@') {
                 return new IdentifierToken().AddDebugData(position, line, filePath);

@@ -5,7 +5,7 @@ using Components.Transcievers;
 using ExternalDevices;
 using ExternalDevices.HID;
 using KPC8.ControlSignals;
-using Simulation.Loops;
+using _Infrastructure.Simulation.Loops;
 using System;
 
 namespace KPC8.ExternalModules {

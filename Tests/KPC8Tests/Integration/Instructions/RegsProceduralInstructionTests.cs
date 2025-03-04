@@ -145,19 +145,25 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         }
 
         [Theory]
-        [InlineData(0x0000, 0x0000)]
-        [InlineData(0x0000, 0x0001)]
-        [InlineData(0x0021, 0x0037)]
-        [InlineData(0x2137, 0x0911)]
-        [InlineData(0xFF00, 0x00FF)]
-        public void Setloh(ushort valAStr, ushort valBStr) {
+        [InlineData(0x0000, 0x0000, Regs.T1, Regs.T2)]
+        [InlineData(0x0000, 0x0001, Regs.T1, Regs.T2)]
+        [InlineData(0x0021, 0x0037, Regs.T1, Regs.T2)]
+        [InlineData(0x2137, 0x0911, Regs.T1, Regs.T2)]
+        [InlineData(0xFF00, 0x00FF, Regs.T1, Regs.T2)]
+
+        [InlineData(0x0000, 0x0000, Regs.T1, Regs.T1)]
+        [InlineData(0x0001, 0x0001, Regs.T1, Regs.T1)]
+        [InlineData(0x0037, 0x0037, Regs.T1, Regs.T1)]
+        [InlineData(0x2137, 0x2137, Regs.T1, Regs.T1)]
+        [InlineData(0xFF00, 0xFF00, Regs.T1, Regs.T1)]
+        public void Setloh(ushort valAStr, ushort valBStr, Regs r1, Regs r2) {
             var instruction = McProceduralInstruction.CreateFromSteps(typeof(RegsProceduralInstructions), nameof(RegsProceduralInstructions.Setloh));
 
             var zero = BitArrayHelper.FromByteLE(0);
             var valA = BitArrayHelper.FromUShortLE(valAStr);
             var valB = BitArrayHelper.FromUShortLE(valBStr);
 
-            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
+            EncodeInstruction(instruction, Regs.Zero, r1, r2, out var instructionHigh, out var instructionLow);
 
             var romData = new[] {
                 instructionHigh, instructionLow,
@@ -165,13 +171,16 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             var cp = BuildPcModules(romData, out var modules);
 
-            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), valA);
-            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), valB);
+            modules.Registers.SetWholeRegContent(r1.GetIndex(), valA);
+            modules.Registers.SetWholeRegContent(r2.GetIndex(), valB);
 
             StepThroughProceduralInstruction(modules, instruction);
 
-            BitAssert.Equality(valB.Slice(8, 8).MergeWith(valB.Take(8)), modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
-            BitAssert.Equality(valB, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
+            BitAssert.Equality(valB.Slice(8, 8).MergeWith(valB.Take(8)), modules.Registers.GetWholeRegContent(r1.GetIndex()));
+
+            if (r1 != r2) {
+                BitAssert.Equality(valB, modules.Registers.GetWholeRegContent(r2.GetIndex()));
+            }
         }
 
         [Theory]

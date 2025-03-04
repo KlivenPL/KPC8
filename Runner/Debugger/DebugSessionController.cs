@@ -1,4 +1,5 @@
-﻿using Runner._Infrastructure;
+﻿using KPC8.ProgRegs;
+using Runner._Infrastructure;
 using Runner.Build;
 using Runner.Configuration;
 using Runner.Debugger.DebugData;
@@ -71,8 +72,16 @@ namespace Runner.Debugger {
             return debugSession.GetRamBytes();
         }
 
+        public void SetRamBytes(ushort address, byte value) {
+            debugSession.SetRamByte(address, value);
+        }
+
         public byte[] GetRomBytes() {
             return debugSession.GetRomBytes();
+        }
+
+        public void SetRegister(Regs register, ushort value) {
+            debugSession.SetRegister(register, value);
         }
 
         public void Continue() {

@@ -16,8 +16,8 @@ namespace Player.GuiLogic.StateMachine.States {
             Controller.mnuPlayBtn.OnUI(x => x.Enabled = true);
             Controller.mnuDbgBtn.OnUI(x => x.Enabled = true);
 
-            Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = !programContext.IsRomFileSelected);
-            Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = !programContext.IsSourceFileSelected);
+            Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = true);
+            Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = true);
 
             Controller.ResetRenderCanvas();
         }
@@ -48,17 +48,13 @@ namespace Player.GuiLogic.StateMachine.States {
         public void OnEvent(LoadedProgramChangedEvent @event) {
             if (@event.RomFile != null) {
                 Controller.LoadedFileName = @event.RomFile.Name;
-                Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = false);
-                Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = true);
             } else if (@event.SourceFile != null) {
                 Controller.LoadedFileName = @event.SourceFile.Name;
-                Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = true);
-                Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = false);
             } else {
                 Controller.LoadedFileName = null;
-                Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = true);
-                Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = true);
             }
+            Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = true);
+            Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = true);
         }
     }
 }

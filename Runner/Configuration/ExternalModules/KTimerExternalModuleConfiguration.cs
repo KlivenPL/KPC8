@@ -1,6 +1,6 @@
 ﻿using KPC8.ControlSignals;
 using KPC8.ExternalModules;
-using Simulation.Loops;
+using _Infrastructure.Simulation.Loops;
 using System;
 
 namespace Runner.Configuration.ExternalModules {

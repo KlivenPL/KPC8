@@ -323,7 +323,7 @@ namespace Tests.KPC8Tests.Modules {
             controlBus = new HLBus("ControlBus", 40);
             flagsBus = new HLBus("FlagsBus", 4);
 
-            var control = new Control(null, _testClock.Clk, dataBus, registerSelectBus, flagsBus, new HLBus("InterruptsBus", 8));
+            var control = new Control(null, _testClock.ClkBar, dataBus, registerSelectBus, flagsBus, new HLBus("InterruptsBus", 8));
             csPanel = control.CreateControlPanel(controlBus);
 
             return control;
@@ -347,7 +347,7 @@ namespace Tests.KPC8Tests.Modules {
             controlBus = new HLBus("ControlBus", 40);
             mockControlBus = new HLBus("MockControlBus", 40);
 
-            var control = new Control(romData, _testClock.Clk, dataBus, registerSelectBus, new HLBus("Flags bus", 4), new HLBus("InterruptsBus", 8));
+            var control = new Control(romData, _testClock.ClkBar, dataBus, registerSelectBus, new HLBus("Flags bus", 4), new HLBus("InterruptsBus", 8));
             csPanel = control.CreateControlPanel(controlBus);
             control.ConnectControlBusToControllerPorts(mockControlBus);
 

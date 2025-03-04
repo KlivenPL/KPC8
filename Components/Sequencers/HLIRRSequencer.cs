@@ -1,7 +1,7 @@
 ﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System.Collections;
 using System.Text;
 
@@ -18,7 +18,7 @@ namespace Components.Sequencers {
 
         protected readonly BitArray mainBuffer;
 
-        public int Priority => -1;
+        public int Priority { get; set; }
         public SignalPort IRRRQ { get; protected set; } = new SignalPort(); // gets from HW
         public SignalPort RDY { get; protected set; } = new SignalPort(); // controls by itself
         public SignalPort EN { get; protected set; } = new SignalPort(); // controls by itself

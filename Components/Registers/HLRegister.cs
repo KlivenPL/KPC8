@@ -1,7 +1,7 @@
 ﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System.Collections;
 using System.Text;
 
@@ -9,13 +9,19 @@ namespace Components.Registers {
     public class HLRegister : IODeviceBase, IRegister, IUpdate {
         protected readonly BitArray mainBuffer;
 
-        public int Priority => -1;
+        public int Priority { get; set; } = -1;
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
         public SignalPort Clear { get; protected set; } = new SignalPort();
         public SignalPort Clk { get; protected set; } = new SignalPort();
 
         public BitArray Content => new(mainBuffer);
+
+        public void SetContent(BitArray value) {
+            for (int i = 0; i < mainBuffer.Length; i++) {
+                mainBuffer[i] = value[i];
+            }
+        }
 
         private bool clkEdgeRise = false;
 
@@ -44,7 +50,7 @@ namespace Components.Registers {
                 clkEdgeRise = false;
             }
 
-            if (OutputEnable) {
+            if (OutputEnable && Clk) {
                 WriteOutput();
             }
         }

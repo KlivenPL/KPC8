@@ -1,5 +1,6 @@
 ﻿using _Infrastructure.BitArrays;
 using _Infrastructure.Paths;
+using _Infrastructure.Simulation.Loops;
 using Assembler.DebugData;
 using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
@@ -11,7 +12,6 @@ using Runner.Configuration;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.Enums;
 using Runner.Debugger.Managers;
-using Simulation.Loops;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +81,7 @@ namespace Runner.Debugger {
                 if (!paused) {
                     var pcCurrInstrAddress = (ushort)(kpc.ModulePanel.Memory.PcContent.ToUShortLE() - 1);
 
-                    if (debugWriteManager.IsDebugWriteHit(pcCurrInstrAddress, out var debugWrites)) {
+                    if (debugWriteManager.IsDebugWriteHit((ushort)(pcCurrInstrAddress + 2), out var debugWrites)) {
                         var allRegisters = GetRegisters().Concat(GetInternalRegisters());
                         HandleDebugWrite(debugWrites, allRegisters, constantValuesManager.GetValues(allRegisters).OrderByDescending(x => x.Line));
                     }
@@ -411,6 +411,15 @@ namespace Runner.Debugger {
             return kpc.ModulePanel.Memory.RamDumpToBytesLE();
         }
 
+        internal void SetRamByte(ushort address, byte value) {
+            if (!paused) {
+                OutputEvent(OutputType.Stderr, "Cannot set RAM bytes if not paused");
+                return;
+            }
+
+            kpc.ModulePanel.Memory.SetRamAt(address, value);
+        }
+
         internal byte[] GetRomBytes() {
             if (!paused) {
                 OutputEvent(OutputType.Stderr, "Cannot get ROM bytes if not paused");
@@ -418,6 +427,15 @@ namespace Runner.Debugger {
             }
 
             return kpc.ModulePanel.Memory.RomDumpToBytesLE();
+        }
+
+        internal void SetRegister(Regs register, ushort value) {
+            if (!paused) {
+                OutputEvent(OutputType.Stderr, "Cannot set register if not paused");
+                return;
+            }
+
+            kpc.ModulePanel.Registers.SetWholeRegContent(register.GetIndex(), BitArrayHelper.FromUShortLE(value));
         }
 
         internal void Continue() {

@@ -2,11 +2,13 @@
 using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System.Text;
 
 namespace Components.Logic {
     public class SingleAndGate : IODeviceBase, IUpdate {
+        public int Priority { get; set; } = 0;
+
         public SignalPort Output => Outputs[0];
 
         public SingleAndGate(string name, int totalInputs) : base(name) {

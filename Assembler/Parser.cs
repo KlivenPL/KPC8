@@ -2,6 +2,8 @@
 using Assembler.Builders;
 using Assembler.Contexts;
 using Assembler.Contexts.Labels;
+using Assembler.Contexts.Regions;
+using Assembler.Contexts.Signatures;
 using Assembler.DebugData;
 using Assembler.Encoders;
 using Assembler.Parsers;
@@ -29,6 +31,10 @@ namespace Assembler {
             pseudoinstructionParser = new PseudoinstructionParser(new PseudoinstructionsContext(labelsContext));
             commandParser = new CommandParser(new CommandsContext(), labelsContext);
             unresolvedPseudoinstructions = new List<LabelNotResolvedException>();
+
+#if DEBUG
+            SignaturesContext.DumpToJson();
+#endif
         }
 
         public BitArray[] Parse(TokenReader reader) => Parse(reader, out _);
@@ -40,9 +46,9 @@ namespace Assembler {
 
             reader.Read();
 
-            InsertModules(ref reader);
+            InsertModules(ref reader, out var constRegion);
 
-            PreParseAllRegions(ref reader);
+            PreParseAllRegions(ref reader, constRegion);
 
             ParseTokens(ref reader, romBuilder, debugSymbolList, ref lastUnresolvedLabelToken);
 
@@ -54,11 +60,12 @@ namespace Assembler {
             return romBuilder.Build();
         }
 
-        private void InsertModules(ref TokenReader reader) {
-            var constRegion = regionParser.PreParseConstRegion(reader);
+        private void InsertModules(ref TokenReader reader, out ConstRegion constRegion) {
+            constRegion = regionParser.PreParseConstRegion(reader);
+            var origPos = reader.Position;
             var tokens = reader.GetTokens();
             tokens.AddRange(constRegion.InsertedModuleTokens);
-            reader = new TokenReader(tokens, 0);
+            reader = new TokenReader(tokens, origPos);
         }
 
         private void ResolvePseudoinstructions(RomBuilder romBuilder, List<IDebugSymbol> debugSymbolList) {
@@ -109,10 +116,10 @@ namespace Assembler {
             reader = origReader;
         }
 
-        private void PreParseAllRegions(ref TokenReader reader) {
+        private void PreParseAllRegions(ref TokenReader reader, ConstRegion constRegion) {
             //  var clonedReader = reader.Clone();
 
-            if (!labelsContext.TryPreParseRegions(reader, out var mainLabelIdentifier, out var errorMessage)) {
+            if (!labelsContext.TryPreParseRegions(reader, constRegion, out var mainLabelIdentifier, out var errorMessage)) {
                 throw ParserException.Create($"Error while parsing regions: {errorMessage}", reader.Current);
             }
 
@@ -158,7 +165,13 @@ namespace Assembler {
 
             } catch (ParserException) {
                 if (readerClone.CastCurrent<IdentifierToken>().IsPseudoinstruction(out _)) {
-                    var pseudoinstructionToken = reader.CastCurrent<IdentifierToken>();
+                    IdentifierToken pseudoinstructionToken = null;
+                    try {
+                        pseudoinstructionToken = reader.CastCurrent<IdentifierToken>();
+
+                    } catch {
+                        throw;
+                    }
                     try {
                         var pseudoinstruction = pseudoinstructionParser.Parse(readerClone);
                         romBuilder.AddPseudoinstruction(pseudoinstruction, out var loAddress);

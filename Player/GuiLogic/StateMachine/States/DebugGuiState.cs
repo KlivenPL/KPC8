@@ -79,7 +79,7 @@ namespace Player.GuiLogic.StateMachine.States {
                         DebugSymbols = debugSymbols,
                         ServerPort = 32137, //todo do poprawy
                         KPC8ConfigurationDto = kPC8ConfigurationDto,
-                        RedirectDebuggerLogsToDebugConsole = true,
+                        RedirectDebuggerLogsToDebugConsole = false,
                     };
 
                     debugInitializer.InitializeAttachServer(parameters);

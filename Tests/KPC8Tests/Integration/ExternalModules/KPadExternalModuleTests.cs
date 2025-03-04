@@ -1,11 +1,11 @@
-﻿using ExternalDevices.HID;
+﻿using _Infrastructure.Simulation.Loops;
+using ExternalDevices.HID;
 using Infrastructure.BitArrays;
 using KPC8.ControlSignals;
 using KPC8.ExternalModules;
 using KPC8.Microcode;
 using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
-using Simulation.Loops;
 using System;
 using System.Collections;
 using System.Threading;
@@ -72,10 +72,6 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             var romData = new BitArray[] {
                 instructionHigh1,
                 instructionLow1,
-                instructionHigh1,
-                instructionLow1,
-                instructionHigh2,
-                instructionLow2,
                 instructionHigh2,
                 instructionLow2,
             };
@@ -95,8 +91,8 @@ namespace Tests.KPC8Tests.Integration.ExternalModules {
             kPadExternalModule1.SimulateButtons(simulatedButtons1);
             kPadExternalModule2.SimulateButtons(simulatedButtons2);
 
-            StepThroughProceduralInstruction(modules, instruction);
-            StepThroughProceduralInstruction(modules, instruction);
+            Thread.Sleep(100);
+
             StepThroughProceduralInstruction(modules, instruction);
             StepThroughProceduralInstruction(modules, instruction);
 

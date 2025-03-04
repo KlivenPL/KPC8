@@ -105,6 +105,12 @@ namespace KPC8.ControlSignals {
             [ControlSignal(ControlSignalType.RegBToBus_oe)]
             public Signal RegBToBus_oe { get; init; }
 
+            [ControlSignal(ControlSignalType.FlagsToDataBus_oe)]
+            public Signal FlagsToDataBus_oe { get; init; }
+
+            [ControlSignal(ControlSignalType.DataBusToFlags_le)]
+            public Signal DataBusToFlags_le { get; init; }
+
             [ControlSignal(ControlSignalType.Alu_oe)]
             public Signal Alu_oe { get; init; }
 

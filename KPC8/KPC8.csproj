@@ -8,11 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Components\Components.csproj" />
     <ProjectReference Include="..\ExternalDevices\ExternalDevices.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Rendering\" />
+    <ProjectReference Include="..\Infrastructure\_Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

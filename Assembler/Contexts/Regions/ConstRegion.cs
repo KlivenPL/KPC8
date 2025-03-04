@@ -1,4 +1,5 @@
 ﻿using Assembler._Infrastructure;
+using Assembler.Commands;
 using Assembler.Contexts.Labels;
 using Assembler.Parsers;
 using Assembler.Readers;
@@ -11,6 +12,7 @@ namespace Assembler.Contexts.Regions {
         private static readonly CommandsContext commandsContext = new CommandsContext();
         private readonly List<TokenInfo> tokens;
         private readonly List<IToken> insertedModules;
+        private ushort? nextModuleAddress = null;
 
         public ConstRegion() {
             tokens = new List<TokenInfo>();
@@ -54,11 +56,20 @@ namespace Assembler.Contexts.Regions {
             tokens.Add(newTokenInfo);
         }
 
+        public void SetNextModuleAddress(ushort nextModuleAddress) {
+            this.nextModuleAddress = nextModuleAddress;
+        }
+
         public LabelInfo GetLabel(string labelName) {
             throw new OtherInnerException($"{RegionPreParser.ConstRegionName} region cannot contain labels");
         }
 
         public void InsertModule(List<IToken> tokens) {
+            if (nextModuleAddress != null) {
+                insertedModules.AddRange(SetAddressCommand.CreateCommandOnCompile(nextModuleAddress.Value).ToList());
+                nextModuleAddress = null;
+            }
+
             insertedModules.AddRange(tokens);
         }
 

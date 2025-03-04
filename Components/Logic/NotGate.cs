@@ -1,7 +1,7 @@
 ﻿using _Infrastructure.BitArrays;
 using Components._Infrastructure.IODevices;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System.Text;
 
 namespace Components.Logic {

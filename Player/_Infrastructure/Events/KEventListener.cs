@@ -22,7 +22,7 @@ namespace Player._Infrastructure.Events {
             }
         }
 
-        public static bool TryGetListeners(Type eventType, out (IEnumerable<object> listeners, MethodInfo methodInfo) tuple) {
+        internal static bool TryGetListeners(Type eventType, out (IEnumerable<object> listeners, MethodInfo methodInfo) tuple) {
             if (eventMethodInfos.TryGetValue(eventType, out var methodInfo)) {
                 var listeners = eventListenersCache[eventType];
                 tuple = (listeners, methodInfo);

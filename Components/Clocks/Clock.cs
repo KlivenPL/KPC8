@@ -1,5 +1,5 @@
 ﻿using Components.Signals;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System;
 
 namespace Components.Clocks {

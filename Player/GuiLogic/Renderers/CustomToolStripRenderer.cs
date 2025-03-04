@@ -1,7 +1,7 @@
 ﻿namespace Player.Gui.Renderers {
     internal class CustomToolStripRenderer : ToolStripProfessionalRenderer {
         public CustomToolStripRenderer() : base() {
-
+            RoundedEdges = false;
         }
 
         protected override void OnRenderToolStripBorder(ToolStripRenderEventArgs e) {

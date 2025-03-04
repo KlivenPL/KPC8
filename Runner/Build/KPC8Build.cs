@@ -1,6 +1,6 @@
-﻿using Components.Clocks;
+﻿using _Infrastructure.Simulation.Loops;
+using Components.Clocks;
 using KPC8.ControlSignals;
-using Simulation.Loops;
 using System.Collections.Generic;
 
 namespace Runner.Build {

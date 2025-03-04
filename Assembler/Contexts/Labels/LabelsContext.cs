@@ -21,12 +21,12 @@ namespace Assembler.Contexts.Labels {
         public IRegion CurrentRegion { get; private set; }
         internal ModuleRegion CurrentModule { get; set; }
 
-        public bool TryPreParseRegions(TokenReader tokenReader, out string mainLabelIdentifier, out string errorMessage) {
+        public bool TryPreParseRegions(TokenReader tokenReader, ConstRegion constRegion, out string mainLabelIdentifier, out string errorMessage) {
             mainLabelIdentifier = null;
             errorMessage = null;
 
             try {
-                regionParser.PreParseAllRegions(tokenReader, out mainLabelIdentifier, out var constRegion, out var modules);
+                regionParser.PreParseAllRegions(tokenReader, constRegion, out mainLabelIdentifier, out var modules);
                 this.modules = modules.ToArray();
                 CurrentRegion = constRegion;
                 CurrentModule = modules[0];
@@ -88,11 +88,12 @@ namespace Assembler.Contexts.Labels {
 
             try {
                 address = TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule);
+                return true;
             } catch (Exception) {
                 return false;
             }
 
-            return true;
+            return false;
 
             ushort GetFromLocalRegion() {
                 if (moduleStr != null || regionStr != null) {
@@ -126,11 +127,12 @@ namespace Assembler.Contexts.Labels {
 
             try {
                 token = TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule).DeepCopy();
+                return true;
             } catch (Exception) {
                 return false;
             }
 
-            return true;
+            return false;
 
             IToken GetFromLocalRegion() {
                 if (moduleStr != null || regionStr != null) {
@@ -171,7 +173,7 @@ namespace Assembler.Contexts.Labels {
                 return false;
             }
 
-            return true;
+            return false;
 
             IToken GetFromLocalRegion() {
                 if (moduleStr != null || regionStr != null) {

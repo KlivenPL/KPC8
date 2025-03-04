@@ -43,6 +43,7 @@
             // 
             this.mnuToolBar.AutoSize = false;
             this.mnuToolBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.mnuToolBar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.mnuToolBar.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.mnuToolBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mnuFileDrop,
@@ -55,7 +56,7 @@
             this.toolStripSeparator3});
             this.mnuToolBar.Location = new System.Drawing.Point(0, 0);
             this.mnuToolBar.Name = "mnuToolBar";
-            this.mnuToolBar.Size = new System.Drawing.Size(1584, 38);
+            this.mnuToolBar.Size = new System.Drawing.Size(1500, 38);
             this.mnuToolBar.TabIndex = 0;
             this.mnuToolBar.Text = "toolStrip1";
             // 
@@ -147,15 +148,15 @@
             this.canvasPnl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.canvasPnl.Location = new System.Drawing.Point(0, 38);
             this.canvasPnl.Name = "canvasPnl";
-            this.canvasPnl.Size = new System.Drawing.Size(1584, 823);
+            this.canvasPnl.Size = new System.Drawing.Size(1500, 900);
             this.canvasPnl.TabIndex = 1;
             // 
             // KPC8Player
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(1584, 861);
+            this.BackColor = System.Drawing.SystemColors.WindowText;
+            this.ClientSize = new System.Drawing.Size(1500, 938);
             this.Controls.Add(this.canvasPnl);
             this.Controls.Add(this.mnuToolBar);
             this.Name = "KPC8Player";

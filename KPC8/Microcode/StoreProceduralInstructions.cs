@@ -18,7 +18,7 @@ namespace KPC8.Microcode {
 
 
         [ProceduralInstruction(McInstructionType.SbramI)]
-        [InstructionFormat(McInstructionFormat.Register)]
+        [InstructionFormat(McInstructionFormat.Immediate)]
         public static IEnumerable<Cs> SbramI() {
             yield return Cs.DecDest_oe | CsComb.Regs_oe_lo | Cs.Mar_le_lo;
             yield return Cs.DecDest_oe | CsComb.Regs_oe_hi | Cs.Mar_le_hi;

@@ -2,15 +2,18 @@
 using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System.Linq;
 using System.Text;
 
 namespace Components.Multiplexers {
     public class HLSingleSwitch2NToNMux : IODeviceBase, IMux, IUpdate {
+        public int Priority { get; set; } = 0;
+
         public SignalPort SelectB { get; protected set; } = new SignalPort();
         public SignalPort[] InputsA => Inputs.Take(singleInputSize).ToArray();
         public SignalPort[] InputsB => Inputs.Skip(singleInputSize).ToArray();
+        public SignalPort Clk { get; protected set; } = new SignalPort();
 
         private readonly int singleInputSize;
 
@@ -26,7 +29,9 @@ namespace Components.Multiplexers {
         }
 
         public void Update() {
-            WriteOutput();
+            if (Clk) {
+                WriteOutput();
+            }
         }
 
         private void WriteOutput() {

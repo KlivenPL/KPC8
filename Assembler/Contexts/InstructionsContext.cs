@@ -1,4 +1,8 @@
-﻿using KPC8._Infrastructure.Microcode.Attributes;
+﻿#if DEBUG
+using Assembler.Contexts.Signatures._Infrastructure;
+using Assembler.Contexts.Signatures;
+#endif
+using KPC8._Infrastructure.Microcode.Attributes;
 using KPC8.Microcode;
 using KPC8.RomProgrammers.Microcode;
 using System;
@@ -23,6 +27,9 @@ namespace Assembler.Contexts {
             AddProceduralInstructionsFormats(typeof(StoreProceduralInstructions));
 
             AddConditionalInstructionsFormats(typeof(JumpConditionalInstructions));
+#if DEBUG
+            SignaturesContext.AddSignatures(CreateInstructionSignatures().ToList());
+#endif
         }
 
         public InstructionFormatAttribute GetInstructionFormat(McInstructionType instructionType) {
@@ -50,5 +57,55 @@ namespace Assembler.Contexts {
                 instructionsFormats.Add(instrAttribute.McInstructionType, instrFormatAttribute);
             }
         }
+
+#if DEBUG
+
+        private IEnumerable<KpcSignature> CreateInstructionSignatures() {
+            return instructionsFormats.Select(x => new KpcSignature {
+                Name = Enum.GetName(x.Key),
+                Type = KpcSignatureType.Instruction,
+                Arguments = ConvertFormatToArguments(x.Value).ToList(),
+            });
+        }
+
+        private IEnumerable<KpcArgument> ConvertFormatToArguments(InstructionFormatAttribute format) {
+            switch (format.InstructionFormat) {
+                case McInstructionFormat.Register:
+                    var regsToResolveCount = 3;
+
+                    if (format.RegDestRestrictions != InstructionFormatAttribute.DefaultRegDestRestrictions) {
+                        regsToResolveCount--;
+                    }
+
+                    if (format.RegARestrictions != InstructionFormatAttribute.DefaultRegARestrictions) {
+                        regsToResolveCount--;
+                    }
+
+                    if (format.RegBRestrictions != InstructionFormatAttribute.DefaultRegBRestrictions) {
+                        regsToResolveCount--;
+                    }
+
+                    for (int i = 0; i < regsToResolveCount; i++) {
+                        yield return new KpcArgument { TokenClass = Tokens.TokenClass.Register };
+                    }
+
+                    break;
+                case McInstructionFormat.Immediate:
+
+                    if (format.RegDestRestrictions == InstructionFormatAttribute.DefaultRegDestRestrictions) {
+                        yield return new KpcArgument { TokenClass = Tokens.TokenClass.Register };
+                    }
+
+                    if (!format.ImmediateValue.HasValue) {
+                        yield return new KpcArgument { TokenClass = Tokens.TokenClass.Number };
+                    }
+
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+#endif
     }
 }

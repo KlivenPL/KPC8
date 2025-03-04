@@ -1,14 +1,14 @@
 ﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System.Collections;
 using System.Text;
 
 namespace Components.Counters {
     public class HLCounter : IODeviceBase, ICounter, IUpdate {
         protected readonly BitArray mainBuffer;
-        public int Priority => -1;
+        public int Priority { get; set; } = -1;
         public SignalPort LoadEnable { get; protected set; } = new SignalPort();
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
         public SignalPort CountEnable { get; protected set; } = new SignalPort();

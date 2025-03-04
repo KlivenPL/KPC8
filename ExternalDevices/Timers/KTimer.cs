@@ -1,7 +1,7 @@
 ﻿using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System;
 using System.Collections;
 using System.Text;

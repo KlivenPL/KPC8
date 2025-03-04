@@ -1,8 +1,8 @@
 ﻿using _Infrastructure.BitArrays;
+using _Infrastructure.Simulation.Updates;
 using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
 using System.Linq;
 using System.Text;
 

@@ -2,13 +2,15 @@
 using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using Simulation.Updates;
+using _Infrastructure.Simulation.Updates;
 using System;
 using System.Collections;
 using System.Text;
 
 namespace Components.Decoders {
     public class HLDecoder : IODeviceBase, IDecoder, IUpdate {
+        public int Priority { get; set; } = 0;
+
         public SignalPort OutputEnable { get; protected set; } = new SignalPort();
 
         public BitArray Input => Inputs.ToBitArray();
