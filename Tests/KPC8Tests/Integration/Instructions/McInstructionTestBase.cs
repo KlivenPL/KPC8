@@ -84,7 +84,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         }
 
         protected virtual LwKpcBuild BuildLwEmulator(BitArray[] rom, BitArray[] ram) {
-            return new LwKpcBuild(rom?.Select(x => x.ToByteLE()).ToArray(), ram?.Select(x => x.ToByteLE()).ToArray());
+            return new LwKpcBuild(rom?.Select(x => x?.ToByteLE() ?? 0).ToArray(), ram?.Select(x => x?.ToByteLE() ?? 0).ToArray());
         }
 
         protected virtual void ExecuteNextLwInstruction(LwKpcBuild build) {

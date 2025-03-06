@@ -7,7 +7,7 @@ namespace LightweightEmulator.Kpc {
             Rom = new Memory(ushort.MaxValue + 1, rom);
             Ram = new Memory(ushort.MaxValue + 1, ram);
             Pc = new();
-            //Mar = new();
+            Mar = new();
             Flags = new();
         }
 
@@ -16,7 +16,7 @@ namespace LightweightEmulator.Kpc {
         public Memory Ram { get; }
 
         public Register16 Pc { get; }
-        //public Register16 Mar { get; }
+        public Register16 Mar { get; }
 
         public Register4 Flags { get; }
     }

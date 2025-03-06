@@ -9,6 +9,7 @@ namespace Tests._Infrastructure {
     public static class EmuLwIntegrity {
         public static void AssertFullIntegrity(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {
             AssertPcIntegrity(lwBuild, emuModulePanel);
+            AssertMarIntegrity(lwBuild, emuModulePanel);
             AssertFlagsIntegrity(lwBuild, emuModulePanel);
             AssertRegsIntegrity(lwBuild, emuModulePanel);
             AssertRomIntegrity(lwBuild, emuModulePanel);
@@ -19,6 +20,12 @@ namespace Tests._Infrastructure {
             var emu = emuModulePanel.Memory.PcContent;
             var lw = BitArrayHelper.FromUShortLE(lwBuild.Pc.WordValue);
             BitAssert.Equality(emu, lw, $"[EMU/LW {nameof(AssertPcIntegrity)}]:\n");
+        }
+
+        public static void AssertMarIntegrity(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {
+            var emu = emuModulePanel.Memory.MarContent;
+            var lw = BitArrayHelper.FromUShortLE(lwBuild.Mar.WordValue);
+            BitAssert.Equality(emu, lw, $"[EMU/LW {nameof(AssertMarIntegrity)}]:\n");
         }
 
         public static void AssertRegsIntegrity(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {

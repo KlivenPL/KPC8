@@ -3,8 +3,6 @@ using LightweightEmulator.Kpc;
 
 namespace LightweightEmulator.Pipelines {
     internal class LwInstructionProcessor {
-        // Define the index for the T1 register (adjust as appropriate).
-        private const int T1_INDEX = 7;
 
         public void Execute(LwKpcBuild kpc, LightweightInstruction lwInstr) {
             var regDest = kpc.ProgrammerRegisters[lwInstr.RegDestIndex];
@@ -12,40 +10,45 @@ namespace LightweightEmulator.Pipelines {
             var regB = kpc.ProgrammerRegisters[lwInstr.RegBIndex];
             var imm = lwInstr.ImmediateValue;
             var flags = kpc.Flags;
+            var mar = kpc.Mar;
+
+            kpc.Mar.WordValue = kpc.Pc.WordValue;
+            kpc.Pc.WordValue += 2;
+            kpc.Mar.WordValue += 1;
 
             switch (lwInstr.Type) {
                 // --- Memory & Data Movement Operations ---
                 case KpcInstructionType.Nop:
                     break;
                 case KpcInstructionType.Lbrom:
-                    ExecuteLbrom(kpc, regA, regB);
+                    ExecuteLbrom(kpc, regA, regB, mar);
                     break;
                 case KpcInstructionType.Lbromo:
-                    ExecuteLbromo(kpc, regDest, regA, regB);
+                    ExecuteLbromo(kpc, regDest, regA, regB, mar, flags);
                     break;
                 case KpcInstructionType.Lwrom:
-                    ExecuteLwrom(kpc, regA, regB);
+                    ExecuteLwrom(kpc, regA, regB, mar);
                     break;
                 case KpcInstructionType.Lwromo:
-                    ExecuteLwromo(kpc, regDest, regA, regB);
+                    ExecuteLwromo(kpc, regDest, regA, regB, mar, flags);
                     break;
                 case KpcInstructionType.Lbram:
-                    ExecuteLbram(kpc, regA, regB);
+                    ExecuteLbram(kpc, regA, regB, mar);
                     break;
                 case KpcInstructionType.Lbramo:
-                    ExecuteLbramo(kpc, regDest, regA, regB);
+                    ExecuteLbramo(kpc, regDest, regA, regB, mar, flags);
                     break;
                 case KpcInstructionType.Lwram:
-                    ExecuteLwram(kpc, regA, regB);
+                    ExecuteLwram(kpc, regA, regB, mar);
                     break;
                 case KpcInstructionType.Lwramo:
-                    ExecuteLwramo(kpc, regDest, regA, regB);
+                    ExecuteLwramo(kpc, regDest, regA, regB, mar, flags);
                     break;
                 case KpcInstructionType.Popb:
-                    ExecutePopb(kpc, regA, regB);
+                    ExecutePopb(kpc, regA, regB, mar, flags);
                     break;
                 case KpcInstructionType.Popw:
-                    ExecutePopw(kpc, regA, regB);
+                    ExecutePopw(kpc, regA, regB, mar, flags);
                     break;
                 case KpcInstructionType.Sbram:
                     kpc.Ram.WriteByte(regA.LowValue, regB.WordValue);
@@ -210,50 +213,72 @@ namespace LightweightEmulator.Pipelines {
                 default:
                     throw new NotImplementedException();
             }
-
-            kpc.Pc.WordValue += 2;
         }
 
         #region Memory & Data Movement Methods
-        private void ExecuteLbrom(LwKpcBuild kpc, Register16 regA, Register16 regB) {
+        private void ExecuteLbrom(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
             regA.LowValue = kpc.Rom.ReadByte(regB.WordValue);
+            mar.WordValue = regB.WordValue;
         }
 
-        private void ExecuteLbromo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB) {
-            regDest.LowValue = kpc.Rom.ReadByte((ushort)(regA.WordValue + regB.WordValue));
+        private void ExecuteLbromo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+            var tmpReg = new Register16();
+            ExecuteAddw(tmpReg, regA, regB, flags);
+            regDest.LowValue = kpc.Rom.ReadByte(tmpReg.WordValue);
+            mar.WordValue = tmpReg.WordValue;
         }
 
-        private void ExecuteLwrom(LwKpcBuild kpc, Register16 regA, Register16 regB) {
+        private void ExecuteLwrom(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
             regA.WordValue = kpc.Rom.ReadWord(regB.WordValue);
+            mar.WordValue = (ushort)(regB.WordValue + 1);
         }
 
-        private void ExecuteLwromo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB) {
-            regDest.WordValue = kpc.Rom.ReadWord((ushort)(regA.WordValue + regB.WordValue));
+        private void ExecuteLwromo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+            var tmpReg = new Register16();
+            ExecuteAddw(tmpReg, regA, regB, flags);
+            regDest.WordValue = kpc.Rom.ReadWord(tmpReg.WordValue);
+            mar.WordValue = (ushort)(tmpReg.WordValue + 1);
         }
 
-        private void ExecuteLbram(LwKpcBuild kpc, Register16 regA, Register16 regB) {
+        private void ExecuteLbram(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
             regA.LowValue = kpc.Ram.ReadByte(regB.WordValue);
+            mar.WordValue = regB.WordValue;
         }
 
-        private void ExecuteLbramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB) {
-            regDest.LowValue = kpc.Ram.ReadByte((ushort)(regA.WordValue + regB.WordValue));
+        private void ExecuteLbramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+            var tmpReg = new Register16();
+            ExecuteAddw(tmpReg, regA, regB, flags);
+            regDest.LowValue = kpc.Ram.ReadByte(tmpReg.WordValue);
+            mar.WordValue = tmpReg.WordValue;
         }
 
-        private void ExecuteLwram(LwKpcBuild kpc, Register16 regA, Register16 regB) {
+        private void ExecuteLwram(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
             regA.WordValue = kpc.Ram.ReadWord(regB.WordValue);
+            mar.WordValue = (ushort)(regB.WordValue + 1);
         }
 
-        private void ExecuteLwramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB) {
-            regDest.WordValue = kpc.Ram.ReadWord((ushort)(regA.WordValue + regB.WordValue));
+        private void ExecuteLwramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+            var tmpReg = new Register16();
+            ExecuteAddw(tmpReg, regA, regB, flags);
+            regDest.WordValue = kpc.Ram.ReadWord(tmpReg.WordValue);
+            mar.WordValue = (ushort)(tmpReg.WordValue + 1);
         }
 
-        private void ExecutePopb(LwKpcBuild kpc, Register16 regA, Register16 regB) {
+        private void ExecutePopb(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+            var tmpReg = new Register16();
+            var minusOneReg = new Register16(-1);
+            ExecuteAddw(tmpReg, regB, minusOneReg, flags);
             regA.LowValue = kpc.Ram.ReadByte(--regB.WordValue);
+            mar.WordValue = regB.WordValue;
         }
 
-        private void ExecutePopw(LwKpcBuild kpc, Register16 regA, Register16 regB) {
+        private void ExecutePopw(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+            var tmpReg = new Register16();
+            var minusTwoReg = new Register16(-2);
+            ExecuteAddw(tmpReg, regB, minusTwoReg, flags);
             regA.LowValue = kpc.Ram.ReadByte(--regB.WordValue);
             regA.HighValue = kpc.Ram.ReadByte(--regB.WordValue);
+            mar.WordValue = regB.WordValue;
         }
 
         //private void ExecuteLbext(KpcBuild kpc, Register16 regA) {
