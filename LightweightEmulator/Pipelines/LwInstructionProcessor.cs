@@ -166,6 +166,7 @@ namespace LightweightEmulator.Pipelines {
                     break;
 
                 // --- Logic instructions ---
+
                 case KpcInstructionType.Not:
                     ExecuteNot(regDest, regA, regB, flags);
                     break;
@@ -195,19 +196,56 @@ namespace LightweightEmulator.Pipelines {
                 case KpcInstructionType.Jr:
                     ExecuteJr(regB, pc);
                     break;
+
                 case KpcInstructionType.Jro:
                     ExecuteJro(regA, regB, pc, flags);
                     break;
+
                 case KpcInstructionType.Jas:
                     ExecuteJas(regA, regB, pc);
                     break;
+
                 case KpcInstructionType.JpcaddI:
                     ExecuteJpcaddI(imm, pc, mar, flags);
                     break;
+
                 case KpcInstructionType.JpcsubI:
                     ExecuteJpcsubI(imm, pc, mar, flags);
                     break;
 
+                // --- Jump conditional instructions ---
+
+                case KpcInstructionType.Jwz:
+                    ExecuteJwz(regA, regB, pc, flags);
+                    break;
+
+                case KpcInstructionType.Jwnotz:
+                    ExecuteJwnotz(regA, regB, pc, flags);
+                    break;
+
+                case KpcInstructionType.Jwn:
+                    ExecuteJwn(regA, regB, pc, flags);
+                    break;
+
+                case KpcInstructionType.Jwnotn:
+                    ExecuteJwnotn(regA, regB, pc, flags);
+                    break;
+
+                case KpcInstructionType.Jzf:
+                    ExecuteJzf(regB, pc, flags);
+                    break;
+
+                case KpcInstructionType.Jnf:
+                    ExecuteJnf(regB, pc, flags);
+                    break;
+
+                case KpcInstructionType.Jcf:
+                    ExecuteJcf(regB, pc, flags);
+                    break;
+
+                case KpcInstructionType.Jof:
+                    ExecuteJof(regB, pc, flags);
+                    break;
 
                 default:
                     throw new NotImplementedException();
@@ -565,6 +603,87 @@ namespace LightweightEmulator.Pipelines {
 
             var zero = 0;
             mar.WordValue = (ushort)(zero - 1);
+        }
+
+        #endregion
+
+        #region Jump conditional instructions
+        private void ExecuteJwz(Register16 regA, Register16 regB, Register16 pc, Register4 flags) {
+            Register16 tmpReg = new();
+            Register16 regALowReg = new(regA.LowValue);
+            Register16 regAHighReg = new(regA.HighValue);
+
+            ExecuteOr(tmpReg, regALowReg, regAHighReg, flags);
+
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(KpcFlag.Zf)) {
+                pc.WordValue = regB.WordValue;
+            }
+        }
+
+        private void ExecuteJwnotz(Register16 regA, Register16 regB, Register16 pc, Register4 flags) {
+            Register16 tmpReg = new();
+            Register16 regALowReg = new(regA.LowValue);
+            Register16 regAHighReg = new(regA.HighValue);
+
+            ExecuteOr(tmpReg, regALowReg, regAHighReg, flags);
+
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (!kpcFlags.HasFlag(KpcFlag.Zf)) {
+                pc.WordValue = regB.WordValue;
+            }
+        }
+
+        private void ExecuteJwn(Register16 regA, Register16 regB, Register16 pc, Register4 flags) {
+            Register16 tmpReg = new();
+            Register16 regAHighReg = new(regA.HighValue);
+
+            ExecuteOr(tmpReg, tmpReg, regAHighReg, flags);
+
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(KpcFlag.Nf)) {
+                pc.WordValue = regB.WordValue;
+            }
+        }
+
+        private void ExecuteJwnotn(Register16 regA, Register16 regB, Register16 pc, Register4 flags) {
+            Register16 tmpReg = new();
+            Register16 regAHighReg = new(regA.HighValue);
+
+            ExecuteOr(tmpReg, tmpReg, regAHighReg, flags);
+
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (!kpcFlags.HasFlag(KpcFlag.Nf)) {
+                pc.WordValue = regB.WordValue;
+            }
+        }
+
+        private void ExecuteJzf(Register16 regB, Register16 pc, Register4 flags) {
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(KpcFlag.Zf)) {
+                pc.WordValue = regB.WordValue;
+            }
+        }
+
+        private void ExecuteJnf(Register16 regB, Register16 pc, Register4 flags) {
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(KpcFlag.Nf)) {
+                pc.WordValue = regB.WordValue;
+            }
+        }
+
+        private void ExecuteJcf(Register16 regB, Register16 pc, Register4 flags) {
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(KpcFlag.Cf)) {
+                pc.WordValue = regB.WordValue;
+            }
+        }
+
+        private void ExecuteJof(Register16 regB, Register16 pc, Register4 flags) {
+            var kpcFlags = (KpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(KpcFlag.Of)) {
+                pc.WordValue = regB.WordValue;
+            }
         }
 
         #endregion
