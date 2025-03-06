@@ -17,6 +17,7 @@ namespace KPC8.Modules {
         private readonly HLLohRegister[] regs;
 
         public BitArray GetWholeRegContent(int index) => regs[index].Content;
+        public ushort GetWholeRegContentUshortLe(int index) => regs[index].Content.ToUShortLE();
         public BitArray GetLoRegContent(int index) => regs[index].Content.Skip(8);
         public BitArray GetHiRegContent(int index) => regs[index].Content.Take(8);
         public void SetWholeRegContent(int index, BitArray value) => regs[index].SetContent(value);

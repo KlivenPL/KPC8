@@ -1,9 +1,14 @@
 ﻿namespace LightweightEmulator.Components {
-    internal class Memory {
+    public class Memory {
         private readonly byte[] storage;
 
         public Memory(int size) {
             storage = new byte[size];
+        }
+
+        public Memory(int size, byte[]? bytes) {
+            storage = new byte[size];
+            bytes?.CopyTo(storage, 0);
         }
 
         public void WriteByte(byte data, ushort address) {
@@ -24,6 +29,12 @@
             var b2 = storage[address + 1];
 
             return (ushort)(b1 << 8 | b2);
+        }
+
+        public byte[] DumpToBytes() {
+            var bytes = new byte[storage.Length];
+            storage.CopyTo(bytes, 0);
+            return bytes;
         }
     }
 }

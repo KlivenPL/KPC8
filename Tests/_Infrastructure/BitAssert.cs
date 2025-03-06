@@ -1,6 +1,7 @@
 ﻿using _Infrastructure.BitArrays;
 using Components.Signals;
 using Infrastructure.BitArrays;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +37,29 @@ namespace Tests._Infrastructure {
 
         public static void Equality(BitArray bitArray1, BitArray bitArray2) {
             Equality(bitArray1, bitArray2, null);
+        }
+
+        public static void Equality(byte[] expected, byte[] actual, string additionalMessage = "") {
+            // First, ensure the arrays have the same length.
+            if (expected.Length != actual.Length) {
+                throw new Xunit.Sdk.XunitException(
+                    $"{additionalMessage}Byte arrays have different lengths: expected {expected.Length}, but got {actual.Length}");
+            }
+
+            var differences = new List<string>();
+
+            // Compare each byte.
+            for (int i = 0; i < expected.Length; i++) {
+                if (expected[i] != actual[i]) {
+                    differences.Add(
+                        $"At position 0x{i:X4}: expected 0x{expected[i]:X2}, but got 0x{actual[i]:X2}");
+                }
+            }
+
+            // If any differences were found, throw an exception with all differences.
+            if (differences.Count > 0) {
+                throw new Xunit.Sdk.XunitException($"{additionalMessage}Byte arrays differs.{Environment.NewLine}{string.Join(Environment.NewLine, differences)}");
+            }
         }
     }
 }

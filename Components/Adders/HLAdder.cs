@@ -1,8 +1,8 @@
 ﻿using _Infrastructure.BitArrays;
+using _Infrastructure.Simulation.Updates;
 using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using _Infrastructure.Simulation.Updates;
 using System.Collections;
 using System.Linq;
 using System.Text;
@@ -52,11 +52,15 @@ namespace Components.Adders {
         public void Update() {
             if (OutputEnable) {
                 var subOperation = GetSubOperation();
-                LoadInputs(subOperation == SubOperation.Subtract);
+                var isSubtraction = subOperation == SubOperation.Subtract;
 
-                Operate(subOperation, CarryIn || subOperation == SubOperation.Subtract, out var carryOut, out var isZero);
-                WriteFlags(carryOut, isZero);
+                LoadInputs(invert: isSubtraction);
 
+                bool effectiveCarryIn = CarryIn || isSubtraction;
+
+                Operate(subOperation, effectiveCarryIn, out var carryOut, out var isZero);
+
+                WriteFlags(isSubtraction, carryOut, isZero);
                 WriteOutput();
             }
         }
@@ -154,17 +158,18 @@ namespace Components.Adders {
         /// <summary>
         /// http://teaching.idallen.com/dat2343/10f/notes/040_overflow.txt
         /// </summary>
-        private void WriteFlags(bool carryOut, bool isZero) {
+        private void WriteFlags(bool isSubtraction, bool carryOut, bool isZero) {
             CarryFlag.Write(carryOut);
             NegativeFlag.Write(inputA[0]);
 
             var overflow =
-                C ?
+                isSubtraction ?
                     !Inputs[0] && Inputs[inputA.Length] && inputA[0] ||
                     Inputs[0] && !Inputs[inputA.Length] && !inputA[0]
                 :
                     !Inputs[0] && !inputB[0] && inputA[0] ||
                     Inputs[0] && inputB[0] && !inputA[0];
+
 
             OverflowFlag.Write(overflow);
             ZeroFlag.Write(isZero);

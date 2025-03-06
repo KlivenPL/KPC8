@@ -76,6 +76,7 @@ namespace Tests.KPC8Tests.Modules {
         [InlineData("10000000", "01111110", "00000010", CpuFlag.Of | CpuFlag.Cf)]
         [InlineData("00000000", "00000000", "00000000", CpuFlag.Zf | CpuFlag.Cf)]
         [InlineData("01111111", "01111111", "00000000", CpuFlag.Zf | CpuFlag.Cf)]
+        [InlineData("00000000", "00000001", "11111111", CpuFlag.Nf)]
         [InlineData("11111111", "10000001", "01111110", CpuFlag.Cf)]
         public void SubtractTwoNumbers(string dataAStr, string dataBStr, string resultStr, CpuFlag flags) {
             var dataA = BitArrayHelper.FromString(dataAStr);

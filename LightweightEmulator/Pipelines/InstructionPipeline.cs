@@ -2,11 +2,11 @@
 
 namespace LightweightEmulator.Pipelines {
     internal class InstructionPipeline {
-        public void Execute(KpcBuild kpc, RegisterInstruction instrReg, ImmediateInstruction instrImm) {
+        public void Execute(LwKpcBuild kpc, LightweightInstruction instrReg, ImmediateInstruction instrImm) {
 
-            var regDest = kpc.Registers[instrReg.RegDestIndex];
-            var regA = kpc.Registers[instrReg.RegAIndex];
-            var regB = kpc.Registers[instrReg.RegBIndex];
+            var regDest = kpc.ProgrammerRegisters[instrReg.RegDestIndex];
+            var regA = kpc.ProgrammerRegisters[instrReg.RegAIndex];
+            var regB = kpc.ProgrammerRegisters[instrReg.RegBIndex];
             var imm = instrImm.ImmediateValue;
 
             switch (instrReg.Type) {
@@ -41,7 +41,7 @@ namespace LightweightEmulator.Pipelines {
                     break;
                 case KpcInstructionType.Popw:
                     regA.LowValue = kpc.Ram.ReadByte(--regB.WordValue);
-                    regA.HiValue = kpc.Ram.ReadByte(--regB.WordValue);
+                    regA.HighValue = kpc.Ram.ReadByte(--regB.WordValue);
                     break;
                 case KpcInstructionType.Lbext:
                     break;
@@ -64,7 +64,7 @@ namespace LightweightEmulator.Pipelines {
                     kpc.Ram.WriteByte(regA.LowValue, regB.WordValue++);
                     break;
                 case KpcInstructionType.Pushw:
-                    kpc.Ram.WriteByte(regA.HiValue, regB.WordValue++);
+                    kpc.Ram.WriteByte(regA.HighValue, regB.WordValue++);
                     kpc.Ram.WriteByte(regA.LowValue, regB.WordValue++);
                     break;
                 case KpcInstructionType.Sbext:

@@ -4,6 +4,8 @@ using KPC8.ControlSignals;
 using KPC8.CpuFlags;
 using KPC8.ProgRegs;
 using KPC8.RomProgrammers.Microcode;
+using LightweightEmulator.Kpc;
+using LightweightEmulator.Pipelines;
 using System.Collections;
 using System.Linq;
 using Tests._Infrastructure;
@@ -79,6 +81,30 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
         protected virtual CsPanel BuildPcModules(BitArray[] romData, out ModulePanel modules) {
             return BuildPcModules(romData, null, out modules);
+        }
+
+        protected virtual LwKpcBuild BuildLwEmulator(BitArray[] rom, BitArray[] ram) {
+            return new LwKpcBuild(rom?.Select(x => x.ToByteLE()).ToArray(), ram?.Select(x => x.ToByteLE()).ToArray());
+        }
+
+        protected virtual void ExecuteNextLwInstruction(LwKpcBuild build) {
+            var lo = build.Rom.ReadByte(build.Pc.WordValue);
+            var hi = build.Rom.ReadByte((ushort)(build.Pc.WordValue + 1));
+
+            var instruction = new LightweightInstruction(lo, hi);
+            new LwInstructionProcessor().Execute(build, instruction);
+        }
+
+        protected virtual void ExecuteNextLwAndAssertIntegrityWithEmu(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {
+            ExecuteNextLwInstruction(lwBuild);
+            EmuLwIntegrity.AssertFullIntegrity(lwBuild, emuModulePanel);
+        }
+
+        protected void CopyRegsToLw(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {
+            foreach (var regType in System.Enum.GetValues<Regs>().Except(new[] { Regs.None })) {
+                var emu = emuModulePanel.Registers.GetWholeRegContentUshortLe(regType.GetIndex());
+                lwBuild.ProgrammerRegisters[regType.GetIndex()].WordValue = emu;
+            }
         }
     }
 }

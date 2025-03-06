@@ -30,11 +30,18 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), zero.MergeWith(valALo));
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(valBLo));
 
+            lw.ProgrammerRegisters[Regs.T1.GetIndex()].WordValue = valALoStr;
+            lw.ProgrammerRegisters[Regs.T2.GetIndex()].WordValue = valBLoStr;
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valBLo, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(valBLo, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
@@ -57,7 +64,12 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valLoImm, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
         }
@@ -80,11 +92,18 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), valAHi.MergeWith(zero));
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), valBHi.MergeWith(zero));
 
+            lw.ProgrammerRegisters[Regs.T1.GetIndex()].WordValue = (ushort)(valALoStr << 8);
+            lw.ProgrammerRegisters[Regs.T2.GetIndex()].WordValue = (ushort)(valBHiStr << 8);
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valBHi, modules.Registers.GetHiRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(valBHi, modules.Registers.GetHiRegContent(Regs.T2.GetIndex()));
@@ -107,7 +126,12 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valHiImm, modules.Registers.GetHiRegContent(Regs.T1.GetIndex()));
         }
@@ -134,11 +158,18 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), valA);
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), valB);
 
+            lw.ProgrammerRegisters[Regs.T1.GetIndex()].WordValue = (ushort)valAStr;
+            lw.ProgrammerRegisters[Regs.T2.GetIndex()].WordValue = (ushort)valBStr;
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valB, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(valB, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
@@ -170,13 +201,21 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(r1.GetIndex(), valA);
             modules.Registers.SetWholeRegContent(r2.GetIndex(), valB);
 
-            StepThroughProceduralInstruction(modules, instruction);
+            lw.ProgrammerRegisters[r1.GetIndex()].WordValue = valAStr;
+            lw.ProgrammerRegisters[r2.GetIndex()].WordValue = valBStr;
 
-            BitAssert.Equality(valB.Slice(8, 8).MergeWith(valB.Take(8)), modules.Registers.GetWholeRegContent(r1.GetIndex()));
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
+            StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
+            var expected = valB.Slice(8, 8).MergeWith(valB.Take(8));
+            BitAssert.Equality(expected, modules.Registers.GetWholeRegContent(r1.GetIndex()));
 
             if (r1 != r2) {
                 BitAssert.Equality(valB, modules.Registers.GetWholeRegContent(r2.GetIndex()));
@@ -201,11 +240,18 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), zero.MergeWith(valALo));
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), zero.MergeWith(valBLo));
 
+            lw.ProgrammerRegisters[Regs.T1.GetIndex()].WordValue = valALoStr;
+            lw.ProgrammerRegisters[Regs.T2.GetIndex()].WordValue = valBLoStr;
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valBLo, modules.Registers.GetLoRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(valALo, modules.Registers.GetLoRegContent(Regs.T2.GetIndex()));
@@ -229,11 +275,18 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), valAHi.MergeWith(zero));
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), valBHi.MergeWith(zero));
 
+            lw.ProgrammerRegisters[Regs.T1.GetIndex()].WordValue = (ushort)(valALoStr << 8);
+            lw.ProgrammerRegisters[Regs.T2.GetIndex()].WordValue = (ushort)(valBHiStr << 8);
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valBHi, modules.Registers.GetHiRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(valAHi, modules.Registers.GetHiRegContent(Regs.T2.GetIndex()));
@@ -261,45 +314,70 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), valA);
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), valB);
 
+            lw.ProgrammerRegisters[Regs.T1.GetIndex()].WordValue = (ushort)valAStr;
+            lw.ProgrammerRegisters[Regs.T2.GetIndex()].WordValue = (ushort)valBStr;
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(valB, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(valA, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
         }
 
         [Theory]
-        [InlineData(0x0000, 0x0000)]
-        [InlineData(0x0000, 0x0001)]
-        [InlineData(0x0021, 0x0037)]
-        [InlineData(0x2137, 0x0911)]
-        [InlineData(0xFF00, 0x00FF)]
-        [InlineData(10, 10)]
-        // todo poprawić żeby działało w miejscu
-        public void Swaploh(ushort valAStr, ushort valBStr) {
+        [InlineData(0x0000, 0x0000, Regs.T1, Regs.T2)]
+        [InlineData(0x0000, 0x0001, Regs.T1, Regs.T2)]
+        [InlineData(0x0021, 0x0037, Regs.T1, Regs.T2)]
+        [InlineData(0x2137, 0x0911, Regs.T1, Regs.T2)]
+        [InlineData(0xFF00, 0x00FF, Regs.T1, Regs.T2)]
+
+        // ohacel 05.03.2025 - na razie oryginalny emulator nie wspiera SWAPLOH w miejscu (gdy r1 = r2)
+        //[InlineData(0x0000, 0x0000, Regs.T1, Regs.T1)]
+        //[InlineData(0x0001, 0x0001, Regs.T1, Regs.T1)]
+        //[InlineData(0x0037, 0x0037, Regs.T1, Regs.T1)]
+        //[InlineData(0x2137, 0x2137, Regs.T1, Regs.T1)]
+        //[InlineData(0xFF00, 0xFF00, Regs.T1, Regs.T1)]
+        public void Swaploh(ushort valAStr, ushort valBStr, Regs r1, Regs r2) {
             var instruction = McProceduralInstruction.CreateFromSteps(typeof(RegsProceduralInstructions), nameof(RegsProceduralInstructions.Swaploh));
 
+            var zero = BitArrayHelper.FromByteLE(0);
             var valA = BitArrayHelper.FromUShortLE(valAStr);
             var valB = BitArrayHelper.FromUShortLE(valBStr);
 
-            EncodeInstruction(instruction, Regs.Zero, Regs.T1, Regs.T2, out var instructionHigh, out var instructionLow);
+            EncodeInstruction(instruction, Regs.Zero, r1, r2, out var instructionHigh, out var instructionLow);
 
             var romData = new[] {
                 instructionHigh, instructionLow,
             };
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
-            modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), valA);
-            modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), valB);
+            modules.Registers.SetWholeRegContent(r1.GetIndex(), valA);
+            modules.Registers.SetWholeRegContent(r2.GetIndex(), valB);
+
+            lw.ProgrammerRegisters[r1.GetIndex()].WordValue = valAStr;
+            lw.ProgrammerRegisters[r2.GetIndex()].WordValue = valBStr;
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
 
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
-            BitAssert.Equality(valB.Slice(8, 8).MergeWith(valB.Take(8)), modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
-            BitAssert.Equality(valA.Slice(8, 8).MergeWith(valA.Take(8)), modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
+            var expected = valB.Slice(8, 8).MergeWith(valB.Take(8));
+            BitAssert.Equality(expected, modules.Registers.GetWholeRegContent(r1.GetIndex()));
+
+            if (r1 != r2) {
+                var expected2 = valA.Slice(8, 8).MergeWith(valA.Take(8));
+                BitAssert.Equality(expected2, modules.Registers.GetWholeRegContent(r2.GetIndex()));
+            }
         }
     }
 }

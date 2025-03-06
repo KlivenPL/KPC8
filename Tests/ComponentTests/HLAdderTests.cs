@@ -294,7 +294,7 @@ namespace Tests.ComponentTests {
             BitAssert.Equality(xorResult, adder.Content);
             BitAssert.Equality(xorResult, outputs);
             Assert.False(carryOut);
-            Assert.False(overflowFlag);
+            Assert.True(overflowFlag);
             Assert.False(zeroFlag);
             Assert.False(negativeFlag);
         }
@@ -351,7 +351,7 @@ namespace Tests.ComponentTests {
             BitAssert.Equality(srResult, adder.Content);
             BitAssert.Equality(srResult, outputs);
             Assert.True(carryOut);
-            Assert.False(overflowFlag);
+            Assert.True(overflowFlag);
             Assert.False(zeroFlag);
             Assert.False(negativeFlag);
         }
