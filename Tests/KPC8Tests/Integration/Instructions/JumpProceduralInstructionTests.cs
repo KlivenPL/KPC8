@@ -34,14 +34,21 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             romData[addrStr + 1] = addTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), addr);
 
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
             BitAssert.Equality(addr, modules.Memory.PcContent);
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
 
             StepThroughProceduralInstruction(modules, addTestInstr);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
@@ -70,15 +77,22 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             romData[addrStr + offsetStr + 1] = addTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), addr);
             modules.Registers.SetWholeRegContent(Regs.T2.GetIndex(), offset);
 
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
             BitAssert.Equality(addrPlusOffset, modules.Memory.PcContent);
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
 
             StepThroughProceduralInstruction(modules, addTestInstr);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(offset, modules.Registers.GetWholeRegContent(Regs.T2.GetIndex()));
@@ -107,14 +121,21 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             romData[addrStr + 1] = addTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), addr);
 
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
             BitAssert.Equality(addr, modules.Memory.PcContent);
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
 
             StepThroughProceduralInstruction(modules, addTestInstr);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(addr, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
             BitAssert.Equality(savedPcAddr, modules.Registers.GetWholeRegContent(Regs.Ra.GetIndex()));
@@ -143,11 +164,18 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             romData[2 + offsetStr + 1] = addTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
+
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
 
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
             BitAssert.Equality(pcPlusOffset, modules.Memory.PcContent);
 
             StepThroughProceduralInstruction(modules, addTestInstr);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }
@@ -181,16 +209,26 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             romData[0xFFFF - offsetStr + 1] = addTestInstrLow;
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), primaryJumpAddr);
+
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, primaryJumpInstr);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(primaryJumpAddr, modules.Memory.PcContent);
 
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
             BitAssert.Equality(pcPlusOffset, modules.Memory.PcContent);
 
             StepThroughProceduralInstruction(modules, addTestInstr);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
 
             BitAssert.Equality(one, modules.Registers.GetLoRegContent(Regs.Ass.GetIndex()));
         }

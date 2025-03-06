@@ -9,11 +9,12 @@ namespace LightweightEmulator.Pipelines {
             Register16 regB = kpc.ProgrammerRegisters[lwInstr.RegBIndex];
             byte imm = lwInstr.ImmediateValue;
             Register4 flags = kpc.Flags;
+            Register16 pc = kpc.Pc;
             Register16 mar = kpc.Mar;
 
-            kpc.Mar.WordValue = kpc.Pc.WordValue;
-            kpc.Pc.WordValue += 2;
-            kpc.Mar.WordValue += 1;
+            mar.WordValue = kpc.Pc.WordValue;
+            pc.WordValue += 2;
+            mar.WordValue += 1;
 
             switch (lwInstr.Type) {
                 case KpcInstructionType.Nop:
@@ -188,6 +189,25 @@ namespace LightweightEmulator.Pipelines {
                 case KpcInstructionType.Srl:
                     ExecuteSrl(regDest, regA, regB, flags);
                     break;
+
+                // --- Jump procedural instructions ---
+
+                case KpcInstructionType.Jr:
+                    ExecuteJr(regB, pc);
+                    break;
+                case KpcInstructionType.Jro:
+                    ExecuteJro(regA, regB, pc, flags);
+                    break;
+                case KpcInstructionType.Jas:
+                    ExecuteJas(regA, regB, pc);
+                    break;
+                case KpcInstructionType.JpcaddI:
+                    ExecuteJpcaddI(imm, pc, mar, flags);
+                    break;
+                case KpcInstructionType.JpcsubI:
+                    ExecuteJpcsubI(imm, pc, mar, flags);
+                    break;
+
 
                 default:
                     throw new NotImplementedException();
@@ -508,6 +528,43 @@ namespace LightweightEmulator.Pipelines {
             regDest.LowValue = (byte)(combined >> 1);
 
             UpdateFlags(flags, false, a, b, regDest.LowValue, false, false);
+        }
+
+        #endregion
+
+        #region Jump procedural instructions
+
+        private void ExecuteJr(Register16 regB, Register16 pc) {
+            pc.WordValue = regB.WordValue;
+        }
+
+        private void ExecuteJro(Register16 regA, Register16 regB, Register16 pc, Register4 flags) {
+            Register16 tmpReg = new();
+            ExecuteAddw(tmpReg, regA, regB, flags);
+            pc.WordValue = tmpReg.WordValue;
+        }
+
+        private void ExecuteJas(Register16 regA, Register16 regB, Register16 pc) {
+            regB.WordValue = pc.WordValue;
+            pc.WordValue = regA.WordValue;
+        }
+
+        private void ExecuteJpcaddI(byte imm, Register16 pc, Register16 mar, Register4 flags) {
+            Register16 immReg = new(imm);
+            Register16 tmpReg = new();
+            ExecuteAddw(tmpReg, pc, immReg, flags);
+            pc.WordValue = tmpReg.WordValue;
+            mar.WordValue = 0;
+        }
+
+        private void ExecuteJpcsubI(byte imm, Register16 pc, Register16 mar, Register4 flags) {
+            Register16 immReg = new(-imm);
+            Register16 tmpReg = new();
+            ExecuteAddw(tmpReg, pc, immReg, flags);
+            pc.WordValue = tmpReg.WordValue;
+
+            var zero = 0;
+            mar.WordValue = (ushort)(zero - 1);
         }
 
         #endregion
