@@ -8,6 +8,7 @@ using LightweightEmulator.Kpc;
 using LightweightEmulator.Pipelines;
 using System.Collections;
 using System.Linq;
+using System.Threading.Tasks;
 using Tests._Infrastructure;
 using Xunit.Abstractions;
 
@@ -79,25 +80,36 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             return cp;
         }
 
+        private LwInstructionExecutor _lwExecutor;
+
         protected virtual CsPanel BuildPcModules(BitArray[] romData, out ModulePanel modules) {
             return BuildPcModules(romData, null, out modules);
         }
 
         protected virtual LwKpcBuild BuildLwEmulator(BitArray[] rom, BitArray[] ram) {
-            return new LwKpcBuild(rom?.Select(x => x?.ToByteLE() ?? 0).ToArray(), ram?.Select(x => x?.ToByteLE() ?? 0).ToArray());
+            var build = new LwKpcBuild(
+                rom?.Select(x => x?.ToByteLE() ?? 0).ToArray(),
+                ram?.Select(x => x?.ToByteLE() ?? 0).ToArray(),
+                new(), new());
+            _lwExecutor = new(build);
+            return build;
         }
 
         protected virtual void ExecuteNextLwInstruction(LwKpcBuild build) {
             var lo = build.Rom.ReadByte(build.Pc.WordValue);
             var hi = build.Rom.ReadByte((ushort)(build.Pc.WordValue + 1));
 
-            var instruction = new LightweightInstruction(lo, hi);
-            new LwInstructionProcessor().Execute(build, instruction);
+            var instruction = new LwInstruction(lo, hi);
+            _lwExecutor.Execute(instruction);
         }
 
         protected virtual void ExecuteNextLwAndAssertIntegrityWithEmu(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {
             ExecuteNextLwInstruction(lwBuild);
             EmuLwIntegrity.AssertFullIntegrity(lwBuild, emuModulePanel);
+        }
+
+        protected void RequestLwInterrupt(LwKpcBuild build, byte fourBitIrrCode) {
+            build.IrrManager.TryQueueInterrupt(fourBitIrrCode, () => { Debug.WriteLine("Interrupt finished"); return Task.CompletedTask; }, out _);
         }
 
         protected void CopyRegsToLw(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {

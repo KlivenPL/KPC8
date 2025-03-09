@@ -1,5 +1,5 @@
 ﻿namespace LightweightEmulator.Kpc {
-    public enum KpcInstructionType : ushort {
+    public enum LwInstructionType : ushort {
         Nop = 0x0,
 
         #region Load

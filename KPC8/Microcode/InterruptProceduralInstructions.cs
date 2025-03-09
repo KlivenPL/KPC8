@@ -22,11 +22,11 @@ namespace KPC8.Microcode {
 
             // Warning - big endian convention - only in this case.
             yield return Cs.RegA_le | Cs.Pc_oe | Cs.AddrToData_lo;
-            yield return Cs.Alu_oe | Cs.Ram_we | Cs.Mar_ce; // store (PC - 1)_lo to 0xFF00
+            yield return Cs.Alu_oe | Cs.Ram_we | Cs.Mar_ce; // store (PC - 1)_lo to 0xFF01
             yield return Cs.RegA_le | Cs.Pc_oe | Cs.AddrToData_hi;
-            yield return CsComb.MODIFIER_Alu_carry_en | Cs.Alu_oe | Cs.Ram_we | Cs.Mar_ce; // store (PC - 1)_hi to 0xFF01
+            yield return CsComb.MODIFIER_Alu_carry_en | Cs.Alu_oe | Cs.Ram_we | Cs.Mar_ce; // store (PC - 1)_hi to 0xFF02
 
-            // store $t1_hi in 0xFF02 and $t1_lo in 0xFF03
+            // store $t1_hi in 0xFF03 and $t1_lo in 0xFF04
             yield return Cs.Ram_we | Cs.DecDest_oe | CsComb.Regs_oe_hi | Cs.Mar_ce;
             yield return Cs.Ram_we | Cs.DecDest_oe | CsComb.Regs_oe_lo | Cs.Mar_ce;
 
@@ -42,11 +42,11 @@ namespace KPC8.Microcode {
             yield return Cs.RegAToBus_oe | Cs.Mar_le_lo; // mar_lo = 0x00;
             yield return CsComb.Alu_not | Cs.Alu_oe | Cs.Mar_le_hi | Cs.RegB_le; // mar_hi = 0xFF, b = -1
 
-            // load FLAGS from 0xF00 to T1 temporaritly
+            // load FLAGS from 0xF000 to T1 temporaritly
             yield return Cs.Ram_oe | Cs.DecDest_oe | CsComb.Regs_le_lo | Cs.Mar_ce;
 
-            // load PC_lo from 0xFF00 and substract 1
-            // then load PC_hi from 0xFF01 and substract remaining carry
+            // load PC_lo from 0xFF01 and substract 1
+            // then load PC_hi from 0xFF02 and substract remaining carry
             yield return Cs.Ram_oe | Cs.RegA_le;
             yield return Cs.Alu_oe | Cs.Pc_le_lo | Cs.Mar_ce;
             yield return Cs.Ram_oe | Cs.RegA_le;
@@ -55,7 +55,7 @@ namespace KPC8.Microcode {
             // load FLAGS from T1
             yield return Cs.DecDest_oe | CsComb.Regs_oe_lo | Cs.DataBusToFlags_le;
 
-            // load $t1_hi from 0xF02 and $t1_lo from 0xF03
+            // load $t1_hi from 0xF03 and $t1_lo from 0xF04
             yield return Cs.Ram_oe | Cs.DecDest_oe | CsComb.Regs_le_hi | Cs.Mar_ce;
             yield return Cs.Ram_oe | Cs.DecDest_oe | CsComb.Regs_le_lo;
 
@@ -66,12 +66,14 @@ namespace KPC8.Microcode {
         [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1, immediateValue: 0)]
         public static IEnumerable<Cs> Irren() {
             yield return CsComb.Irr_en;
+            yield return Cs.None;
         }
 
         [ProceduralInstruction(McInstructionType.Irrdis)]
         [InstructionFormat(McInstructionFormat.Immediate, customRegDestRestr: Regs.T1, immediateValue: 0)]
         public static IEnumerable<Cs> Irrdis() {
             yield return CsComb.Irr_dis;
+            yield return Cs.None;
         }
     }
 }

@@ -22,8 +22,10 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             var romData = new BitArray[] { instructionHigh, instructionLow };
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
             Assert.True(modules.InterruptsBus.Lanes[2]);
         }
 
@@ -37,11 +39,14 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             var romData = new BitArray[] { instructionEnHigh, instructionEnLow, instructionHigh, instructionLow };
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             StepThroughProceduralInstruction(modules, instructionEn);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
             Assert.True(modules.InterruptsBus.Lanes[2]);
 
             StepThroughProceduralInstruction(modules, instruction);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
             Assert.False(modules.InterruptsBus.Lanes[2]);
         }
 
@@ -50,7 +55,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         [InlineData(0x80)]
         [InlineData(0x00)]
         public void Irrex(byte addrLoStr) {
-            var nop = McProceduralInstruction.CreateFromSteps(typeof(NopInstruction), nameof(NopInstruction.Nop));
+            //var nop = McProceduralInstruction.CreateFromSteps(typeof(NopInstruction), nameof(NopInstruction.Nop));
             var irrex = McProceduralInstruction.CreateFromSteps(typeof(InterruptProceduralInstructions), nameof(InterruptProceduralInstructions.Irrex));
             var irren = McProceduralInstruction.CreateFromSteps(typeof(InterruptProceduralInstructions), nameof(InterruptProceduralInstructions.Irren));
 
@@ -59,11 +64,11 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var addrLo = BitArrayHelper.FromByteLE(addrLoStr);
             var zero = BitArrayHelper.FromByteLE(0);
             var testVal = BitArrayHelper.FromShortLE(2137);
-            var addrFive = BitArrayHelper.FromShortLE(5);
+            var addrThree = BitArrayHelper.FromShortLE(3);
             var fullAdr = BitArrayHelper.FromUShortLE(fullAdrStr);
-            var flagsValue = BitArrayHelper.FromByteLE(0);
+            var flagsValue = BitArrayHelper.FromByteLE(15);
 
-            EncodeInstruction(nop, Regs.Zero, Regs.Zero, Regs.Zero, out var nopHigh, out var nopLow);
+            //EncodeInstruction(nop, Regs.Zero, Regs.Zero, Regs.Zero, out var nopHigh, out var nopLow);
             EncodeInstruction(irren, Regs.Zero, zero, out var irrenHigh, out var irrenLow);
             //EncodeInstruction(irrex, Regs.T1, addrLo, out var irrexHigh, out var irrexLow);
 
@@ -71,35 +76,47 @@ namespace Tests.KPC8Tests.Integration.Instructions {
 
             romData[0] = irrenHigh;
             romData[1] = irrenLow;
-            romData[2] = nopHigh;
-            romData[3] = nopLow;
+            //romData[2] = nopHigh;
+            //romData[3] = nopLow;
             //romData[2] = irrexHigh;
             //romData[3] = irrexLow;
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), testVal);
 
             // Prepare interrupt
             byte irrCode = (byte)(15 - addrLoStr / 16);
             modules.InterruptsBus.Write(BitArrayHelper.FromByteLE((byte)(0b10000000 | irrCode)));
+            RequestLwInterrupt(lw, irrCode);
+
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
 
             StepThroughProceduralInstruction(modules, irren);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
-            StepThroughProceduralInstruction(modules, nop);
+            // StepThroughProceduralInstruction(modules, nop);
+            // ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
 
             modules.Alu.SetRegFlagsContent(flagsValue.Skip(4));
+            lw.Flags.Value = flagsValue.ToByteLE();
+
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             // Irrex is not stored in ROM - it is initiated by interrupt bus
             StepThroughProceduralInstruction(modules, irrex);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(flagsValue, modules.Memory.GetRamAt(0xFF00));
 
-            BitAssert.Equality(addrFive.Take(8), modules.Memory.GetRamAt(0xFF02));
-            BitAssert.Equality(addrFive.Skip(8), modules.Memory.GetRamAt(0xFF01));
+            BitAssert.Equality(addrThree.Take(8), modules.Memory.GetRamAt(0xFF02));
+            BitAssert.Equality(addrThree.Skip(8), modules.Memory.GetRamAt(0xFF01));
 
             BitAssert.Equality(testVal.Take(8), modules.Memory.GetRamAt(0xFF03));
             BitAssert.Equality(testVal.Skip(8), modules.Memory.GetRamAt(0xFF04));
-
 
             BitAssert.Equality(fullAdr, modules.Memory.PcContent);
         }
@@ -109,7 +126,7 @@ namespace Tests.KPC8Tests.Integration.Instructions {
         [InlineData(0x80)]
         [InlineData(0x00)]
         public void Irrret(byte addrLoStr) {
-            var nop = McProceduralInstruction.CreateFromSteps(typeof(NopInstruction), nameof(NopInstruction.Nop));
+            //var nop = McProceduralInstruction.CreateFromSteps(typeof(NopInstruction), nameof(NopInstruction.Nop));
             var irrex = McProceduralInstruction.CreateFromSteps(typeof(InterruptProceduralInstructions), nameof(InterruptProceduralInstructions.Irrex));
             var irrret = McProceduralInstruction.CreateFromSteps(typeof(InterruptProceduralInstructions), nameof(InterruptProceduralInstructions.Irrret));
             var irren = McProceduralInstruction.CreateFromSteps(typeof(InterruptProceduralInstructions), nameof(InterruptProceduralInstructions.Irren));
@@ -120,11 +137,11 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var zero8 = BitArrayHelper.FromByteLE(0);
             var zero16 = BitArrayHelper.FromUShortLE(0);
             var testVal = BitArrayHelper.FromShortLE(2137);
-            var addrFour = BitArrayHelper.FromShortLE(4);
+            var addrTwo = BitArrayHelper.FromShortLE(2);
             var fullAdr = BitArrayHelper.FromUShortLE(fullAdrStr);
             var flagsValue = BitArrayHelper.FromByteLE(14);
 
-            EncodeInstruction(nop, Regs.Zero, Regs.Zero, Regs.Zero, out var nopHigh, out var nopLow);
+            // EncodeInstruction(nop, Regs.Zero, Regs.Zero, Regs.Zero, out var nopHigh, out var nopLow);
             // EncodeInstruction(irrex, Regs.T1, addrLo, out var irrexHigh, out var irrexLow);
             EncodeInstruction(irrret, Regs.T1, zero8, out var irrretHigh, out var irrretLow);
             EncodeInstruction(irren, Regs.Zero, zero8, out var irrenHigh, out var irrenLow);
@@ -132,31 +149,49 @@ namespace Tests.KPC8Tests.Integration.Instructions {
             var romData = new BitArray[0xFFFF + 1];
             romData[0] = irrenHigh;
             romData[1] = irrenLow;
-            romData[2] = nopHigh;
-            romData[3] = nopLow;
+            //romData[2] = nopHigh;
+            //romData[3] = nopLow;
 
             romData[fullAdrStr] = irrretHigh;
             romData[fullAdrStr + 1] = irrretLow;
 
             var cp = BuildPcModules(romData, out var modules);
+            var lw = BuildLwEmulator(romData, null);
 
             // Prepare interrupt
             byte irrCode = (byte)(15 - addrLoStr / 16);
             modules.InterruptsBus.Write(BitArrayHelper.FromByteLE((byte)(0b10000000 | irrCode)));
 
-            StepThroughProceduralInstruction(modules, irren);
+            RequestLwInterrupt(lw, irrCode);
 
-            StepThroughProceduralInstruction(modules, nop);
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
+            StepThroughProceduralInstruction(modules, irren);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
+
+            //StepThroughProceduralInstruction(modules, nop);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), testVal);
             modules.Alu.SetRegFlagsContent(flagsValue.Skip(4));
+
+            lw.Flags.Value = flagsValue.ToByteLE();
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, irrex);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             modules.Registers.SetWholeRegContent(Regs.T1.GetIndex(), zero16);
+
+            CopyRegsToLw(lw, modules);
+            EmuLwIntegrity.AssertFullIntegrity(lw, modules);
+
             StepThroughProceduralInstruction(modules, irrret);
+            ExecuteNextLwAndAssertIntegrityWithEmu(lw, modules);
 
             BitAssert.Equality(testVal, modules.Registers.GetWholeRegContent(Regs.T1.GetIndex()));
-            BitAssert.Equality(addrFour, modules.Memory.PcContent);
+            BitAssert.Equality(addrTwo, modules.Memory.PcContent);
             BitAssert.Equality(flagsValue.Skip(4), modules.Alu.RegFlagsContent);
         }
 

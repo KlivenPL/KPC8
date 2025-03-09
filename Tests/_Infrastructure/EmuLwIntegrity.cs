@@ -29,6 +29,11 @@ namespace Tests._Infrastructure {
                 errorMessages.Add(ex.Message);
             }
             try {
+                AssertIrrIntegrity(lwBuild, emuModulePanel);
+            } catch (Exception ex) {
+                errorMessages.Add(ex.Message);
+            }
+            try {
                 AssertRegsIntegrity(lwBuild, emuModulePanel);
             } catch (Exception ex) {
                 errorMessages.Add(ex.Message);
@@ -76,6 +81,19 @@ namespace Tests._Infrastructure {
             BitAssert.Equality(emu, lw.Skip(4), $"[EMU/LW {nameof(AssertFlagsIntegrity)}]:\n" +
                 $"EMU flags: {CpuFlagExtensions.From8BitArray(BitArrayHelper.FromString("0000").MergeWith(emu))}\n" +
                 $"LW flags: {CpuFlagExtensions.From8BitArray(lw)}\n");
+        }
+
+        public static void AssertIrrIntegrity(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {
+            bool emuEn = emuModulePanel.InterruptsBus.Lanes[2];
+            // bool emuBusy = emuModulePanel.InterruptsBus.Lanes[3];
+            bool lwEn = lwBuild.IrrManager.En;
+            // bool lwBusy = lwBuild.IrrManager.Busy;
+
+            if (emuEn != lwEn) {
+                throw new Exception($"[EMU/LW {nameof(AssertIrrIntegrity)}]:\n" +
+                    $"Expected EN:\t{emuEn}\n" +
+                    $"Actual   EN:\t{lwEn}");
+            }
         }
 
         public static void AssertRomIntegrity(LwKpcBuild lwBuild, ModulePanel emuModulePanel) {

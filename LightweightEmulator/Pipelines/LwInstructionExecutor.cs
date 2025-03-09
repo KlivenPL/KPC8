@@ -1,250 +1,291 @@
 ﻿using LightweightEmulator.Components;
+using LightweightEmulator.ExternalDevices;
 using LightweightEmulator.Kpc;
 
 namespace LightweightEmulator.Pipelines {
-    internal class LwInstructionProcessor {
-        public void Execute(LwKpcBuild kpc, LightweightInstruction lwInstr) {
-            Register16 regDest = kpc.ProgrammerRegisters[lwInstr.RegDestIndex];
-            Register16 regA = kpc.ProgrammerRegisters[lwInstr.RegAIndex];
-            Register16 regB = kpc.ProgrammerRegisters[lwInstr.RegBIndex];
-            byte imm = lwInstr.ImmediateValue;
-            Register4 flags = kpc.Flags;
-            Register16 pc = kpc.Pc;
-            Register16 mar = kpc.Mar;
+    internal class LwInstructionExecutor {
+        private readonly LwKpcBuild _kpcBuild;
 
-            mar.WordValue = kpc.Pc.WordValue;
+        public LwInstructionExecutor(
+            LwKpcBuild kpcBuild) {
+
+            _kpcBuild = kpcBuild;
+        }
+
+        public void Execute(LwInstruction lwInstr) {
+            var regDest = _kpcBuild.ProgrammerRegisters[lwInstr.RegDestIndex];
+            var regA = _kpcBuild.ProgrammerRegisters[lwInstr.RegAIndex];
+            var regB = _kpcBuild.ProgrammerRegisters[lwInstr.RegBIndex];
+            var imm = lwInstr.ImmediateValue;
+            var flags = _kpcBuild.Flags;
+            var pc = _kpcBuild.Pc;
+            var mar = _kpcBuild.Mar;
+            var rom = _kpcBuild.Rom;
+            var ram = _kpcBuild.Ram;
+            var extDeviceAdapter = _kpcBuild.ExtDeviceAdapter;
+            var irrManager = _kpcBuild.IrrManager;
+
+            mar.WordValue = _kpcBuild.Pc.WordValue;
             pc.WordValue += 2;
             mar.WordValue += 1;
 
+            if (_kpcBuild.IrrManager.ShouldProcessInterrupt(out ushort? irrAddress, out var handleIrrex)) {
+                var t1 = _kpcBuild.ProgrammerRegisters[4];
+                ExecuteIrrex(irrAddress!.Value, handleIrrex!, t1, ram, pc, mar, flags);
+                return;
+            }
+
             switch (lwInstr.Type) {
-                case KpcInstructionType.Nop:
-                    ExecuteNop();
+                case LwInstructionType.Nop:
+                    // No operation
                     break;
 
                 // --- Load instructions ---
 
-                case KpcInstructionType.Lbrom:
-                    ExecuteLbrom(kpc, regA, regB, mar);
+                case LwInstructionType.Lbrom:
+                    ExecuteLbrom(regA, regB, rom, mar);
                     break;
 
-                case KpcInstructionType.Lbromo:
-                    ExecuteLbromo(kpc, regDest, regA, regB, mar, flags);
+                case LwInstructionType.Lbromo:
+                    ExecuteLbromo(regDest, regA, regB, rom, mar, flags);
                     break;
 
-                case KpcInstructionType.Lwrom:
-                    ExecuteLwrom(kpc, regA, regB, mar);
+                case LwInstructionType.Lwrom:
+                    ExecuteLwrom(regA, regB, rom, mar);
                     break;
 
-                case KpcInstructionType.Lwromo:
-                    ExecuteLwromo(kpc, regDest, regA, regB, mar, flags);
+                case LwInstructionType.Lwromo:
+                    ExecuteLwromo(regDest, regA, regB, mar, rom, flags);
                     break;
 
-                case KpcInstructionType.Lbram:
-                    ExecuteLbram(kpc, regA, regB, mar);
+                case LwInstructionType.Lbram:
+                    ExecuteLbram(regA, regB, ram, mar);
                     break;
 
-                case KpcInstructionType.Lbramo:
-                    ExecuteLbramo(kpc, regDest, regA, regB, mar, flags);
+                case LwInstructionType.Lbramo:
+                    ExecuteLbramo(regDest, regA, regB, ram, mar, flags);
                     break;
 
-                case KpcInstructionType.Lwram:
-                    ExecuteLwram(kpc, regA, regB, mar);
+                case LwInstructionType.Lwram:
+                    ExecuteLwram(regA, regB, ram, mar);
                     break;
 
-                case KpcInstructionType.Lwramo:
-                    ExecuteLwramo(kpc, regDest, regA, regB, mar, flags);
+                case LwInstructionType.Lwramo:
+                    ExecuteLwramo(regDest, regA, regB, ram, mar, flags);
                     break;
 
-                case KpcInstructionType.Popb:
-                    ExecutePopb(kpc, regA, regB, mar, flags);
+                case LwInstructionType.Popb:
+                    ExecutePopb(regA, regB, ram, mar, flags);
                     break;
 
-                case KpcInstructionType.Popw:
-                    ExecutePopw(kpc, regA, regB, mar, flags);
+                case LwInstructionType.Popw:
+                    ExecutePopw(regA, regB, ram, mar, flags);
+                    break;
+
+                case LwInstructionType.Lbext:
+                    ExecuteLbext(extDeviceAdapter, regA, regB);
                     break;
 
                 // --- Store instructions ---
 
-                case KpcInstructionType.Sbram:
-                    ExecuteSbram(kpc, regA, regB, mar);
+                case LwInstructionType.Sbram:
+                    ExecuteSbram(regA, regB, ram, mar);
                     break;
 
-                case KpcInstructionType.SbramI:
-                    ExecuteSbramI(kpc, regDest, imm, mar);
+                case LwInstructionType.SbramI:
+                    ExecuteSbramI(regDest, imm, ram, mar);
                     break;
 
-                case KpcInstructionType.Sbramo:
-                    ExecuteSbramo(kpc, regDest, regA, regB, mar, flags);
+                case LwInstructionType.Sbramo:
+                    ExecuteSbramo(regDest, regA, regB, ram, mar, flags);
                     break;
 
-                case KpcInstructionType.Swram:
-                    ExecuteSwram(kpc, regA, regB, mar);
+                case LwInstructionType.Swram:
+                    ExecuteSwram(regA, regB, ram, mar);
                     break;
 
-                case KpcInstructionType.Swramo:
-                    ExecuteSwramo(kpc, regDest, regA, regB, mar, flags);
+                case LwInstructionType.Swramo:
+                    ExecuteSwramo(regDest, regA, regB, ram, mar, flags);
                     break;
 
-                case KpcInstructionType.Pushb:
-                    ExecutePushb(kpc, regA, regB, mar);
+                case LwInstructionType.Pushb:
+                    ExecutePushb(regA, regB, ram, mar);
                     break;
 
-                case KpcInstructionType.Pushw:
-                    ExecutePushw(kpc, regA, regB, mar);
+                case LwInstructionType.Pushw:
+                    ExecutePushw(regA, regB, ram, mar);
                     break;
 
-                case KpcInstructionType.Sbext:
-                    ExecuteSbext();
+                case LwInstructionType.Sbext:
+                    ExecuteSbext(extDeviceAdapter, regA, regB);
                     break;
 
                 // --- Regs instructions ---
 
-                case KpcInstructionType.Set:
+                case LwInstructionType.Set:
                     ExecuteSet(regA, regB);
                     break;
 
-                case KpcInstructionType.SetI:
+                case LwInstructionType.SetI:
                     ExecuteSetI(regDest, imm);
                     break;
 
-                case KpcInstructionType.Seth:
+                case LwInstructionType.Seth:
                     ExecuteSeth(regA, regB);
                     break;
 
-                case KpcInstructionType.SethI:
+                case LwInstructionType.SethI:
                     ExecuteSethI(regDest, imm);
                     break;
 
-                case KpcInstructionType.Setw:
+                case LwInstructionType.Setw:
                     ExecuteSetw(regA, regB);
                     break;
 
-                case KpcInstructionType.Setloh:
+                case LwInstructionType.Setloh:
                     ExecuteSetloh(regA, regB);
                     break;
 
-                case KpcInstructionType.Swap:
+                case LwInstructionType.Swap:
                     ExecuteSwap(regA, regB);
                     break;
 
-                case KpcInstructionType.Swaph:
+                case LwInstructionType.Swaph:
                     ExecuteSwaph(regA, regB);
                     break;
 
-                case KpcInstructionType.Swapw:
+                case LwInstructionType.Swapw:
                     ExecuteSwapw(regA, regB);
                     break;
 
-                case KpcInstructionType.Swaploh:
+                case LwInstructionType.Swaploh:
                     ExecuteSwaploh(regA, regB);
                     break;
 
                 // --- Math Instructions ---
 
-                case KpcInstructionType.Add:
+                case LwInstructionType.Add:
                     ExecuteAdd(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.AddI:
+                case LwInstructionType.AddI:
                     ExecuteAddI(regDest, imm, flags);
                     break;
 
-                case KpcInstructionType.Sub:
+                case LwInstructionType.Sub:
                     ExecuteSub(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.SubI:
+                case LwInstructionType.SubI:
                     ExecuteSubI(regDest, imm, flags);
                     break;
 
-                case KpcInstructionType.Addw:
+                case LwInstructionType.Addw:
                     ExecuteAddw(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.Negw:
+                case LwInstructionType.Negw:
                     ExecuteNegw(regA, regB, flags);
                     break;
 
                 // --- Logic instructions ---
 
-                case KpcInstructionType.Not:
+                case LwInstructionType.Not:
                     ExecuteNot(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.Or:
+                case LwInstructionType.Or:
                     ExecuteOr(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.And:
+                case LwInstructionType.And:
                     ExecuteAnd(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.Xor:
+                case LwInstructionType.Xor:
                     ExecuteXor(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.Sll:
+                case LwInstructionType.Sll:
                     ExecuteSll(regDest, regA, regB, flags);
                     break;
 
-                case KpcInstructionType.Srl:
+                case LwInstructionType.Srl:
                     ExecuteSrl(regDest, regA, regB, flags);
                     break;
 
                 // --- Jump procedural instructions ---
 
-                case KpcInstructionType.Jr:
+                case LwInstructionType.Jr:
                     ExecuteJr(regB, pc);
                     break;
 
-                case KpcInstructionType.Jro:
+                case LwInstructionType.Jro:
                     ExecuteJro(regA, regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jas:
+                case LwInstructionType.Jas:
                     ExecuteJas(regA, regB, pc);
                     break;
 
-                case KpcInstructionType.JpcaddI:
+                case LwInstructionType.JpcaddI:
                     ExecuteJpcaddI(imm, pc, mar, flags);
                     break;
 
-                case KpcInstructionType.JpcsubI:
+                case LwInstructionType.JpcsubI:
                     ExecuteJpcsubI(imm, pc, mar, flags);
                     break;
 
                 // --- Jump conditional instructions ---
 
-                case KpcInstructionType.Jwz:
+                case LwInstructionType.Jwz:
                     ExecuteJwz(regA, regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jwnotz:
+                case LwInstructionType.Jwnotz:
                     ExecuteJwnotz(regA, regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jwn:
+                case LwInstructionType.Jwn:
                     ExecuteJwn(regA, regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jwnotn:
+                case LwInstructionType.Jwnotn:
                     ExecuteJwnotn(regA, regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jzf:
+                case LwInstructionType.Jzf:
                     ExecuteJzf(regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jnf:
+                case LwInstructionType.Jnf:
                     ExecuteJnf(regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jcf:
+                case LwInstructionType.Jcf:
                     ExecuteJcf(regB, pc, flags);
                     break;
 
-                case KpcInstructionType.Jof:
+                case LwInstructionType.Jof:
                     ExecuteJof(regB, pc, flags);
+                    break;
+
+                // --- Interrupts ---
+
+                case LwInstructionType.Irrex:
+                    throw new InvalidOperationException("Irrex is a hardware instruction");
+
+                case LwInstructionType.Irrret:
+                    var t1 = _kpcBuild.ProgrammerRegisters[4];
+                    ExecuteIrrret(irrManager, t1, ram, pc, mar, flags);
+                    break;
+
+                case LwInstructionType.Irren:
+                    ExecuteIrren(irrManager);
+                    break;
+
+                case LwInstructionType.Irrdis:
+                    ExecuteIrrdis(irrManager);
                     break;
 
                 default:
@@ -252,126 +293,126 @@ namespace LightweightEmulator.Pipelines {
             }
         }
 
-        private void ExecuteNop() {
-            // No operation.
-        }
-
         #region Load instructions
 
-        private void ExecuteLbrom(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            regA.LowValue = kpc.Rom.ReadByte(regB.WordValue);
+        private void ExecuteLbrom(Register16 regA, Register16 regB, Memory rom, Register16 mar) {
+            regA.LowValue = rom.ReadByte(regB.WordValue);
             mar.WordValue = regB.WordValue;
         }
 
-        private void ExecuteLbromo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecuteLbromo(Register16 regDest, Register16 regA, Register16 regB, Memory rom, Register16 mar, Register4 flags) {
             Register16 tmpReg = new();
             ExecuteAddw(tmpReg, regA, regB, flags);
-            regDest.LowValue = kpc.Rom.ReadByte(tmpReg.WordValue);
+            regDest.LowValue = rom.ReadByte(tmpReg.WordValue);
             mar.WordValue = tmpReg.WordValue;
         }
 
-        private void ExecuteLwrom(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            regA.WordValue = kpc.Rom.ReadWord(regB.WordValue);
+        private void ExecuteLwrom(Register16 regA, Register16 regB, Memory rom, Register16 mar) {
+            regA.WordValue = rom.ReadWord(regB.WordValue);
             mar.WordValue = (ushort)(regB.WordValue + 1);
         }
 
-        private void ExecuteLwromo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecuteLwromo(Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Memory rom, Register4 flags) {
             Register16 tmpReg = new();
             ExecuteAddw(tmpReg, regA, regB, flags);
-            regDest.WordValue = kpc.Rom.ReadWord(tmpReg.WordValue);
+            regDest.WordValue = rom.ReadWord(tmpReg.WordValue);
             mar.WordValue = (ushort)(tmpReg.WordValue + 1);
         }
 
-        private void ExecuteLbram(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            regA.LowValue = kpc.Ram.ReadByte(regB.WordValue);
+        private void ExecuteLbram(Register16 regA, Register16 regB, Memory ram, Register16 mar) {
+            regA.LowValue = ram.ReadByte(regB.WordValue);
             mar.WordValue = regB.WordValue;
         }
 
-        private void ExecuteLbramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecuteLbramo(Register16 regDest, Register16 regA, Register16 regB, Memory ram, Register16 mar, Register4 flags) {
             Register16 tmpReg = new();
             ExecuteAddw(tmpReg, regA, regB, flags);
-            regDest.LowValue = kpc.Ram.ReadByte(tmpReg.WordValue);
+            regDest.LowValue = ram.ReadByte(tmpReg.WordValue);
             mar.WordValue = tmpReg.WordValue;
         }
 
-        private void ExecuteLwram(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            regA.WordValue = kpc.Ram.ReadWord(regB.WordValue);
+        private void ExecuteLwram(Register16 regA, Register16 regB, Memory ram, Register16 mar) {
+            regA.WordValue = ram.ReadWord(regB.WordValue);
             mar.WordValue = (ushort)(regB.WordValue + 1);
         }
 
-        private void ExecuteLwramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecuteLwramo(Register16 regDest, Register16 regA, Register16 regB, Memory ram, Register16 mar, Register4 flags) {
             Register16 tmpReg = new();
             ExecuteAddw(tmpReg, regA, regB, flags);
-            regDest.WordValue = kpc.Ram.ReadWord(tmpReg.WordValue);
+            regDest.WordValue = ram.ReadWord(tmpReg.WordValue);
             mar.WordValue = (ushort)(tmpReg.WordValue + 1);
         }
 
-        private void ExecutePopb(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecutePopb(Register16 regA, Register16 regB, Memory ram, Register16 mar, Register4 flags) {
             Register16 tmpReg = new();
             Register16 minusOneReg = new(-1);
             ExecuteAddw(tmpReg, regB, minusOneReg, flags);
             regB.WordValue--;
-            regA.LowValue = kpc.Ram.ReadByte(regB.WordValue);
+            regA.LowValue = ram.ReadByte(regB.WordValue);
             mar.WordValue = regB.WordValue;
         }
 
-        private void ExecutePopw(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecutePopw(Register16 regA, Register16 regB, Memory ram, Register16 mar, Register4 flags) {
             Register16 tmpReg = new();
             Register16 minusTwoReg = new(-2);
             ExecuteAddw(tmpReg, regB, minusTwoReg, flags);
             regB.WordValue--;
-            regA.LowValue = kpc.Ram.ReadByte(regB.WordValue);
+            regA.LowValue = ram.ReadByte(regB.WordValue);
             regB.WordValue--;
-            regA.HighValue = kpc.Ram.ReadByte(regB.WordValue);
+            regA.HighValue = ram.ReadByte(regB.WordValue);
             mar.WordValue = regB.WordValue;
+        }
+
+        private void ExecuteLbext(LwExternalDevicesAdapter extDevAdapter, Register16 regA, Register16 regB) {
+            regA.LowValue = extDevAdapter.HandleLbext(regB.WordValue);
         }
 
         #endregion
 
         #region Store instructions
 
-        private void ExecuteSbram(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            kpc.Ram.WriteByte(regA.LowValue, regB.WordValue);
+        private void ExecuteSbram(Register16 regA, Register16 regB, Memory ram, Register16 mar) {
+            ram.WriteByte(regA.LowValue, regB.WordValue);
             mar.WordValue = regB.WordValue;
         }
 
-        private void ExecuteSbramI(LwKpcBuild kpc, Register16 regDest, byte imm, Register16 mar) {
-            kpc.Ram.WriteByte(imm, regDest.WordValue);
+        private void ExecuteSbramI(Register16 regDest, byte imm, Memory ram, Register16 mar) {
+            ram.WriteByte(imm, regDest.WordValue);
             mar.WordValue = regDest.WordValue;
         }
 
-        private void ExecuteSbramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecuteSbramo(Register16 regDest, Register16 regA, Register16 regB, Memory ram, Register16 mar, Register4 flags) {
             Register16 tmpReg = new();
             ExecuteAddw(tmpReg, regA, regB, flags);
-            kpc.Ram.WriteByte(regDest.LowValue, tmpReg.WordValue);
+            ram.WriteByte(regDest.LowValue, tmpReg.WordValue);
             mar.WordValue = tmpReg.WordValue;
         }
 
-        private void ExecuteSwram(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            kpc.Ram.WriteWord(regA.WordValue, regB.WordValue);
+        private void ExecuteSwram(Register16 regA, Register16 regB, Memory ram, Register16 mar) {
+            ram.WriteWord(regA.WordValue, regB.WordValue);
             mar.WordValue = (ushort)(regB.WordValue + 1);
         }
 
-        private void ExecuteSwramo(LwKpcBuild kpc, Register16 regDest, Register16 regA, Register16 regB, Register16 mar, Register4 flags) {
+        private void ExecuteSwramo(Register16 regDest, Register16 regA, Register16 regB, Memory ram, Register16 mar, Register4 flags) {
             Register16 tmpReg = new();
             ExecuteAddw(tmpReg, regA, regB, flags);
-            kpc.Ram.WriteWord(regDest.WordValue, tmpReg.WordValue);
+            ram.WriteWord(regDest.WordValue, tmpReg.WordValue);
             mar.WordValue = (ushort)(tmpReg.WordValue + 1);
         }
 
-        private void ExecutePushb(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            kpc.Ram.WriteByte(regA.LowValue, regB.WordValue++);
+        private void ExecutePushb(Register16 regA, Register16 regB, Memory ram, Register16 mar) {
+            ram.WriteByte(regA.LowValue, regB.WordValue++);
             mar.WordValue = regB.WordValue;
         }
 
-        private void ExecutePushw(LwKpcBuild kpc, Register16 regA, Register16 regB, Register16 mar) {
-            kpc.Ram.WriteByte(regA.HighValue, regB.WordValue++);
-            kpc.Ram.WriteByte(regA.LowValue, regB.WordValue++);
+        private void ExecutePushw(Register16 regA, Register16 regB, Memory ram, Register16 mar) {
+            ram.WriteByte(regA.HighValue, regB.WordValue++);
+            ram.WriteByte(regA.LowValue, regB.WordValue++);
             mar.WordValue = regB.WordValue;
         }
 
-        private void ExecuteSbext() {
-            throw new NotImplementedException();
+        private void ExecuteSbext(LwExternalDevicesAdapter extDevAdapter, Register16 regA, Register16 regB) {
+            extDevAdapter.HandleSbext(regB.WordValue, regA.LowValue);
         }
 
         #endregion
@@ -615,8 +656,8 @@ namespace LightweightEmulator.Pipelines {
 
             ExecuteOr(tmpReg, regALowReg, regAHighReg, flags);
 
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (kpcFlags.HasFlag(KpcFlag.Zf)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(LwKpcFlag.Zf)) {
                 pc.WordValue = regB.WordValue;
             }
         }
@@ -628,8 +669,8 @@ namespace LightweightEmulator.Pipelines {
 
             ExecuteOr(tmpReg, regALowReg, regAHighReg, flags);
 
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (!kpcFlags.HasFlag(KpcFlag.Zf)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (!kpcFlags.HasFlag(LwKpcFlag.Zf)) {
                 pc.WordValue = regB.WordValue;
             }
         }
@@ -640,8 +681,8 @@ namespace LightweightEmulator.Pipelines {
 
             ExecuteOr(tmpReg, tmpReg, regAHighReg, flags);
 
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (kpcFlags.HasFlag(KpcFlag.Nf)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(LwKpcFlag.Nf)) {
                 pc.WordValue = regB.WordValue;
             }
         }
@@ -652,38 +693,84 @@ namespace LightweightEmulator.Pipelines {
 
             ExecuteOr(tmpReg, tmpReg, regAHighReg, flags);
 
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (!kpcFlags.HasFlag(KpcFlag.Nf)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (!kpcFlags.HasFlag(LwKpcFlag.Nf)) {
                 pc.WordValue = regB.WordValue;
             }
         }
 
         private void ExecuteJzf(Register16 regB, Register16 pc, Register4 flags) {
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (kpcFlags.HasFlag(KpcFlag.Zf)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(LwKpcFlag.Zf)) {
                 pc.WordValue = regB.WordValue;
             }
         }
 
         private void ExecuteJnf(Register16 regB, Register16 pc, Register4 flags) {
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (kpcFlags.HasFlag(KpcFlag.Nf)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(LwKpcFlag.Nf)) {
                 pc.WordValue = regB.WordValue;
             }
         }
 
         private void ExecuteJcf(Register16 regB, Register16 pc, Register4 flags) {
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (kpcFlags.HasFlag(KpcFlag.Cf)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(LwKpcFlag.Cf)) {
                 pc.WordValue = regB.WordValue;
             }
         }
 
         private void ExecuteJof(Register16 regB, Register16 pc, Register4 flags) {
-            var kpcFlags = (KpcFlag)flags.Value;
-            if (kpcFlags.HasFlag(KpcFlag.Of)) {
+            var kpcFlags = (LwKpcFlag)flags.Value;
+            if (kpcFlags.HasFlag(LwKpcFlag.Of)) {
                 pc.WordValue = regB.WordValue;
             }
+        }
+
+        #endregion
+
+        #region Interrupt instructions
+        private void ExecuteIrrex(ushort irrAddress, Action handleIrrex, Register16 t1, Memory ram, Register16 pc, Register16 mar, Register4 flags) {
+            handleIrrex();
+
+            ram.WriteByte(flags.Value, 0xFF00);
+
+            var tmpReg = new Register16();
+            Register16 minusOneReg = new(-1);
+            ExecuteAddw(tmpReg, pc, minusOneReg, flags);
+
+            ram.WriteByte(tmpReg.LowValue, 0xFF01);     // warning - LE convention
+            ram.WriteByte(tmpReg.HighValue, 0xFF02);    // warning - LE convention
+
+            ram.WriteWord(t1.WordValue, 0xFF03);
+
+            mar.WordValue = 0xFF04;
+            pc.WordValue = irrAddress;
+        }
+
+        private void ExecuteIrrret(LwInterruptsManager irrManager, Register16 t1, Memory ram, Register16 pc, Register16 mar, Register4 flags) {
+            var pcLo = ram.ReadByte(0xFF01);
+            var pcHi = ram.ReadByte(0xFF02);
+
+            var tmpReg = new Register16(pcHi | pcLo);
+            Register16 minusOneReg = new(-1);
+            ExecuteAddw(tmpReg, tmpReg, minusOneReg, flags);
+
+            pc.WordValue = tmpReg.WordValue;
+            flags.Value = ram.ReadByte(0xFF00);
+            t1.WordValue = ram.ReadWord(0xFF03);
+
+            mar.WordValue = 0xFF04;
+
+            irrManager.HandleIrrret();
+        }
+
+        private void ExecuteIrren(LwInterruptsManager irrManager) {
+            irrManager.HandleIrren();
+        }
+
+        private void ExecuteIrrdis(LwInterruptsManager irrManager) {
+            irrManager.HandleIrrdis();
         }
 
         #endregion
@@ -696,31 +783,31 @@ namespace LightweightEmulator.Pipelines {
             byte operationResult,
             bool isSubtraction,
             bool skipCf = false) {
-            KpcFlag calcFlag = KpcFlag.None;
+            LwKpcFlag calcFlag = LwKpcFlag.None;
 
             if (operationResult == 0) {
-                calcFlag |= KpcFlag.Zf;
+                calcFlag |= LwKpcFlag.Zf;
             }
 
             if ((operationResult & 0b10000000) != 0) {
-                calcFlag |= KpcFlag.Nf;
+                calcFlag |= LwKpcFlag.Nf;
             }
 
             if (!skipCf) {
                 int sum = a + (isSubtraction ? (byte)~b : b) + (carryIn ? 1 : 0);
 
                 if (sum > 255) {
-                    calcFlag |= KpcFlag.Cf;
+                    calcFlag |= LwKpcFlag.Cf;
                 }
             }
 
             if (isSubtraction) {
                 if ((((a ^ b) & 0x80) != 0) && (((a ^ operationResult) & 0x80) != 0)) {
-                    calcFlag |= KpcFlag.Of;
+                    calcFlag |= LwKpcFlag.Of;
                 }
             } else {
                 if ((((a ^ b) & 0x80) == 0) && (((a ^ operationResult) & 0x80) != 0)) {
-                    calcFlag |= KpcFlag.Of;
+                    calcFlag |= LwKpcFlag.Of;
                 }
             }
 

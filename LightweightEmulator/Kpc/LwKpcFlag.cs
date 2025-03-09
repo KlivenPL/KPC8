@@ -1,6 +1,6 @@
 ﻿namespace LightweightEmulator.Kpc {
     [Flags]
-    public enum KpcFlag : byte {
+    public enum LwKpcFlag : byte {
         None = 0,
 
         /// <summary>
