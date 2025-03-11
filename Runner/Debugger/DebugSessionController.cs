@@ -70,8 +70,8 @@ namespace Runner.Debugger {
             debugSession.PausedEvent += PausedEvent;
         }
 
-        public IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations() {
-            return debugSession.GetPossibleBreakpointLocations();
+        public IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations(string filePath) {
+            return debugSession.GetPossibleBreakpointLocations(filePath);
         }
 
         public IEnumerable<BreakpointInfo> SetBreakpoints(string filePath, IEnumerable<(int line, int column)> proposedBreakpoints) {
@@ -121,6 +121,7 @@ namespace Runner.Debugger {
         public void Terminate() {
             cts.Cancel();
             debugSession.RequestTerminate();
+            kpc.Dispose();
             ExitedEvent(0);
 
             if (!debugThread.Join(5000)) {
@@ -132,6 +133,7 @@ namespace Runner.Debugger {
 
         public void Disconnect() {
             cts.Cancel();
+            kpc.Dispose();
             debugSession.RequestTerminate();
             debugThread?.Join(5000);
             TerminatedEvent?.Invoke();

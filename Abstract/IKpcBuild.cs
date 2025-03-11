@@ -1,7 +1,8 @@
 ﻿using Abstract.Components;
+using System;
 
 namespace Abstract {
-    public interface IKpcBuild {
+    public interface IKpcBuild : IDisposable {
         IRegister16[] ProgrammerRegisters { get; }
         IMemory Rom { get; }
         IMemory Ram { get; }

@@ -110,9 +110,13 @@ namespace ExternalDevices.Lw {
 
         // Stops the timer loop.
         private void StopTimer() {
-            _cts.Cancel();
-            _ackTcs.SetCanceled();
+            _cts?.Cancel();
+            _ackTcs?.SetCanceled();
             abortInterrupt?.Invoke();
+        }
+
+        public override void Dispose() {
+            StopTimer();
         }
     }
 }

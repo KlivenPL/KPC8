@@ -5,7 +5,7 @@ using LightweightEmulator.ExternalDevices;
 using LightweightEmulator.Pipelines;
 
 namespace LightweightEmulator.Kpc {
-    public class LwKpcBuild : IKpcBuild {
+    public class LwKpcBuild : IKpcBuild, IDisposable {
         public LwKpcBuild(byte[]? rom, byte[]? ram,
             LwExternalDevicesAdapter extDeviceAdapter,
             LwInterruptsManager irrManager) {
@@ -40,5 +40,9 @@ namespace LightweightEmulator.Kpc {
         IRegister16 IKpcBuild.Pc => Pc;
         IRegister16 IKpcBuild.Mar => Mar;
         IRegister4 IKpcBuild.Flags => Flags;
+
+        public void Dispose() {
+            ExtDeviceAdapter.Dispose();
+        }
     }
 }

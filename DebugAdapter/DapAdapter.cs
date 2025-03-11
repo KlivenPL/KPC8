@@ -99,7 +99,7 @@ namespace DebugAdapter {
 
             }*/
 
-            var possibleBreakpoints = sessionController.GetPossibleBreakpointLocations();
+            var possibleBreakpoints = sessionController.GetPossibleBreakpointLocations(arguments.Source.Path);
 
             /*var tmpVerified = arguments.Breakpoints.Where(abp => possibleBreakpoints.Any(pb => pb.Line == abp.Line && pb.Column == abp.Column));
             var unverified = arguments.Breakpoints.Except(tmpVerified);
@@ -109,7 +109,7 @@ namespace DebugAdapter {
             List<(int line, int column)> acceptedBreakpoints = new List<(int line, int column)>();
 
             foreach (var abp in arguments.Breakpoints) {
-                var acceptedBp = possibleBreakpoints.FirstOrDefault(pb => pb.FilePath.ComparePath(arguments.Source.Path) && pb.Line == abp.Line && (pb.Column == abp.Column || abp.Column == null));
+                var acceptedBp = possibleBreakpoints.FirstOrDefault(pb => pb.Line == abp.Line && (pb.Column == abp.Column || abp.Column == null));
                 if (acceptedBp != null) {
                     resultBps.Add(acceptedBp.ToVerifiedBreakpoint());
                     acceptedBreakpoints.Add((acceptedBp.Line, acceptedBp.Column));
@@ -136,7 +136,7 @@ namespace DebugAdapter {
 
         protected override BreakpointLocationsResponse HandleBreakpointLocationsRequest(BreakpointLocationsArguments arguments) {
             return new BreakpointLocationsResponse {
-                Breakpoints = sessionController.GetPossibleBreakpointLocations().Select(x => new BreakpointLocation { Column = x.Column, EndColumn = x.EndColumn, Line = x.Line }).ToList()
+                Breakpoints = sessionController.GetPossibleBreakpointLocations(arguments.Source.Path).Select(x => new BreakpointLocation { Column = x.Column, EndColumn = x.EndColumn, Line = x.Line }).ToList()
             };
         }
 
@@ -344,7 +344,8 @@ namespace DebugAdapter {
                 return new EvaluateResponse {
                     Result = constantValue.IsRegisterAlias
                         ? $"{constantValue.Name} (${constantValue.RegisterName}) = {constantValue.Value}"
-                        : $"{constantValue.Name} = {constantValue.Value}"
+                        : $"{constantValue.Name} = {constantValue.Value}",
+                    PresentationHint = new VariablePresentationHint() { Attributes = VariablePresentationHint.AttributesValue.Constant }
                 };
 
             } catch {

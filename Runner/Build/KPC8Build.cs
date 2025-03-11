@@ -57,5 +57,7 @@ namespace Runner.Build {
 
             mainClock.Disabled = false;
         }
+
+        public void Dispose() { }
     }
 }

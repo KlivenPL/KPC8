@@ -63,6 +63,7 @@ namespace Runner.Player {
 
         public void Terminate() {
             cts.Cancel();
+            kpc.Dispose();
             playSession.RequestTerminate();
             ExitedEvent(0);
 

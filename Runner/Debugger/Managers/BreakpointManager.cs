@@ -24,8 +24,8 @@ namespace Runner.Debugger.Managers {
             loAddressToPossibleBpId = possibleBps.ToDictionary(x => x.Symbol.LoAddress, x => x.Id);
         }
 
-        public IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations() {
-            return possibleBps.Select(x => new BreakpointInfo(x));
+        public IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations(string filePath) {
+            return possibleBps.Where(x => x.Symbol.FilePath.ComparePath(filePath)).Select(x => new BreakpointInfo(x));
         }
 
         public void GetBreakpointData(int? breakpointId, out string filePath, out int line) {

@@ -1,5 +1,5 @@
 ﻿namespace LightweightEmulator.ExternalDevices {
-    public class LwExternalDevicesAdapter {
+    public class LwExternalDevicesAdapter : IDisposable {
         private readonly List<ILwExternalDevice> _externalDevices = new();
 
         public void AddExternalDevice(ILwExternalDevice externalDevice) {
@@ -18,6 +18,12 @@
         public byte HandleLbext(ushort address) {
             var mappedDevice = _externalDevices.SingleOrDefault(x => x.IsAddressMapped(address));
             return mappedDevice?.HandleLbext(address) ?? 0;
+        }
+
+        public void Dispose() {
+            foreach (var extDevice in _externalDevices) {
+                extDevice.Dispose();
+            }
         }
     }
 }

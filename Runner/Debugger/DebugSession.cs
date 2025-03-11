@@ -352,8 +352,8 @@ namespace Runner.Debugger {
             InvalidatedEvent(GetDebugInfo());
         }
 
-        internal IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations() {
-            return breakpointManager.GetPossibleBreakpointLocations();
+        internal IEnumerable<BreakpointInfo> GetPossibleBreakpointLocations(string filePath) {
+            return breakpointManager.GetPossibleBreakpointLocations(filePath);
         }
 
         /// <returns>Successfully placed breakpoints</returns>

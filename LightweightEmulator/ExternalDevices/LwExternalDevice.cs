@@ -1,8 +1,7 @@
 ﻿using LightweightEmulator.Pipelines;
 
 namespace LightweightEmulator.ExternalDevices {
-    public interface ILwExternalDevice {
-        void Initialize();
+    public interface ILwExternalDevice : IDisposable {
         bool IsAddressMapped(ushort address);
         void HandleSbext(ushort address, byte data);
         byte HandleLbext(ushort address);
@@ -22,9 +21,10 @@ namespace LightweightEmulator.ExternalDevices {
 
         public bool IsAddressMapped(ushort address) => MappedAddresses.Contains(address);
 
-        public virtual void Initialize() { }
+        public abstract void Dispose();
         public virtual void HandleSbext(ushort address, byte data) { }
         public virtual byte HandleLbext(ushort address) => 0;
+
     }
 
     public abstract class LwExternalInterruptDevice : LwExternalDevice, ILwExternalInterruptDevice {
