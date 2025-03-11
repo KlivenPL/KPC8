@@ -1,5 +1,5 @@
 ﻿using Abstract;
-using Infrastructure.BitArrays;
+//using Infrastructure.BitArrays;
 using Runner._Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -60,8 +60,8 @@ namespace Runner.GraphicsRending {
 
                     var mainOffset = (ushort)(SpriteSheetAddr + SpritesheetColumnOffset * col + row * SpritesheetRowOffset + pixelY);
 
-                    byte bitA = BitArrayHelper.FromByteLE(rom(mainOffset))[pixelX] ? (byte)1 : (byte)0;
-                    byte bitB = BitArrayHelper.FromByteLE(rom((ushort)(mainOffset + SpritesheetNextByteOffset)))[pixelX] ? (byte)1 : (byte)0;
+                    byte bitA = (byte)((rom(mainOffset) >> (7 - pixelX)) & 1);
+                    byte bitB = (byte)((rom((ushort)(mainOffset + SpritesheetNextByteOffset)) >> (7 - pixelX)) & 1);
 
                     byte bgColorByte = (byte)((bitA) | (bitB << 1)); // 0, 1, 2 or 3
 
@@ -142,8 +142,8 @@ namespace Runner.GraphicsRending {
 
             var mainOffset = (ushort)(SpriteSheetAddr + SpritesheetColumnOffset * col + row * SpritesheetRowOffset + y - sprite.CachedPosY);
 
-            byte bitA = BitArrayHelper.FromByteLE(rom(mainOffset))[pixelX] ? (byte)1 : (byte)0;
-            byte bitB = BitArrayHelper.FromByteLE(rom((ushort)(mainOffset + SpritesheetNextByteOffset)))[pixelX] ? (byte)1 : (byte)0;
+            byte bitA = (byte)(((rom(mainOffset)) >> (7 - pixelX)) & 1);
+            byte bitB = (byte)(((rom((ushort)(mainOffset + SpritesheetNextByteOffset))) >> (7 - pixelX)) & 1);
 
             byte colorByte = (byte)((bitA) | (bitB << 1)); // 0, 1, 2 or 3
 
