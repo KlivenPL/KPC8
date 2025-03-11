@@ -1,5 +1,7 @@
-﻿namespace LightweightEmulator.Components {
-    public class Register4 {
+﻿using Abstract.Components;
+
+namespace LightweightEmulator.Components {
+    public class Register4 : IRegister4 {
         private byte _value;
 
         public byte Value {

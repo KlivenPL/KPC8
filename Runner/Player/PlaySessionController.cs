@@ -1,12 +1,17 @@
-﻿using Runner._Infrastructure;
+﻿using Abstract;
+using LightweightEmulator.Configuration;
+using LightweightEmulator.Pipelines;
+using Runner._Infrastructure;
 using Runner.Build;
 using Runner.Configuration;
+using Runner.EmulationControl;
 using System;
 using System.Threading;
 
 namespace Runner.Player {
     public class PlaySessionController : IKPC8SessionController {
-        private readonly KPC8Build kpc;
+        private readonly IKpcBuild kpc;
+        private readonly IEmulationController emulationController;
 
         private readonly object syncObject;
         private readonly ManualResetEventSlim runEvent;
@@ -25,13 +30,14 @@ namespace Runner.Player {
 
         public bool IsStarted => playThread?.IsAlive == true;
 
-        KPC8Build IKPC8SessionController.GetKPC8Build => kpc;
+        IKpcBuild IKPC8SessionController.GetKPC8Build => kpc;
 
-        private PlaySessionController(KPC8Build kpc) {
+        private PlaySessionController(IKpcBuild kpc, IEmulationController emulationController) {
             this.kpc = kpc;
+            this.emulationController = emulationController;
             syncObject = new object();
             runEvent = new ManualResetEventSlim(true);
-            playSession = new PlaySession(kpc, runEvent, syncObject);
+            playSession = new PlaySession(kpc, emulationController, runEvent, syncObject);
             cts = new CancellationTokenSource();
         }
 
@@ -67,7 +73,14 @@ namespace Runner.Player {
         public class Factory {
             public static PlaySessionController Create(KPC8Configuration kpcConfig) {
                 var kpcBuild = new KPC8Builder(kpcConfig).Build();
-                return new PlaySessionController(kpcBuild);
+                var emulationController = new KPC8EmulationController(kpcBuild);
+                return new PlaySessionController(kpcBuild, emulationController);
+            }
+
+            public static PlaySessionController CreateLw(LwKpcConfiguration kpcConfig) {
+                var kpcBuild = new LwKpcBuilder(kpcConfig).Build();
+                var emulationController = new LwEmulationController(kpcBuild);
+                return new PlaySessionController(kpcBuild, emulationController);
             }
         }
     }

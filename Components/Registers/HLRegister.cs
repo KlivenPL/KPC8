@@ -1,12 +1,12 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.Simulation.Updates;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using _Infrastructure.Simulation.Updates;
 using System.Collections;
 using System.Text;
 
 namespace Components.Registers {
-    public class HLRegister : IODeviceBase, IRegister, IUpdate {
+    public class HLRegister : IODeviceBase, IRegister, IUpdate, Abstract.Components.IRegister4 {
         protected readonly BitArray mainBuffer;
 
         public int Priority { get; set; } = -1;
@@ -16,6 +16,11 @@ namespace Components.Registers {
         public SignalPort Clk { get; protected set; } = new SignalPort();
 
         public BitArray Content => new(mainBuffer);
+
+        public byte Value {
+            get => new BitArray(4).MergeWith(mainBuffer).ToByteLE();
+            set => SetContent(BitArrayHelper.FromByteLE(value));
+        }
 
         public void SetContent(BitArray value) {
             for (int i = 0; i < mainBuffer.Length; i++) {

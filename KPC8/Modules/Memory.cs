@@ -34,6 +34,12 @@ namespace KPC8.Modules {
         public BitArray PcContent => pc.Content;
         public BitArray MarContent => mar.Content;
 
+        public Abstract.Components.IMemory Ram => ram;
+        public Abstract.Components.IMemory Rom => rom;
+
+        public Abstract.Components.IRegister16 Pc => pc;
+        public Abstract.Components.IRegister16 Mar => mar;
+
         public BitArray GetRamAt(ushort address) => ram.Content[address];
         public BitArray SetRamAt(ushort address, byte value) => ram.Content[address] = BitArrayHelper.FromByteLE(value);
         public BitArray GetRomAt(ushort address) => rom.Content[address];

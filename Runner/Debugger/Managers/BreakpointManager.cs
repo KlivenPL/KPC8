@@ -10,7 +10,7 @@ namespace Runner.Debugger.Managers {
         private readonly Breakpoint[] possibleBps;
         private readonly Dictionary<ushort, int> loAddressToPossibleBpId;
 
-        private Breakpoint[] placedBps = System.Array.Empty<Breakpoint>();
+        private Dictionary<string, List<Breakpoint>> placedFileBps = new();
         private Dictionary<ushort, int> loAddressToPlacedBpId = new Dictionary<ushort, int>();
 
         internal BreakpointManager(IEnumerable<IDebugSymbol> debugSymbols) {
@@ -34,16 +34,59 @@ namespace Runner.Debugger.Managers {
             line = bp.Symbol.Line;
         }
 
-        public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(string filePath, int line, int column)> proposedBreakpoints) {
-            placedBps = possibleBps.Where(s => proposedBreakpoints.Any(pb => pb.line == s.Symbol.Line && pb.filePath.ComparePath(s.Symbol.FilePath))).ToArray();
+        public IEnumerable<BreakpointInfo> SetBreakpoints(string filePath, IEnumerable<(int line, int column)> proposedBreakpoints) {
+            List<Breakpoint> fileBreakpoints = new();
 
-            if (placedBps.Any()) {
-                loAddressToPlacedBpId = placedBps.ToDictionary(x => x.Symbol.LoAddress, x => x.Id);
+            if (placedFileBps.ContainsKey(filePath)) {
+                placedFileBps.Remove(filePath);
+            }
+
+            foreach (var proposedBreakpoint in proposedBreakpoints) {
+                var possibleBreakpoint = possibleBps.FirstOrDefault(x =>
+                    proposedBreakpoint.line == x.Symbol.Line &&
+                    filePath.ComparePath(x.Symbol.FilePath));
+
+                if (possibleBreakpoint == null) {
+                    continue;
+                }
+
+                fileBreakpoints.Add(possibleBreakpoint);
+            }
+
+            //foreach (var possibleBreakpoint in fileBreakpoints) {
+            //    if (placedFileBps.ContainsKey(possibleBreakpoint.Symbol.FilePath)) {
+            //        placedFileBps[possibleBreakpoint.Symbol.FilePath].Add(possibleBreakpoint);
+            //    } else {
+            //        placedFileBps.Add(possibleBreakpoint.Symbol.FilePath, new List<Breakpoint> { possibleBreakpoint });
+            //    }
+            //}
+
+            if (fileBreakpoints.Any()) {
+                placedFileBps.Add(filePath, fileBreakpoints);
+            }
+
+            if (placedFileBps.Any()) {
+                loAddressToPlacedBpId = placedFileBps.Values.SelectMany(x => x).ToDictionary(x => x.Symbol.LoAddress, x => x.Id);
             } else {
                 loAddressToPlacedBpId.Clear();
             }
 
-            return placedBps.Select(x => new BreakpointInfo(x));
+            return placedFileBps.Values.SelectMany(x => x).Select(x => new BreakpointInfo(x));
+
+            //var fileBps = possibleBps
+            //    .Where(s => 
+            //        proposedBreakpoints.Any(pb => pb.line == s.Symbol.Line && pb.filePath.ComparePath(s.Symbol.FilePath)))
+            //    .ToArray();
+
+            //if(placedFileBps.ContainsKey())
+
+            //if (placedBps.Any()) {
+            //    loAddressToPlacedBpId = placedBps.ToDictionary(x => x.Symbol.LoAddress, x => x.Id);
+            //} else {
+            //    loAddressToPlacedBpId.Clear();
+            //}
+
+            //return placedBps.Select(x => new BreakpointInfo(x));
         }
 
         public bool IsBreakpointHit(ushort loAddress, out int? breakpointId) {

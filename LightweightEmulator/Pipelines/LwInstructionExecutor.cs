@@ -749,10 +749,10 @@ namespace LightweightEmulator.Pipelines {
         }
 
         private void ExecuteIrrret(LwInterruptsManager irrManager, Register16 t1, Memory ram, Register16 pc, Register16 mar, Register4 flags) {
-            var pcLo = ram.ReadByte(0xFF01);
-            var pcHi = ram.ReadByte(0xFF02);
+            var pcLo = (ushort)ram.ReadByte(0xFF01);
+            var pcHi = (ushort)ram.ReadByte(0xFF02);
 
-            var tmpReg = new Register16(pcHi | pcLo);
+            var tmpReg = new Register16((pcHi << 8) | pcLo);
             Register16 minusOneReg = new(-1);
             ExecuteAddw(tmpReg, tmpReg, minusOneReg, flags);
 

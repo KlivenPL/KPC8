@@ -1,10 +1,12 @@
 ﻿using _Infrastructure.Simulation.Loops;
+using Abstract;
+using Abstract.Components;
 using Components.Clocks;
 using KPC8.ControlSignals;
 using System.Collections.Generic;
 
 namespace Runner.Build {
-    internal class KPC8Build {
+    internal class KPC8Build : IKpcBuild {
         private readonly Clock mainClock;
         private readonly CsPanel csPanel;
         private readonly ModulePanel modulePanel;
@@ -16,6 +18,18 @@ namespace Runner.Build {
         public ModulePanel ModulePanel => modulePanel;
         public SimulationLoop MainSimulationLoop => mainSimulationLoop;
         public IReadOnlyList<SimulationLoop> ExternalSimulationLoops => externalSimulationLoops;
+
+        public IRegister16[] ProgrammerRegisters => ModulePanel.Registers.Regs;
+
+        public IMemory Rom => ModulePanel.Memory.Rom;
+
+        public IMemory Ram => ModulePanel.Memory.Ram;
+
+        public IRegister16 Pc => ModulePanel.Memory.Pc;
+
+        public IRegister16 Mar => ModulePanel.Memory.Mar;
+
+        public IRegister4 Flags => ModulePanel.Alu.Flags;
 
         public KPC8Build(
             Clock mainClock,

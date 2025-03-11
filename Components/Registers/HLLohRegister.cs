@@ -1,12 +1,12 @@
-﻿using Components._Infrastructure.IODevices;
+﻿using _Infrastructure.Simulation.Updates;
+using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using _Infrastructure.Simulation.Updates;
 using System.Collections;
 using System.Text;
 
 namespace Components.Registers {
-    public class HLLohRegister : IODeviceBase, IUpdate {
+    public class HLLohRegister : IODeviceBase, IUpdate, Abstract.Components.IRegister16 {
         protected readonly BitArray mainBuffer;
 
         public int Priority => -1;
@@ -17,6 +17,30 @@ namespace Components.Registers {
         public SignalPort ChipEnable { get; protected set; } = new SignalPort();
 
         public BitArray Content => new(mainBuffer);
+
+        public byte HighValue {
+            get {
+                uint combined = mainBuffer.ToUShortLE();
+                return (byte)(combined >> halfSize);
+            }
+
+            set => SetContent(BitArrayHelper.FromByteLE(value).MergeWith(mainBuffer.Skip(halfSize)));
+        }
+
+        public byte LowValue {
+            get {
+                uint combined = mainBuffer.ToUShortLE();
+                return (byte)(combined << halfSize);
+            }
+
+            set => SetContent(mainBuffer.Take(halfSize).MergeWith(BitArrayHelper.FromByteLE(value)));
+        }
+
+        public ushort WordValue {
+            get => mainBuffer.ToUShortLE();
+            set => SetContent(BitArrayHelper.FromUShortLE(value));
+        }
+
         public void SetContent(BitArray value) {
             for (int i = 0; i < mainBuffer.Length; i++) {
                 mainBuffer[i] = value[i];

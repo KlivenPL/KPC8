@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Abstract\Abstract.csproj" />
     <ProjectReference Include="..\Assembler\Assembler.csproj" />
+    <ProjectReference Include="..\LightweightEmulator\LightweightEmulator.csproj" />
   </ItemGroup>
 
   <ItemGroup>

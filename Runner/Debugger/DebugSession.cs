@@ -1,13 +1,10 @@
-﻿using _Infrastructure.BitArrays;
-using _Infrastructure.Paths;
-using _Infrastructure.Simulation.Loops;
+﻿using _Infrastructure.Paths;
+using Abstract;
 using Assembler.DebugData;
 using Infrastructure.BitArrays;
-using KPC8.ControlSignals;
 using KPC8.CpuFlags;
 using KPC8.ProgRegs;
 using Runner._Infrastructure;
-using Runner.Build;
 using Runner.Configuration;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.Enums;
@@ -25,7 +22,8 @@ namespace Runner.Debugger {
         private readonly DebugSessionConfiguration configuration;
         private readonly ManualResetEventSlim runEvent;
         private readonly object syncObject;
-        private readonly KPC8Build kpc;
+        private readonly IKpcBuild kpc;
+        private readonly IEmulationController emulationController;
 
         private readonly BreakpointManager breakpointManager;
         private readonly ConstantValuesManager constantValuesManager;
@@ -37,7 +35,6 @@ namespace Runner.Debugger {
         private int? hitBreakpointId = null;
         private bool terminate = false;
         private DebugValueFormat debugValueFormat = DebugValueFormat.DecWordUnsigned;
-        private List<SimulationLoopRunner> externalSlRunners;
 
         #region DebugSession Events
 
@@ -47,7 +44,7 @@ namespace Runner.Debugger {
 
         #endregion
 
-        internal DebugSession(DebugSessionConfiguration configuration, KPC8Build kpc, ManualResetEventSlim runEvent, object syncObject) {
+        internal DebugSession(DebugSessionConfiguration configuration, IKpcBuild kpc, IEmulationController emulationController, ManualResetEventSlim runEvent, object syncObject) {
             this.runEvent = runEvent;
             this.kpc = kpc;
             this.syncObject = syncObject;
@@ -56,7 +53,7 @@ namespace Runner.Debugger {
             breakpointManager = new BreakpointManager(configuration.DebugSymbols);
             constantValuesManager = new ConstantValuesManager(configuration.DebugSymbols);
             debugWriteManager = new DebugWriteManager(configuration.DebugSymbols);
-            externalSlRunners = new List<SimulationLoopRunner>();
+            this.emulationController = emulationController;
         }
 
         internal void Start(bool pauseAtEntry, CancellationToken cancellationToken) {
@@ -64,14 +61,7 @@ namespace Runner.Debugger {
                 RequestPause();
             }
 
-            foreach (var externalModuleSl in kpc.ExternalSimulationLoops) {
-                externalSlRunners.Add(SimulationLoopRunner.RunInNewThread(externalModuleSl));
-            }
-
-            // Load the first instruction
-            MakeTickAndWait();
-            MakeTickAndWait();
-            MakeTickAndWait();
+            emulationController.InitializeDebug();
 
             DebuggerLoop(cancellationToken);
         }
@@ -79,7 +69,7 @@ namespace Runner.Debugger {
         private void DebuggerLoop(CancellationToken cancellationToken) {
             do {
                 if (!paused) {
-                    var pcCurrInstrAddress = (ushort)(kpc.ModulePanel.Memory.PcContent.ToUShortLE() - 1);
+                    var pcCurrInstrAddress = (ushort)(kpc.Pc.WordValue + 1);
 
                     if (debugWriteManager.IsDebugWriteHit((ushort)(pcCurrInstrAddress + 2), out var debugWrites)) {
                         var allRegisters = GetRegisters().Concat(GetInternalRegisters());
@@ -112,41 +102,11 @@ namespace Runner.Debugger {
                     continue;
                 }
 
-                TickOneInstruction();
+                emulationController.ExecuteSingleInstruction();
 
             } while (!terminate);
 
-            foreach (var externalSlRunner in externalSlRunners) {
-                externalSlRunner.Kill();
-            }
-
-            externalSlRunners.Clear();
-            externalSlRunners = null;
-        }
-
-        private void TickOneInstruction() {
-            // Execute currently loaded instruction
-            while (!kpc.CsPanel.Ctrl.Ic_clr) {
-                MakeTickAndWait();
-            }
-
-            /*while (kpc.CsPanel.Ctrl.Ic_clr) {
-                MakeTickAndWait();
-            }*/
-
-            // Load next instruction
-            MakeTickAndWait();
-            MakeTickAndWait();
-            MakeTickAndWait();
-            MakeTickAndWait();
-        }
-
-        private void MakeTickAndWait() {
-            kpc.MainClock.MakeTick();
-
-            while (kpc.MainClock.IsManualTickInProgress) {
-                kpc.MainSimulationLoop.Loop();
-            }
+            emulationController.Terminate();
         }
 
         private void HandlePause() {
@@ -211,11 +171,11 @@ namespace Runner.Debugger {
 
         private VariableInfo[] GetRegisters() {
             var registers = Enum.GetValues<Regs>().Where(r => r != Regs.None).Select(x => {
-                var content = kpc.ModulePanel.Registers.GetWholeRegContent(x.GetIndex());
+                var content = kpc.ProgrammerRegisters[x.GetIndex()].WordValue;
 
                 return new VariableInfo {
                     Name = x.ToString(),
-                    Value = content.ToFormattedDebugString(debugValueFormat),
+                    Value = BitArrayHelper.FromUShortLE(content).ToFormattedDebugString(debugValueFormat),
                     ValueRaw = content,
                 };
             });
@@ -226,21 +186,21 @@ namespace Runner.Debugger {
         private IEnumerable<VariableInfo> GetInternalRegisters() {
             yield return new VariableInfo {
                 Name = "PC",
-                Value = kpc.ModulePanel.Memory.PcContent.ToFormattedDebugString(debugValueFormat),
+                Value = BitArrayHelper.FromUShortLE(kpc.Pc.WordValue).ToFormattedDebugString(debugValueFormat),
                 MemoryReference = "ROM",
-                ValueRaw = kpc.ModulePanel.Memory.PcContent,
+                ValueRaw = kpc.Pc.WordValue,
             };
 
             yield return new VariableInfo {
                 Name = "MAR",
-                Value = kpc.ModulePanel.Memory.MarContent.ToFormattedDebugString(debugValueFormat),
+                Value = BitArrayHelper.FromUShortLE(kpc.Mar.WordValue).ToFormattedDebugString(debugValueFormat),
                 MemoryReference = "RAM",
-                ValueRaw = kpc.ModulePanel.Memory.MarContent,
+                ValueRaw = kpc.Mar.WordValue,
             };
 
             yield return new VariableInfo {
                 Name = "Flags",
-                Value = CpuFlagExtensions.From8BitArray(BitArrayHelper.FromByteLE(0).Take(4).MergeWith(kpc.ModulePanel.FlagsBus.Lanes.ToBitArray())).ToString()
+                Value = ((CpuFlag)kpc.Flags.Value).ToString()
             };
         }
 
@@ -273,7 +233,7 @@ namespace Runner.Debugger {
                         value = "Wrong usage. Examples: RAM($sp), RAM(registerAlias), RAM(constantAlias), RAM(0x2137)";
                         return false;
                     }
-                    value = kpc.ModulePanel.Memory.GetRamAt(parameters[0]).ToFormattedDebugString8Bit(debugValueFormat);
+                    value = BitArrayHelper.FromByteLE(kpc.Ram.ReadByte(parameters[0])).ToFormattedDebugString8Bit(debugValueFormat);
                     return true;
                 }
 
@@ -282,7 +242,7 @@ namespace Runner.Debugger {
                         value = "Wrong usage. Examples: ROM($sp), ROM(registerAlias), ROM(constantAlias), ROM(0x2137)";
                         return false;
                     }
-                    value = kpc.ModulePanel.Memory.GetRomAt(parameters[0]).ToFormattedDebugString8Bit(debugValueFormat);
+                    value = BitArrayHelper.FromByteLE(kpc.Rom.ReadByte(parameters[0])).ToFormattedDebugString8Bit(debugValueFormat);
                     return true;
                 }
 
@@ -339,7 +299,7 @@ namespace Runner.Debugger {
 
                 bool TryGetRegister(string name, out ushort value) {
                     value = 0;
-                    var posValue = allRegisterInfos.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase))?.ValueRaw?.ToUShortLE();
+                    var posValue = allRegisterInfos.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase))?.ValueRaw;
                     value = posValue ?? 0;
                     return posValue.HasValue;
                 }
@@ -397,9 +357,9 @@ namespace Runner.Debugger {
         }
 
         /// <returns>Successfully placed breakpoints</returns>
-        internal IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(string filePath, int line, int column)> proposedBreakpoints) {
+        internal IEnumerable<BreakpointInfo> SetBreakpoints(string filePath, IEnumerable<(int line, int column)> proposedBreakpoints) {
             //OutputEvent(OutputType.Stdout, "SET BRP: " + breakpointManager);
-            return breakpointManager.SetBreakpoints(proposedBreakpoints);
+            return breakpointManager.SetBreakpoints(filePath, proposedBreakpoints);
         }
 
         internal byte[] GetRamBytes() {
@@ -408,7 +368,7 @@ namespace Runner.Debugger {
                 return null;
             }
 
-            return kpc.ModulePanel.Memory.RamDumpToBytesLE();
+            return kpc.Ram.DumpToBytes();
         }
 
         internal void SetRamByte(ushort address, byte value) {
@@ -417,7 +377,7 @@ namespace Runner.Debugger {
                 return;
             }
 
-            kpc.ModulePanel.Memory.SetRamAt(address, value);
+            kpc.Ram.WriteByte(value, address);
         }
 
         internal byte[] GetRomBytes() {
@@ -426,7 +386,7 @@ namespace Runner.Debugger {
                 return null;
             }
 
-            return kpc.ModulePanel.Memory.RomDumpToBytesLE();
+            return kpc.Rom.DumpToBytes();
         }
 
         internal void SetRegister(Regs register, ushort value) {
@@ -435,7 +395,7 @@ namespace Runner.Debugger {
                 return;
             }
 
-            kpc.ModulePanel.Registers.SetWholeRegContent(register.GetIndex(), BitArrayHelper.FromUShortLE(value));
+            kpc.ProgrammerRegisters[register.GetIndex()].WordValue = value;
         }
 
         internal void Continue() {
@@ -443,7 +403,7 @@ namespace Runner.Debugger {
         }
 
         internal void StepOver() {
-            var pcCurrInstrAddress = (ushort)(kpc.ModulePanel.Memory.PcContent.ToUShortLE() - 1);
+            var pcCurrInstrAddress = (ushort)(kpc.Pc.WordValue + 1);
             Continue(true, breakpointManager.GetNextPossibleBreakpointAddressInAddressOrder(pcCurrInstrAddress));
         }
 

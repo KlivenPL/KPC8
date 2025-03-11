@@ -23,6 +23,8 @@ namespace KPC8.Modules {
         public void SetWholeRegContent(int index, BitArray value) => regs[index].SetContent(value);
         public bool IsRegSelected(int index) => regs[index].ChipEnable;
 
+        public Abstract.Components.IRegister16[] Regs => regs;
+
         public Registers(Signal mainClock, IBus dataBus, IBus registerSelectBus) {
             regs = new HLLohRegister[RegistersCount];
 

@@ -60,9 +60,20 @@ namespace Player.GuiLogic.StateMachine.States {
         private void StartDebuggingServer() {
             if (programLoader.TryGetCompiledProgramWithDebugSymbols(out var sourceFilePath, out var program, out var debugSymbols, out var compileErrors)) {
 
-                var kPC8ConfigurationDto = new KPC8ConfigurationDto();
+                //var kPC8ConfigurationDto = new KPC8ConfigurationDto();
 
-                if (configurationLoader.TryGetConfiguration(out var configurationDto, out var configValidationErrors)) {
+                //if (configurationLoader.TryGetConfiguration(out var configurationDto, out var configValidationErrors)) {
+                //    kPC8ConfigurationDto = configurationDto;
+                //} else if (!string.IsNullOrWhiteSpace(configValidationErrors)) {
+                //    MessageBox.Show(configValidationErrors, "KPC Configuration validation errors");
+                //    Controller.UnfreezeForm();
+                //    SetState<StopGuiState>();
+                //    return;
+                //}
+
+                var kPC8ConfigurationDto = new LwKpcConfigurationDto();
+
+                if (configurationLoader.TryGetLwConfiguration(out var configurationDto, out var configValidationErrors)) {
                     kPC8ConfigurationDto = configurationDto;
                 } else if (!string.IsNullOrWhiteSpace(configValidationErrors)) {
                     MessageBox.Show(configValidationErrors, "KPC Configuration validation errors");
@@ -78,7 +89,8 @@ namespace Player.GuiLogic.StateMachine.States {
                         CompiledProgram = program,
                         DebugSymbols = debugSymbols,
                         ServerPort = 32137, //todo do poprawy
-                        KPC8ConfigurationDto = kPC8ConfigurationDto,
+                        //KPC8ConfigurationDto = kPC8ConfigurationDto,
+                        LwKpcConfigurationDto = kPC8ConfigurationDto,
                         RedirectDebuggerLogsToDebugConsole = false,
                     };
 

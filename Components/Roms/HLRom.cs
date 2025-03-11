@@ -1,8 +1,8 @@
 ﻿using _Infrastructure.BitArrays;
+using _Infrastructure.Simulation.Updates;
 using Components._Infrastructure.IODevices;
 using Components.Signals;
 using Infrastructure.BitArrays;
-using _Infrastructure.Simulation.Updates;
 using System.Collections;
 using System.Linq;
 using System.Text;
@@ -84,6 +84,32 @@ namespace Components.Roms {
             sb.AppendLine($"Content@Addr: {memory[GetMemoryAddress()].ToPrettyBitString()}");
 
             return sb.ToString();
+        }
+
+        public void WriteByte(byte data, ushort address) {
+            memory[address] = BitArrayHelper.FromByteLE(data);
+        }
+
+        public void WriteWord(ushort data, ushort address) {
+            memory[address] = BitArrayHelper.FromByteLE((byte)((data & 0xFF00) >> 8));
+            memory[address + 1] = BitArrayHelper.FromByteLE((byte)(data & 0x00FF));
+        }
+
+        public byte ReadByte(ushort address) {
+            return memory[address].ToByteLE();
+        }
+
+        public ushort ReadWord(ushort address) {
+            var b1 = memory[address].ToByteLE();
+            var b2 = memory[address + 1].ToByteLE();
+
+            return (ushort)(b1 << 8 | b2);
+        }
+
+        public byte[] DumpToBytes() {
+            var bytes = new byte[memory.Length];
+            memory.CopyTo(bytes, 0);
+            return bytes;
         }
     }
 }

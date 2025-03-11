@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Runner", "Runner\Runner.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugAdapter", "DebugAdapter\DebugAdapter.csproj", "{79FAB9E1-448F-4EDA-BC79-991B410FB8C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightweightEmulator", "LightweightEmulator\LightweightEmulator.csproj", "{1BD3340C-A094-48C8-B181-B7DB234A025A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightweightEmulator", "LightweightEmulator\LightweightEmulator.csproj", "{1BD3340C-A094-48C8-B181-B7DB234A025A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Abstract", "Abstract\Abstract.csproj", "{A9F5FEE8-FCEF-4856-B6FB-67640B239CC2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{1BD3340C-A094-48C8-B181-B7DB234A025A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BD3340C-A094-48C8-B181-B7DB234A025A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BD3340C-A094-48C8-B181-B7DB234A025A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9F5FEE8-FCEF-4856-B6FB-67640B239CC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9F5FEE8-FCEF-4856-B6FB-67640B239CC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9F5FEE8-FCEF-4856-B6FB-67640B239CC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9F5FEE8-FCEF-4856-B6FB-67640B239CC2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

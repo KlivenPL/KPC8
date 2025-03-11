@@ -1,16 +1,21 @@
-﻿using KPC8.ProgRegs;
+﻿using Abstract;
+using KPC8.ProgRegs;
+using LightweightEmulator.Configuration;
+using LightweightEmulator.Pipelines;
 using Runner._Infrastructure;
 using Runner.Build;
 using Runner.Configuration;
 using Runner.Debugger.DebugData;
 using Runner.Debugger.Enums;
+using Runner.EmulationControl;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 
 namespace Runner.Debugger {
     public class DebugSessionController : IKPC8SessionController {
-        private readonly KPC8Build kpc;
+        private readonly IKpcBuild kpc;
+        private readonly IEmulationController emulationController;
 
         private readonly object syncObject;
         private readonly ManualResetEventSlim runEvent;
@@ -36,13 +41,18 @@ namespace Runner.Debugger {
 
         public bool IsStarted => debugThread?.IsAlive == true;
 
-        KPC8Build IKPC8SessionController.GetKPC8Build => kpc;
+        IKpcBuild IKPC8SessionController.GetKPC8Build => kpc;
 
-        private DebugSessionController(DebugSessionConfiguration configuration, KPC8Build kpc) {
+        private DebugSessionController(
+            DebugSessionConfiguration configuration,
+            IKpcBuild kpc,
+            IEmulationController emulationController) {
+
             this.kpc = kpc;
+            this.emulationController = emulationController;
             syncObject = new object();
             runEvent = new ManualResetEventSlim(true);
-            debugSession = new DebugSession(configuration, kpc, runEvent, syncObject);
+            debugSession = new DebugSession(configuration, kpc, emulationController, runEvent, syncObject);
             cts = new CancellationTokenSource();
         }
 
@@ -64,8 +74,8 @@ namespace Runner.Debugger {
             return debugSession.GetPossibleBreakpointLocations();
         }
 
-        public IEnumerable<BreakpointInfo> SetBreakpoints(IEnumerable<(string filePath, int line, int column)> proposedBreakpoints) {
-            return debugSession.SetBreakpoints(proposedBreakpoints);
+        public IEnumerable<BreakpointInfo> SetBreakpoints(string filePath, IEnumerable<(int line, int column)> proposedBreakpoints) {
+            return debugSession.SetBreakpoints(filePath, proposedBreakpoints);
         }
 
         public byte[] GetRamBytes() {
@@ -130,7 +140,14 @@ namespace Runner.Debugger {
         public class Factory {
             public static DebugSessionController Create(KPC8Configuration kpcConfig, DebugSessionConfiguration debugSessionConfig) {
                 var kpcBuild = new KPC8Builder(kpcConfig).Build();
-                return new DebugSessionController(debugSessionConfig, kpcBuild);
+                var emulationController = new KPC8EmulationController(kpcBuild);
+                return new DebugSessionController(debugSessionConfig, kpcBuild, emulationController);
+            }
+
+            public static DebugSessionController CreateLw(LwKpcConfiguration kpcConfig, DebugSessionConfiguration debugSessionConfig) {
+                var kpcBuild = new LwKpcBuilder(kpcConfig).Build();
+                var emulationController = new LwEmulationController(kpcBuild);
+                return new DebugSessionController(debugSessionConfig, kpcBuild, emulationController);
             }
         }
     }

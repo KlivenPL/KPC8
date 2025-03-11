@@ -1,5 +1,7 @@
-﻿namespace LightweightEmulator.Components {
-    public class Memory {
+﻿using Abstract.Components;
+
+namespace LightweightEmulator.Components {
+    public class Memory : IMemory {
         private readonly byte[] storage;
 
         public Memory(int size) {

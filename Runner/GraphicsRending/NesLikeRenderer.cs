@@ -1,8 +1,7 @@
-﻿using Infrastructure.BitArrays;
+﻿using Abstract;
+using Infrastructure.BitArrays;
 using Runner._Infrastructure;
-using Runner.Build;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -21,17 +20,15 @@ namespace Runner.GraphicsRending {
         private const ushort SpritesheetRowOffset = 0x100;
         private const ushort SpritesheetNextByteOffset = 8;
 
-        private readonly KPC8.Modules.Memory mem;
-        private readonly Func<ushort, BitArray> ram;
-        private readonly Func<ushort, BitArray> rom;
+        private readonly Func<ushort, byte> ram;
+        private readonly Func<ushort, byte> rom;
 
         private readonly OemSprite[] oemSprites = new OemSprite[64];
         private readonly List<OemSprite> visibleSprites = new List<OemSprite>(12);
 
-        internal NesLikeRenderer(KPC8Build kpc) {
-            this.mem = kpc.ModulePanel.Memory;
-            ram = kpc.ModulePanel.Memory.GetRamAt;
-            rom = kpc.ModulePanel.Memory.GetRomAt;
+        internal NesLikeRenderer(IKpcBuild kpc) {
+            ram = kpc.Ram.ReadByte;
+            rom = kpc.Rom.ReadByte;
 
             for (ushort i = 0; i < 64; i++) {
                 oemSprites[i] = new OemSprite(OemAddr, i, ram);
@@ -54,7 +51,7 @@ namespace Runner.GraphicsRending {
                 int pixelY = y % 8;
 
                 for (int x = 0; x < 40 * 8; x++) {
-                    byte ssTileId = ram((ushort)(TilemapAddr + y / 8 * 40 + x / 8)).ToByteLE();
+                    byte ssTileId = ram((ushort)(TilemapAddr + y / 8 * 40 + x / 8));
 
                     var pixelX = x % 8;
 
@@ -63,14 +60,14 @@ namespace Runner.GraphicsRending {
 
                     var mainOffset = (ushort)(SpriteSheetAddr + SpritesheetColumnOffset * col + row * SpritesheetRowOffset + pixelY);
 
-                    byte bitA = rom(mainOffset)[pixelX] ? (byte)1 : (byte)0;
-                    byte bitB = rom((ushort)(mainOffset + SpritesheetNextByteOffset))[pixelX] ? (byte)1 : (byte)0;
+                    byte bitA = BitArrayHelper.FromByteLE(rom(mainOffset))[pixelX] ? (byte)1 : (byte)0;
+                    byte bitB = BitArrayHelper.FromByteLE(rom((ushort)(mainOffset + SpritesheetNextByteOffset)))[pixelX] ? (byte)1 : (byte)0;
 
                     byte bgColorByte = (byte)((bitA) | (bitB << 1)); // 0, 1, 2 or 3
 
                     ushort tmTileId = (ushort)(y / 8 * 40 + x / 8);
                     ushort attribId = (ushort)(tmTileId / 2);
-                    byte paletteByte = ram((ushort)(AttribAddr + attribId)).ToByteLE();
+                    byte paletteByte = ram((ushort)(AttribAddr + attribId));
 
                     var attribHalf = tmTileId % 2 == 0;
 
@@ -110,13 +107,13 @@ namespace Runner.GraphicsRending {
             byte b2 = 0;
 
             if (colorByte == 0) {
-                b1 = ram((ushort)(paletteAddress + 0)).ToByteLE();
-                b2 = ram((ushort)(paletteAddress + 1)).ToByteLE();
+                b1 = ram((ushort)(paletteAddress + 0));
+                b2 = ram((ushort)(paletteAddress + 1));
             } else {
                 var baseAddress = paletteAddress + 2 + paletteByte * 8 + (colorByte - 1) * 2;
 
-                b1 = ram((ushort)(baseAddress + 0)).ToByteLE();
-                b2 = ram((ushort)(baseAddress + 1)).ToByteLE();
+                b1 = ram((ushort)(baseAddress + 0));
+                b2 = ram((ushort)(baseAddress + 1));
             }
 
             // format: XRRRRRGG|GGGBBBBB
@@ -145,8 +142,8 @@ namespace Runner.GraphicsRending {
 
             var mainOffset = (ushort)(SpriteSheetAddr + SpritesheetColumnOffset * col + row * SpritesheetRowOffset + y - sprite.CachedPosY);
 
-            byte bitA = rom(mainOffset)[pixelX] ? (byte)1 : (byte)0;
-            byte bitB = rom((ushort)(mainOffset + SpritesheetNextByteOffset))[pixelX] ? (byte)1 : (byte)0;
+            byte bitA = BitArrayHelper.FromByteLE(rom(mainOffset))[pixelX] ? (byte)1 : (byte)0;
+            byte bitB = BitArrayHelper.FromByteLE(rom((ushort)(mainOffset + SpritesheetNextByteOffset)))[pixelX] ? (byte)1 : (byte)0;
 
             byte colorByte = (byte)((bitA) | (bitB << 1)); // 0, 1, 2 or 3
 
@@ -160,19 +157,18 @@ namespace Runner.GraphicsRending {
     }
 
     internal class OemSprite {
-        public OemSprite(ushort oemAddress, ushort spriteId, Func<ushort, BitArray> ram) {
-            ushort baseAddress = (ushort)(oemAddress + spriteId * 4);
+        private readonly ushort baseAddress;
+        private readonly Func<ushort, byte> ram;
 
-            TileId = ram(baseAddress);
-            PosX_A = ram((ushort)(baseAddress + 1));
-            PosX_B = ram((ushort)(baseAddress + 2));
-            PosY = ram((ushort)(baseAddress + 3));
+        public OemSprite(ushort oemAddress, ushort spriteId, Func<ushort, byte> ram) {
+            baseAddress = (ushort)(oemAddress + spriteId * 4);
+            this.ram = ram;
         }
 
-        public BitArray TileId { get; }
-        public BitArray PosX_A { get; }
-        public BitArray PosX_B { get; }
-        public BitArray PosY { get; }
+        public byte TileId => ram(baseAddress);
+        public byte PosX_A => ram((ushort)(baseAddress + 1));
+        public byte PosX_B => ram((ushort)(baseAddress + 2));
+        public byte PosY => ram((ushort)(baseAddress + 3));
 
         public byte CachedTileId { get; private set; }
         public ushort CachedPosX { get; private set; }
@@ -181,7 +177,7 @@ namespace Runner.GraphicsRending {
         public byte CachedPalette { get; private set; }
 
         public void CacheData() {
-            CachedTileId = TileId.ToByteLE();
+            CachedTileId = TileId;
             CachedPosX = GetPosX();
             CachedPosY = GetPosY();
             CachedLayer = GetLayer();
@@ -189,19 +185,19 @@ namespace Runner.GraphicsRending {
         }
 
         public ushort GetPosX() {
-            return (ushort)(((PosX_A.ToByteLE() & 0b00000001) << 8) | PosX_B.ToByteLE());
+            return (ushort)(((PosX_A & 0b00000001) << 8) | PosX_B);
         }
 
         public byte GetPosY() {
-            return PosY.ToByteLE();
+            return PosY;
         }
 
         public byte GetPalette() {
-            return (byte)((PosX_A.ToByteLE() & 0b11100000) >> 5);
+            return (byte)((PosX_A & 0b11100000) >> 5);
         }
 
         public byte GetLayer() {
-            return (byte)((PosX_A.ToByteLE() & 0b00011000) >> 3);
+            return (byte)((PosX_A & 0b00011000) >> 3);
         }
     }
 }

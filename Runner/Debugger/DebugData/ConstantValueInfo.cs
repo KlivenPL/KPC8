@@ -1,5 +1,4 @@
-﻿using Infrastructure.BitArrays;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Runner.Debugger.DebugData {
@@ -29,7 +28,7 @@ namespace Runner.Debugger.DebugData {
             Name = name;
             var reg = variables.FirstOrDefault(x => x.Name == registerName);
             Value = reg?.Value;
-            ValueRaw = reg?.ValueRaw?.ToUShortLE();
+            ValueRaw = reg?.ValueRaw;
             IsRegisterAlias = reg != null;
             RegisterName = registerName;
             FilePath = filePath;

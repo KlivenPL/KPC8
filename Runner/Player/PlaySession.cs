@@ -1,16 +1,12 @@
-﻿using _Infrastructure.Simulation.Loops;
-using Runner.Build;
+﻿using Abstract;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace Runner.Player {
     public class PlaySession {
         private readonly ManualResetEventSlim runEvent;
-        // private readonly object syncObject;
-        private readonly KPC8Build kpc;
-
-        private List<SimulationLoopRunner> externalSlRunners;
+        private readonly IKpcBuild kpc;
+        private readonly IEmulationController emulationController;
         private bool terminate = false;
 
         #region DebugSession Events
@@ -19,18 +15,14 @@ namespace Runner.Player {
 
         #endregion
 
-        internal PlaySession(KPC8Build kpc, ManualResetEventSlim runEvent, object syncObject) {
+        internal PlaySession(IKpcBuild kpc, IEmulationController emulationController, ManualResetEventSlim runEvent, object syncObject) {
             this.runEvent = runEvent;
             this.kpc = kpc;
-            //   this.syncObject = syncObject;
-
-            externalSlRunners = new List<SimulationLoopRunner>();
+            this.emulationController = emulationController;
         }
 
         internal void Start(CancellationToken cancellationToken) {
-            foreach (var externalModuleSl in kpc.ExternalSimulationLoops) {
-                externalSlRunners.Add(SimulationLoopRunner.RunInNewThread(externalModuleSl));
-            }
+            emulationController.InitializePlay();
 
             Thread.Sleep(100);
 
@@ -51,110 +43,11 @@ namespace Runner.Player {
                     continue;
                 }
 
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
-                kpc.MainSimulationLoop.Loop();
+                emulationController.Execute();
 
             } while (!terminate);
 
-            foreach (var externalSlRunner in externalSlRunners) {
-                externalSlRunner.Kill();
-            }
-
-            externalSlRunners.Clear();
-            externalSlRunners = null;
+            emulationController.Terminate();
         }
 
         private void HandlePause() {
@@ -170,9 +63,7 @@ namespace Runner.Player {
         }
 
         internal void RequestTerminate() {
-            //   lock (syncObject) {
             terminate = true;
-            //   }
         }
     }
 }

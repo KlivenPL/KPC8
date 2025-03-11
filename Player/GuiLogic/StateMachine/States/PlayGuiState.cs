@@ -1,9 +1,10 @@
-﻿using Player._Configuration.Dtos;
+﻿using Infrastructure.BitArrays;
+using LightweightEmulator.Configuration;
+using Player._Configuration.Dtos;
 using Player._Infrastructure.Controls;
 using Player.Loaders;
 using Player.MainForm;
 using Player.Properties;
-using Runner.Configuration;
 using Runner.GraphicsRending;
 using Runner.Player;
 
@@ -65,9 +66,28 @@ namespace Player.GuiLogic.StateMachine.States {
         private void StartPlaying() {
             if (programLoader.TryGetCompiledProgram(out var program, out var compileErrors)) {
 
-                var kPC8ConfigurationDto = new KPC8ConfigurationDto();
+                //var kPC8ConfigurationDto = new KPC8ConfigurationDto();
 
-                if (configurationLoader.TryGetConfiguration(out var configurationDto, out var configValidationErrors)) {
+                //if (configurationLoader.TryGetConfiguration(out var configurationDto, out var configValidationErrors)) {
+                //    kPC8ConfigurationDto = configurationDto;
+                //} else if (!string.IsNullOrWhiteSpace(configValidationErrors)) {
+                //    MessageBox.Show(configValidationErrors, "KPC Configuration validation errors");
+                //    Controller.UnfreezeForm();
+                //    SetState<StopGuiState>();
+                //    return;
+                //}
+
+                //var kpcConfiguration = new KPC8Configuration {
+                //    ClockMode = Components.Clocks.ClockMode.Automatic,
+                //    ClockPeriodInTicks = kPC8ConfigurationDto.ClockPeriodInTicks ?? 5,
+                //    ExternalModules = kPC8ConfigurationDto.ExternalModules,
+                //    InitialRamData = kPC8ConfigurationDto.InitialRamData,
+                //    RomData = program
+                //};
+
+                var kPC8ConfigurationDto = new LwKpcConfigurationDto();
+
+                if (configurationLoader.TryGetLwConfiguration(out var configurationDto, out var configValidationErrors)) {
                     kPC8ConfigurationDto = configurationDto;
                 } else if (!string.IsNullOrWhiteSpace(configValidationErrors)) {
                     MessageBox.Show(configValidationErrors, "KPC Configuration validation errors");
@@ -76,15 +96,14 @@ namespace Player.GuiLogic.StateMachine.States {
                     return;
                 }
 
-                var kpcConfiguration = new KPC8Configuration {
-                    ClockMode = Components.Clocks.ClockMode.Automatic,
-                    ClockPeriodInTicks = kPC8ConfigurationDto.ClockPeriodInTicks ?? 5,
-                    ExternalModules = kPC8ConfigurationDto.ExternalModules,
+                var lwKpcConfiguration = new LwKpcConfiguration {
                     InitialRamData = kPC8ConfigurationDto.InitialRamData,
-                    RomData = program
+                    RomData = program?.Select(x => x?.ToByteLE() ?? 0).ToArray(),
+                    DeviceConfigurations = kPC8ConfigurationDto.DevicesConfigurations,
                 };
 
-                playSessionController = PlaySessionController.Factory.Create(kpcConfiguration);
+                // playSessionController = PlaySessionController.Factory.Create(kpcConfiguration);
+                playSessionController = PlaySessionController.Factory.CreateLw(lwKpcConfiguration);
                 playSessionController.TerminatedEvent += OnPlaySessionExit;
                 playSessionController.ExitedEvent += _ => OnPlaySessionExit();
                 playSessionController.PausedEvent += OnPlaySessionPaused;

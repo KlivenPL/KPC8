@@ -9,6 +9,7 @@ using Player.Persistence;
 namespace Player.Loaders {
     internal class KPC8ConfigurationLoader {
         private readonly static JSchema kPC8ConfigurationSaveSchema;
+        private readonly static JSchema lwKpcConfigurationSaveSchema;
         private readonly ProgramContext programContext;
 
         static KPC8ConfigurationLoader() {
@@ -17,6 +18,7 @@ namespace Player.Loaders {
             };
 
             kPC8ConfigurationSaveSchema = schemaGenerator.Generate(typeof(KPC8ConfigurationSave));
+            lwKpcConfigurationSaveSchema = schemaGenerator.Generate(typeof(LwKpcConfigurationSave));
         }
 
         public KPC8ConfigurationLoader(ProgramContext programContext) {
@@ -47,6 +49,30 @@ namespace Player.Loaders {
             return false;
         }
 
+        public bool TryGetLwConfiguration(out LwKpcConfigurationDto configurationDto, out string configValidationErrors) {
+            configurationDto = null;
+            configValidationErrors = null;
+
+            DirectoryInfo confSaveDirInfo;
+
+            if (programContext.IsSourceFileSelected) {
+                confSaveDirInfo = programContext.SourceFile.Directory;
+            } else if (programContext.IsRomFileSelected) {
+                confSaveDirInfo = programContext.RomFile.Directory;
+            } else {
+                return false;
+            }
+
+            if (TryGetConfigurationSaveFile(confSaveDirInfo, out var confSaveFileInfo)) {
+                if (TryLoadLwConfiguration(confSaveFileInfo, out var configurationSave, out configValidationErrors)) {
+                    configurationDto = LwKpcConfigurationDto.FromSave(configurationSave);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private bool TryGetConfigurationSaveFile(DirectoryInfo directoryInfo, out FileInfo configurationSaveFileInfo) {
             var files = directoryInfo.GetFiles("*.kpcconfig");
             configurationSaveFileInfo = files?.FirstOrDefault();
@@ -65,6 +91,25 @@ namespace Player.Loaders {
 
             if (o2.IsValid(kPC8ConfigurationSaveSchema, out IList<string> errors)) {
                 kPC8ConfigurationSave = o2.ToObject<KPC8ConfigurationSave>();
+                return true;
+            } else {
+                configValidationErrors = string.Join(Environment.NewLine, errors);
+            }
+
+            return false;
+        }
+
+        private bool TryLoadLwConfiguration(FileInfo fileInfo, out LwKpcConfigurationSave lwConfigurationSave, out string configValidationErrors) {
+            lwConfigurationSave = null;
+            configValidationErrors = null;
+
+            using StreamReader file = fileInfo.OpenText();
+            using JsonTextReader reader = new JsonTextReader(file);
+
+            JObject o2 = (JObject)JToken.ReadFrom(reader);
+
+            if (o2.IsValid(lwKpcConfigurationSaveSchema, out IList<string> errors)) {
+                lwConfigurationSave = o2.ToObject<LwKpcConfigurationSave>();
                 return true;
             } else {
                 configValidationErrors = string.Join(Environment.NewLine, errors);

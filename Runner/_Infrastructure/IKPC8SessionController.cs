@@ -1,4 +1,4 @@
-﻿using Runner.Build;
+﻿using Abstract;
 using System;
 
 namespace Runner._Infrastructure {
@@ -6,6 +6,6 @@ namespace Runner._Infrastructure {
         event Action<int> ExitedEvent;
         event Action TerminatedEvent;
 
-        internal KPC8Build GetKPC8Build { get; }
+        internal IKpcBuild GetKPC8Build { get; }
     }
 }

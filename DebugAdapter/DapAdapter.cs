@@ -106,19 +106,21 @@ namespace DebugAdapter {
             var verified = possibleBreakpoints.Where(pb => arguments.Breakpoints.Any(abp => pb.Line == abp.Line && pb.Column == abp.Column));*/
 
             List<Breakpoint> resultBps = new List<Breakpoint>(arguments.Breakpoints.Count);
-            List<(string filePath, int line, int column)> acceptedBreakpoints = new List<(string filePath, int line, int column)>();
+            List<(int line, int column)> acceptedBreakpoints = new List<(int line, int column)>();
 
             foreach (var abp in arguments.Breakpoints) {
                 var acceptedBp = possibleBreakpoints.FirstOrDefault(pb => pb.FilePath.ComparePath(arguments.Source.Path) && pb.Line == abp.Line && (pb.Column == abp.Column || abp.Column == null));
                 if (acceptedBp != null) {
                     resultBps.Add(acceptedBp.ToVerifiedBreakpoint());
-                    acceptedBreakpoints.Add((acceptedBp.FilePath, acceptedBp.Line, acceptedBp.Column));
+                    acceptedBreakpoints.Add((acceptedBp.Line, acceptedBp.Column));
                 } else {
                     resultBps.Add(abp.ToUnverifiedBreakpoint(arguments.Source.Path));
                 }
             }
 
-            var count = sessionController.SetBreakpoints(acceptedBreakpoints).Count();
+            var count = sessionController.SetBreakpoints(possibleBreakpoints.First(
+                x => x.FilePath.ComparePath(arguments.Source.Path)).FilePath,
+                acceptedBreakpoints).Count();
 
             Console.WriteLine($"setbp count: {count}");
             Console.WriteLine($"count: {acceptedBreakpoints.Count}");

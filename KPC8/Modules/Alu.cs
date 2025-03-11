@@ -34,6 +34,8 @@ namespace KPC8.Modules {
         public BitArray RegFlagsContent => regFlags.Content;
         public void SetRegFlagsContent(BitArray value) => regFlags.SetContent(value);
 
+        public Abstract.Components.IRegister4 Flags => regFlags;
+
         public Alu(Signal mainClock, IBus dataBus, IBus flagsBus) {
             adder = new HLAdder("Adder", 8);
             regA = new HLRegister(nameof(regA), 8);

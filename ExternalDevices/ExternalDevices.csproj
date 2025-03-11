@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Components\Components.csproj" />
+    <ProjectReference Include="..\LightweightEmulator\LightweightEmulator.csproj" />
   </ItemGroup>
 
 </Project>

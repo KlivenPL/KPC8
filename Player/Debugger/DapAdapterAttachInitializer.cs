@@ -1,6 +1,8 @@
 ﻿using Assembler.DebugData;
 using DebugAdapter;
 using DebugAdapter.Configuration;
+using Infrastructure.BitArrays;
+using LightweightEmulator.Configuration;
 using Player._Configuration;
 using Player._Infrastructure.Events;
 using Player.Events;
@@ -78,15 +80,22 @@ namespace Player.Debugger {
                     // todo reszta konfiguracji
                 };
 
-                var kpcConfiguration = new KPC8Configuration {
-                    ClockMode = Components.Clocks.ClockMode.Manual,
-                    ClockPeriodInTicks = attachArgs.KPC8ConfigurationDto.ClockPeriodInTicks ?? 5,
-                    ExternalModules = attachArgs.KPC8ConfigurationDto.ExternalModules,
-                    InitialRamData = attachArgs.KPC8ConfigurationDto.InitialRamData,
-                    RomData = attachArgs.CompiledProgram
+                //var kpcConfiguration = new KPC8Configuration {
+                //    ClockMode = Components.Clocks.ClockMode.Manual,
+                //    ClockPeriodInTicks = attachArgs.KPC8ConfigurationDto.ClockPeriodInTicks ?? 5,
+                //    ExternalModules = attachArgs.KPC8ConfigurationDto.ExternalModules,
+                //    InitialRamData = attachArgs.KPC8ConfigurationDto.InitialRamData,
+                //    RomData = attachArgs.CompiledProgram
+                //};
+
+                var lwKpcConfiguration = new LwKpcConfiguration {
+                    InitialRamData = attachArgs.LwKpcConfigurationDto.InitialRamData,
+                    RomData = attachArgs.CompiledProgram?.Select(x => x?.ToByteLE() ?? 0).ToArray(),
+                    DeviceConfigurations = attachArgs.LwKpcConfigurationDto.DevicesConfigurations,
                 };
 
-                debugSessionController = DebugSessionController.Factory.Create(kpcConfiguration, debugSessionConfiguration);
+                // debugSessionController = DebugSessionController.Factory.Create(kpcConfiguration, debugSessionConfiguration);
+                debugSessionController = DebugSessionController.Factory.CreateLw(lwKpcConfiguration, debugSessionConfiguration);
 
                 var dapAdapter = new DapAdapter(dapAdapterConfiguration, debugSessionController, stream, stream);
 

@@ -1,4 +1,4 @@
-﻿namespace LightweightEmulator.ExternalDevices {
+﻿namespace LightweightEmulator.Pipelines {
     public class LwInterruptsManager {
         private static Dictionary<byte, ushort> _irrCodeToAddress = new() {
             { 0b0000, 0xFFF0 },
@@ -145,4 +145,9 @@
             }
         }
     }
+
+    public delegate bool TryQueueInterruptDelegate(
+        byte fourBitIrrCode,
+        Func<Task>? interruptRdyCallback,
+        out Action? abortIrrRequest);
 }
