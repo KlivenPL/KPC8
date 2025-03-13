@@ -363,28 +363,28 @@ namespace Runner.Debugger {
         }
 
         internal byte[] GetRamBytes() {
-            if (!paused) {
-                OutputEvent(OutputType.Stderr, "Cannot get RAM bytes if not paused");
-                return null;
-            }
+            //if (!paused) {
+            //    OutputEvent(OutputType.Stderr, "Cannot get RAM bytes if not paused");
+            //    return null;
+            //}
 
             return kpc.Ram.DumpToBytes();
         }
 
         internal void SetRamByte(ushort address, byte value) {
-            if (!paused) {
-                OutputEvent(OutputType.Stderr, "Cannot set RAM bytes if not paused");
-                return;
-            }
+            //if (!paused) {
+            //    OutputEvent(OutputType.Stderr, "Cannot set RAM bytes if not paused");
+            //    return;
+            //}
 
             kpc.Ram.WriteByte(value, address);
         }
 
         internal byte[] GetRomBytes() {
-            if (!paused) {
-                OutputEvent(OutputType.Stderr, "Cannot get ROM bytes if not paused");
-                return null;
-            }
+            //if (!paused) {
+            //    OutputEvent(OutputType.Stderr, "Cannot get ROM bytes if not paused");
+            //    return null;
+            //}
 
             return kpc.Rom.DumpToBytes();
         }
