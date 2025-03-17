@@ -10,6 +10,7 @@ namespace Player.MainForm {
         private readonly GuiStateManager guiStateManager;
         private readonly ProgramContext programContext;
         private readonly RenderCanvas renderCanvas;
+        private readonly object renderCanvasLock = new();
 
         private static KPC8Player instance;
 
@@ -34,7 +35,7 @@ namespace Player.MainForm {
         }
 
         private RenderCanvas CreateRenderCanvas() {
-            var rc = new RenderCanvas();
+            var rc = new RenderCanvas(canvasPnl.Width, canvasPnl.Height, renderCanvasLock);
             Resize += (x, d) => rc.OnFormResize(canvasPnl.Width, canvasPnl.Height);
             OnResize(null);
             return rc;

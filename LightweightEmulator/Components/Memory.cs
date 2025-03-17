@@ -1,8 +1,10 @@
 ﻿using Abstract.Components;
 
 namespace LightweightEmulator.Components {
-    public class Memory : IMemory {
+    public class Memory : IRawMemory {
         private readonly byte[] storage;
+
+        public byte[] RawBytes { get => storage; }
 
         public Memory(int size) {
             storage = new byte[size];

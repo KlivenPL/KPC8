@@ -17,7 +17,8 @@ namespace Runner.GraphicsRending {
 
         internal RendererController(IKPC8SessionController sessionController) {
             renderEvent = new ManualResetEventSlim(true);
-            renderer = new NesLikeRenderer(sessionController.GetKPC8Build);
+            // renderer = new NesLikeRenderer(sessionController.GetKPC8Build);
+            renderer = new Kpc8Renderer(sessionController.GetKPC8Build);
             this.cts = new CancellationTokenSource();
             this.sessionController = sessionController;
         }

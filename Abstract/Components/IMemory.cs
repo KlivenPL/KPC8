@@ -6,4 +6,8 @@
         ushort ReadWord(ushort address);
         byte[] DumpToBytes();
     }
+
+    public interface IRawMemory : IMemory {
+        public byte[] RawBytes { get; }
+    }
 }

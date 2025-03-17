@@ -88,15 +88,19 @@ namespace Player.MainForm {
             }
 
             public void SetRenderCanvasBitmap(Bitmap bitmap) {
+                //lock (form.renderCanvasLock) {
                 form.renderCanvas.Image?.Dispose();
                 form.renderCanvas.Image = bitmap;
+                // }
             }
 
             public void ResetRenderCanvas() {
+                //lock (form.renderCanvasLock) {
                 form.renderCanvas.Image?.Dispose();
                 var bm = new Bitmap(1, 1);
                 bm.SetPixel(0, 0, Color.Black);
                 form.renderCanvas.Image = bm;
+                //}
             }
         }
     }
