@@ -5,14 +5,12 @@ using System.Threading;
 namespace Runner.GraphicsRending {
     public class RendererController {
         private readonly IKPC8Renderer renderer;
-        private readonly ManualResetEventSlim renderEvent;
         private readonly CancellationTokenSource cts;
         private readonly IKPC8SessionController sessionController;
 
         private Thread renderingThread;
 
         internal RendererController(IKPC8SessionController sessionController) {
-            renderEvent = new ManualResetEventSlim(true);
             // renderer = new NesLikeRenderer(sessionController.GetKPC8Build);
             renderer = new Kpc8Renderer(sessionController.GetKPC8Build);
             this.cts = new CancellationTokenSource();
@@ -24,7 +22,7 @@ namespace Runner.GraphicsRending {
                 throw new System.Exception("Rendering already started");
             }
 
-            sessionController.TerminatedEvent += OnSessionEnd;
+            sessionController.TerminatedEvent += StopRendering;
             //sessionController.dis += OnSessionEnd;
             //this.targetFramerate = targetFramerate;
             renderingThread = new Thread(() => RenderLoop(cts.Token)) {
@@ -35,30 +33,17 @@ namespace Runner.GraphicsRending {
             renderingThread.Start();
         }
 
-        public void RequestPauseRendering() {
-            renderEvent.Reset();
-        }
-
-        public void RequestResumeRendering() {
-            renderEvent.Set();
-        }
-
-        public void StopRendering() {
-            cts.Cancel();
-            RequestResumeRendering();
-        }
-
-        private void OnSessionEnd() {
-            StopRendering();
-        }
-
         private void RenderLoop(CancellationToken cancellationToken) {
             while (!cancellationToken.IsCancellationRequested) {
-                renderer.BackgroundRenderLoop(cancellationToken);
-                Thread.Sleep(16);
+                renderer.BackgroundRenderLoop();
+                //Thread.Sleep(16);
             }
 
             renderingThread = null;
+        }
+
+        private void StopRendering() {
+            cts.Cancel();
         }
     }
 }

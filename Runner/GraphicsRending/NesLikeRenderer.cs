@@ -4,7 +4,6 @@ using Runner._Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Threading;
 
 namespace Runner.GraphicsRending {
     internal class NesLikeRenderer : IKPC8Renderer {
@@ -155,11 +154,6 @@ namespace Runner.GraphicsRending {
             color = GetColorFromPalette(SpritePaletteAddr, colorByte, sprite.CachedPalette);
             return true;
         }
-
-        public void BackgroundRenderLoop(CancellationToken cancellationToken) {
-            throw new NotImplementedException();
-        }
-
         public void ClearFrame(int displayWidth, int displayHeight) {
             throw new NotImplementedException();
         }
@@ -177,6 +171,10 @@ namespace Runner.GraphicsRending {
         }
 
         public void UpdateTextureFromFrontBuffer() {
+            throw new NotImplementedException();
+        }
+
+        public void BackgroundRenderLoop() {
             throw new NotImplementedException();
         }
     }

@@ -126,15 +126,13 @@ namespace Runner.GraphicsRending {
         /// This method is run on a background thread and computes the pixel data into backBuffer.
         /// It then swaps the buffers for use by the UI thread.
         /// </summary>
-        public void BackgroundRenderLoop(CancellationToken cancellationToken) {
-            while (!cancellationToken.IsCancellationRequested) {
-                ComputeFrame(ref backBuffer);
+        public void BackgroundRenderLoop() {
+            ComputeFrame(ref backBuffer);
 
-                lock (bufferLock) {
-                    var temp = frontBuffer;
-                    frontBuffer = backBuffer;
-                    backBuffer = temp;
-                }
+            lock (bufferLock) {
+                var temp = frontBuffer;
+                frontBuffer = backBuffer;
+                backBuffer = temp;
             }
         }
 
