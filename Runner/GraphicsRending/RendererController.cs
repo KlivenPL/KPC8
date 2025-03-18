@@ -1,6 +1,5 @@
 ﻿using Runner._Infrastructure;
 using System;
-using System.Drawing;
 using System.Threading;
 
 namespace Runner.GraphicsRending {
@@ -11,9 +10,6 @@ namespace Runner.GraphicsRending {
         private readonly IKPC8SessionController sessionController;
 
         private Thread renderingThread;
-        private int targetFramerate;
-
-        public event Action<Bitmap> CanvasWriteEvent;
 
         internal RendererController(IKPC8SessionController sessionController) {
             renderEvent = new ManualResetEventSlim(true);
@@ -23,17 +19,19 @@ namespace Runner.GraphicsRending {
             this.sessionController = sessionController;
         }
 
-        public void StartRendering(int targetFramerate) {
+        public void StartRendering(Action<IKPC8Renderer> startRendering) {
             if (renderingThread != null) {
                 throw new System.Exception("Rendering already started");
             }
 
             sessionController.TerminatedEvent += OnSessionEnd;
             //sessionController.dis += OnSessionEnd;
-            this.targetFramerate = targetFramerate;
+            //this.targetFramerate = targetFramerate;
             renderingThread = new Thread(() => RenderLoop(cts.Token)) {
                 Name = "KPC8 Render thread"
             };
+            startRendering(renderer);
+            renderingThread.IsBackground = true;
             renderingThread.Start();
         }
 
@@ -55,19 +53,12 @@ namespace Runner.GraphicsRending {
         }
 
         private void RenderLoop(CancellationToken cancellationToken) {
-            while (!cts.IsCancellationRequested) {
-                try {
-                    renderEvent.Wait(cancellationToken);
-                } catch (OperationCanceledException) {
-                    return;
-                }
-
-                if (renderer.TryRender(out var bitmap)) {
-                    CanvasWriteEvent?.Invoke(bitmap);
-                }
-
-                Thread.Sleep(1000 / targetFramerate);
+            while (!cancellationToken.IsCancellationRequested) {
+                renderer.BackgroundRenderLoop(cancellationToken);
+                Thread.Sleep(16);
             }
+
+            renderingThread = null;
         }
     }
 }

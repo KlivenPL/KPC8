@@ -19,7 +19,7 @@ namespace Player.GuiLogic.StateMachine.States {
             Controller.mnuFileLoadRomBtn.OnUI(x => x.Enabled = true);
             Controller.mnuFileLoadSourceBtn.OnUI(x => x.Enabled = true);
 
-            Controller.ResetRenderCanvas();
+            //Controller.ResetRenderCanvas();
         }
 
         public override void OnExit() {

@@ -1,16 +1,19 @@
 using Microsoft.Extensions.DependencyInjection;
+using OpenTK.GLControl;
+using OpenTK.Windowing.Common;
 using Player.Contexts;
-using Player.Controls.RenderCanvas;
 using Player.Gui.Renderers;
 using Player.GuiLogic.StateMachine;
+using Runner._Infrastructure;
 
 namespace Player.MainForm {
     internal partial class KPC8Player : Form {
         private readonly IServiceProvider provider;
         private readonly GuiStateManager guiStateManager;
         private readonly ProgramContext programContext;
-        private readonly RenderCanvas renderCanvas;
-        private readonly object renderCanvasLock = new();
+        //private readonly RenderCanvas renderCanvas;
+        private readonly GLControl renderCanvasGl;
+        private IKPC8Renderer kpc8Renderer;
 
         private static KPC8Player instance;
 
@@ -20,13 +23,15 @@ namespace Player.MainForm {
             DoubleBuffered = true;
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             InitializeComponent();
-            renderCanvas = CreateRenderCanvas();
-            canvasPnl.Controls.Add(renderCanvas);
+            //renderCanvas = CreateRenderCanvas();
+            //canvasPnl.Controls.Add(renderCanvas);
+            renderCanvasGl = CreateRenderCanvasGl();
+            canvasPnl.Controls.Add(renderCanvasGl);
+
             this.provider = provider;
             this.guiStateManager = provider.GetRequiredService<GuiStateManager>();
             this.programContext = programContext;
             InitializeForm();
-            //InitializeRegisters();
             instance = this;
         }
 
@@ -34,22 +39,45 @@ namespace Player.MainForm {
             mnuToolBar.Renderer = new CustomToolStripRenderer();
         }
 
-        private RenderCanvas CreateRenderCanvas() {
-            var rc = new RenderCanvas(canvasPnl.Width, canvasPnl.Height, renderCanvasLock);
-            Resize += (x, d) => rc.OnFormResize(canvasPnl.Width, canvasPnl.Height);
-            OnResize(null);
-            return rc;
+        //private RenderCanvas CreateRenderCanvas() {
+        //    var rc = new RenderCanvas(canvasPnl.Width, canvasPnl.Height, renderCanvasLock);
+        //    Resize += (x, d) => rc.OnFormResize(canvasPnl.Width, canvasPnl.Height);
+        //    OnResize(null);
+        //    return rc;
+        //}
+
+        private GLControl CreateRenderCanvasGl() {
+            var glSettings = new GLControlSettings {
+                APIVersion = new Version(3, 3),
+                Profile = ContextProfile.Compatability
+            };
+
+            var glControl = new GLControl(glSettings);
+            glControl.Paint += GlControl_Paint;
+            glControl.Load += GlControl_Load;
+            return glControl;
         }
 
+        private void GlControl_Load(object sender, EventArgs e) {
+            renderCanvasGl.MakeCurrent();
+            renderCanvasGl.BringToFront();
+        }
 
-        /* private void InitializeRegisters() {
-             var registers = regsPnl.Controls.OfType<RegisterCtrl>().ToArray();
-             var regsTypes = Enum.GetValues<Regs>();
+        private void GlControl_Paint(object sender, PaintEventArgs e) {
+            if (kpc8Renderer == null) {
+                return;
+            }
 
-             for (int i = 0; i < 16; i++) {
-                 registers[i].Initialize(new RegisterCtrlParameters(regsTypes[i + 1].ToString(), 16, () => new BitArray(16)));
-             }
-         }*/
+            if (kpc8Renderer.IsTextureReinitRequired()) {
+                renderCanvasGl.Dock = DockStyle.Fill;
+                kpc8Renderer.SetupTexture();
+            }
+
+            kpc8Renderer.UpdateTextureFromFrontBuffer();
+            kpc8Renderer.RenderQuad(renderCanvasGl.Width, renderCanvasGl.Height);
+            renderCanvasGl.SwapBuffers();
+            renderCanvasGl.Invalidate();
+        }
 
         private void KPC8Player_Load(object sender, EventArgs e) {
             guiStateManager.Initialize();

@@ -24,149 +24,140 @@
         /// </summary>
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(KPC8Player));
-            this.mnuToolBar = new System.Windows.Forms.ToolStrip();
-            this.mnuFileDrop = new System.Windows.Forms.ToolStripDropDownButton();
-            this.mnuFileLoadRomBtn = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuFileLoadSourceBtn = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuPlayBtn = new System.Windows.Forms.ToolStripButton();
-            this.mnuDbgBtn = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.mnuStopBtn = new System.Windows.Forms.ToolStripButton();
-            this.mnuPauseBtn = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.canvasPnl = new System.Windows.Forms.Panel();
-            this.mnuToolBar.SuspendLayout();
-            this.SuspendLayout();
+            mnuToolBar = new ToolStrip();
+            mnuFileDrop = new ToolStripDropDownButton();
+            mnuFileLoadRomBtn = new ToolStripMenuItem();
+            mnuFileLoadSourceBtn = new ToolStripMenuItem();
+            toolStripSeparator1 = new ToolStripSeparator();
+            mnuPlayBtn = new ToolStripButton();
+            mnuDbgBtn = new ToolStripButton();
+            toolStripSeparator2 = new ToolStripSeparator();
+            mnuStopBtn = new ToolStripButton();
+            mnuPauseBtn = new ToolStripButton();
+            toolStripSeparator3 = new ToolStripSeparator();
+            canvasPnl = new Panel();
+            mnuToolBar.SuspendLayout();
+            SuspendLayout();
             // 
             // mnuToolBar
             // 
-            this.mnuToolBar.AutoSize = false;
-            this.mnuToolBar.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.mnuToolBar.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.mnuToolBar.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.mnuToolBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuFileDrop,
-            this.toolStripSeparator1,
-            this.mnuPlayBtn,
-            this.mnuDbgBtn,
-            this.toolStripSeparator2,
-            this.mnuStopBtn,
-            this.mnuPauseBtn,
-            this.toolStripSeparator3});
-            this.mnuToolBar.Location = new System.Drawing.Point(0, 0);
-            this.mnuToolBar.Name = "mnuToolBar";
-            this.mnuToolBar.Size = new System.Drawing.Size(1500, 38);
-            this.mnuToolBar.TabIndex = 0;
-            this.mnuToolBar.Text = "toolStrip1";
+            mnuToolBar.AutoSize = false;
+            mnuToolBar.BackColor = SystemColors.ControlLightLight;
+            mnuToolBar.BackgroundImageLayout = ImageLayout.None;
+            mnuToolBar.ImageScalingSize = new Size(20, 20);
+            mnuToolBar.Items.AddRange(new ToolStripItem[] { mnuFileDrop, toolStripSeparator1, mnuPlayBtn, mnuDbgBtn, toolStripSeparator2, mnuStopBtn, mnuPauseBtn, toolStripSeparator3 });
+            mnuToolBar.Location = new Point(0, 0);
+            mnuToolBar.Name = "mnuToolBar";
+            mnuToolBar.Size = new Size(1714, 51);
+            mnuToolBar.TabIndex = 0;
+            mnuToolBar.Text = "toolStrip1";
             // 
             // mnuFileDrop
             // 
-            this.mnuFileDrop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.mnuFileDrop.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuFileLoadRomBtn,
-            this.mnuFileLoadSourceBtn});
-            this.mnuFileDrop.Image = ((System.Drawing.Image)(resources.GetObject("mnuFileDrop.Image")));
-            this.mnuFileDrop.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.mnuFileDrop.Name = "mnuFileDrop";
-            this.mnuFileDrop.Size = new System.Drawing.Size(38, 35);
-            this.mnuFileDrop.Text = "File";
+            mnuFileDrop.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            mnuFileDrop.DropDownItems.AddRange(new ToolStripItem[] { mnuFileLoadRomBtn, mnuFileLoadSourceBtn });
+            mnuFileDrop.Image = (Image)resources.GetObject("mnuFileDrop.Image");
+            mnuFileDrop.ImageTransparentColor = Color.Magenta;
+            mnuFileDrop.Name = "mnuFileDrop";
+            mnuFileDrop.Size = new Size(46, 48);
+            mnuFileDrop.Text = "File";
             // 
             // mnuFileLoadRomBtn
             // 
-            this.mnuFileLoadRomBtn.Name = "mnuFileLoadRomBtn";
-            this.mnuFileLoadRomBtn.Size = new System.Drawing.Size(160, 22);
-            this.mnuFileLoadRomBtn.Text = "Load ROM";
-            this.mnuFileLoadRomBtn.Click += new System.EventHandler(this.loadRomBtn_Click);
+            mnuFileLoadRomBtn.Name = "mnuFileLoadRomBtn";
+            mnuFileLoadRomBtn.Size = new Size(201, 26);
+            mnuFileLoadRomBtn.Text = "Load ROM";
+            mnuFileLoadRomBtn.Click += loadRomBtn_Click;
             // 
             // mnuFileLoadSourceBtn
             // 
-            this.mnuFileLoadSourceBtn.Name = "mnuFileLoadSourceBtn";
-            this.mnuFileLoadSourceBtn.Size = new System.Drawing.Size(160, 22);
-            this.mnuFileLoadSourceBtn.Text = "Load Source File";
-            this.mnuFileLoadSourceBtn.Click += new System.EventHandler(this.mnuFileLoadSourceBtn_Click);
+            mnuFileLoadSourceBtn.Name = "mnuFileLoadSourceBtn";
+            mnuFileLoadSourceBtn.Size = new Size(201, 26);
+            mnuFileLoadSourceBtn.Text = "Load Source File";
+            mnuFileLoadSourceBtn.Click += mnuFileLoadSourceBtn_Click;
             // 
             // toolStripSeparator1
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 38);
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            toolStripSeparator1.Size = new Size(6, 51);
             // 
             // mnuPlayBtn
             // 
-            this.mnuPlayBtn.Image = global::Player.Properties.Resources.play;
-            this.mnuPlayBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.mnuPlayBtn.Name = "mnuPlayBtn";
-            this.mnuPlayBtn.Size = new System.Drawing.Size(53, 35);
-            this.mnuPlayBtn.Text = "Play";
-            this.mnuPlayBtn.Click += new System.EventHandler(this.mnuPlayBtn_Click);
+            mnuPlayBtn.Image = Properties.Resources.play;
+            mnuPlayBtn.ImageTransparentColor = Color.Magenta;
+            mnuPlayBtn.Name = "mnuPlayBtn";
+            mnuPlayBtn.Size = new Size(60, 48);
+            mnuPlayBtn.Text = "Play";
+            mnuPlayBtn.Click += mnuPlayBtn_Click;
             // 
             // mnuDbgBtn
             // 
-            this.mnuDbgBtn.Image = global::Player.Properties.Resources.debug;
-            this.mnuDbgBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.mnuDbgBtn.Name = "mnuDbgBtn";
-            this.mnuDbgBtn.Size = new System.Drawing.Size(66, 35);
-            this.mnuDbgBtn.Text = "Debug";
-            this.mnuDbgBtn.Click += new System.EventHandler(this.mnuDbgBtn_Click);
+            mnuDbgBtn.Image = Properties.Resources.debug;
+            mnuDbgBtn.ImageTransparentColor = Color.Magenta;
+            mnuDbgBtn.Name = "mnuDbgBtn";
+            mnuDbgBtn.Size = new Size(78, 48);
+            mnuDbgBtn.Text = "Debug";
+            mnuDbgBtn.Click += mnuDbgBtn_Click;
             // 
             // toolStripSeparator2
             // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 38);
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(6, 51);
             // 
             // mnuStopBtn
             // 
-            this.mnuStopBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.mnuStopBtn.Enabled = false;
-            this.mnuStopBtn.Image = global::Player.Properties.Resources.stop;
-            this.mnuStopBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.mnuStopBtn.Name = "mnuStopBtn";
-            this.mnuStopBtn.Size = new System.Drawing.Size(24, 35);
-            this.mnuStopBtn.Text = "Stop";
-            this.mnuStopBtn.Click += new System.EventHandler(this.mnuStopBtn_Click);
+            mnuStopBtn.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            mnuStopBtn.Enabled = false;
+            mnuStopBtn.Image = Properties.Resources.stop;
+            mnuStopBtn.ImageTransparentColor = Color.Magenta;
+            mnuStopBtn.Name = "mnuStopBtn";
+            mnuStopBtn.Size = new Size(29, 48);
+            mnuStopBtn.Text = "Stop";
+            mnuStopBtn.Click += mnuStopBtn_Click;
             // 
             // mnuPauseBtn
             // 
-            this.mnuPauseBtn.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.mnuPauseBtn.Enabled = false;
-            this.mnuPauseBtn.Image = global::Player.Properties.Resources.pause;
-            this.mnuPauseBtn.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.mnuPauseBtn.Name = "mnuPauseBtn";
-            this.mnuPauseBtn.Size = new System.Drawing.Size(24, 35);
-            this.mnuPauseBtn.Text = "Pause";
-            this.mnuPauseBtn.Click += new System.EventHandler(this.mnuPauseBtn_Click);
+            mnuPauseBtn.DisplayStyle = ToolStripItemDisplayStyle.Image;
+            mnuPauseBtn.Enabled = false;
+            mnuPauseBtn.Image = Properties.Resources.pause;
+            mnuPauseBtn.ImageTransparentColor = Color.Magenta;
+            mnuPauseBtn.Name = "mnuPauseBtn";
+            mnuPauseBtn.Size = new Size(29, 48);
+            mnuPauseBtn.Text = "Pause";
+            mnuPauseBtn.Click += mnuPauseBtn_Click;
             // 
             // toolStripSeparator3
             // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 38);
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new Size(6, 51);
             // 
             // canvasPnl
             // 
-            this.canvasPnl.AutoSize = true;
-            this.canvasPnl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.canvasPnl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.canvasPnl.Location = new System.Drawing.Point(0, 38);
-            this.canvasPnl.Name = "canvasPnl";
-            this.canvasPnl.Size = new System.Drawing.Size(1500, 900);
-            this.canvasPnl.TabIndex = 1;
+            canvasPnl.AutoSize = true;
+            canvasPnl.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            canvasPnl.Dock = DockStyle.Fill;
+            canvasPnl.Location = new Point(0, 51);
+            canvasPnl.Margin = new Padding(3, 4, 3, 4);
+            canvasPnl.Name = "canvasPnl";
+            canvasPnl.Size = new Size(1714, 1200);
+            canvasPnl.TabIndex = 1;
             // 
             // KPC8Player
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.WindowText;
-            this.ClientSize = new System.Drawing.Size(1500, 938);
-            this.Controls.Add(this.canvasPnl);
-            this.Controls.Add(this.mnuToolBar);
-            this.Name = "KPC8Player";
-            this.Text = "KPC8 Player";
-            this.Load += new System.EventHandler(this.KPC8Player_Load);
-            this.mnuToolBar.ResumeLayout(false);
-            this.mnuToolBar.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.WindowText;
+            ClientSize = new Size(1714, 1251);
+            Controls.Add(canvasPnl);
+            Controls.Add(mnuToolBar);
+            Margin = new Padding(3, 4, 3, 4);
+            Name = "KPC8Player";
+            Text = "KPC8 Player";
+            Load += KPC8Player_Load;
+            mnuToolBar.ResumeLayout(false);
+            mnuToolBar.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

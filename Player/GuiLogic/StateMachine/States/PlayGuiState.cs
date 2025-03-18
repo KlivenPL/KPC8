@@ -134,14 +134,17 @@ namespace Player.GuiLogic.StateMachine.States {
         }
 
         private void StartRendering() {
+            //rendererController = playSessionController.AttachRenderer();
+            //rendererController.CanvasWriteEvent += Controller.SetRenderCanvasBitmap;
+            //rendererController.StartRendering(120);
             rendererController = playSessionController.AttachRenderer();
-            rendererController.CanvasWriteEvent += Controller.SetRenderCanvasBitmap;
-            rendererController.StartRendering(120);
+            rendererController.StartRendering(Controller.SetRenderer);
         }
 
         private void CleanUpAndExit() {
             if (rendererController != null) {
-                rendererController.CanvasWriteEvent -= Controller.SetRenderCanvasBitmap;
+                //rendererController.CanvasWriteEvent -= Controller.SetRenderCanvasBitmap;
+                Controller.DisposeRenderer();
             }
 
             SetState<StopGuiState>();

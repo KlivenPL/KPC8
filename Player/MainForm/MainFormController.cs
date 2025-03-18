@@ -1,6 +1,7 @@
 ﻿using Player._Infrastructure.Controls;
 using Player._Infrastructure.Events;
 using Player.Events;
+using Runner._Infrastructure;
 using System.Text;
 
 namespace Player.MainForm {
@@ -87,20 +88,17 @@ namespace Player.MainForm {
                 }
             }
 
-            public void SetRenderCanvasBitmap(Bitmap bitmap) {
-                //lock (form.renderCanvasLock) {
-                form.renderCanvas.Image?.Dispose();
-                form.renderCanvas.Image = bitmap;
-                // }
+            public void SetRenderer(IKPC8Renderer renderer) {
+                form.kpc8Renderer = renderer;
+                form.Invoke(() => form.GlControl_Paint(null, null));
             }
 
-            public void ResetRenderCanvas() {
-                //lock (form.renderCanvasLock) {
-                form.renderCanvas.Image?.Dispose();
-                var bm = new Bitmap(1, 1);
-                bm.SetPixel(0, 0, Color.Black);
-                form.renderCanvas.Image = bm;
-                //}
+            public void DisposeRenderer() {
+                form.Invoke(() => {
+                    form.kpc8Renderer.ClearFrame(form.canvasPnl.Width, form.canvasPnl.Height);
+                    form.renderCanvasGl.SwapBuffers();
+                    form.kpc8Renderer = null;
+                });
             }
         }
     }

@@ -38,6 +38,7 @@
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json.Schema" Version="3.0.14" />
+    <PackageReference Include="OpenTK.GLControl" Version="4.0.2" />
   </ItemGroup>
 
   <ItemGroup>
