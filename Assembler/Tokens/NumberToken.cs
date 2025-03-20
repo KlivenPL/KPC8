@@ -1,9 +1,28 @@
-﻿using Assembler.Readers;
+﻿using Assembler._Infrastructure;
+using Assembler.Readers;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Assembler.Tokens {
     class NumberToken : TokenBase<ushort> {
+        private class UnresolvedExpression {
+            public ushort? ResolvedValue { get; set; }
+            public string Expression { get; set; }
+            public List<IdentifierToken> UnresolvedIdentifiers { get; set; } = new();
+            public bool UseFloating { get; set; }
+
+            public void AddUnresolvedIdentifier(IdentifierToken identifierToken) {
+                if (!UnresolvedIdentifiers.Any(x => x.Value == identifierToken.Value)) {
+                    UnresolvedIdentifiers.Add(identifierToken);
+                }
+            }
+        }
+
+        private UnresolvedExpression _unresolvedExpression = null;
+        private ushort value;
+
         public NumberToken() { }
 
         public NumberToken(ushort value, int position, int line, string filePath) {
@@ -11,11 +30,101 @@ namespace Assembler.Tokens {
             AddDebugData(position, line, filePath);
         }
 
-        public override ushort Value { get; protected set; }
+        public override NumberToken DeepCopy() {
+            var clone = new NumberToken(value, CodePosition, LineNumber, FilePath);
+            if (_unresolvedExpression != null) {
+                clone._unresolvedExpression = _unresolvedExpression;
+            }
+            return clone;
+        }
+
+        public override ushort Value {
+            get {
+                if (!IsResolved) {
+                    NumberTokenResolveRescue.ResolveOrThrow(this);
+                }
+
+                if (!IsResolved) {
+                    throw new Exception("That should not happen");
+                }
+
+                if (_unresolvedExpression != null) {
+                    return _unresolvedExpression.ResolvedValue.Value;
+                }
+
+                return value;
+            }
+
+            protected set {
+                this.value = value;
+            }
+        }
+
+        public bool IsResolved => _unresolvedExpression == null || !_unresolvedExpression.UnresolvedIdentifiers.Any();
         public override TokenClass Class => TokenClass.Number;
 
-        public override IToken DeepCopy() {
-            return new NumberToken(Value, CodePosition, LineNumber, FilePath);
+        public bool TryResolve(Func<string, NumberToken> getNumberToken, HashSet<NumberToken> visitedNumberTokens = null) {
+            if (IsResolved) {
+                //if (_unresolvedExpression != null) {
+                //    _unresolvedExpression.ResolvedValue = value;
+                //}
+                return true;
+            }
+
+            if (visitedNumberTokens == null) {
+                visitedNumberTokens = new();
+            }
+
+            if (visitedNumberTokens.Contains(this)) {
+                throw ParserException.Create($"Cyclic dependecy on number token detected: {_unresolvedExpression.Expression}", this);
+            }
+
+            visitedNumberTokens.Add(this);
+
+            List<IdentifierToken> resolvedIdentifiers = new();
+            var exprCopy = _unresolvedExpression.Expression;
+            foreach (var identifierToken in _unresolvedExpression.UnresolvedIdentifiers) {
+                var numberToken = getNumberToken(identifierToken.Value);
+
+                if (numberToken.TryResolve(getNumberToken, visitedNumberTokens)) {
+                    exprCopy = exprCopy.Replace(identifierToken.Value, numberToken.Value.ToString());
+                    resolvedIdentifiers.Add(identifierToken);
+                }
+            }
+
+            _unresolvedExpression.UnresolvedIdentifiers =
+                _unresolvedExpression.UnresolvedIdentifiers
+                .Except(resolvedIdentifiers)
+                .ToList();
+
+            if (_unresolvedExpression.UnresolvedIdentifiers.Any()) {
+                return false;
+            }
+
+            var exprLc = exprCopy.ToLower();
+
+            if (_unresolvedExpression.UseFloating) {
+                if (TryEvaluateExpressionFloat(exprLc, out double floatResult)) {
+                    value = (ushort)floatResult;
+                    _unresolvedExpression.ResolvedValue = value;
+                    if (floatResult < short.MinValue || floatResult > ushort.MaxValue)
+                        throw ParserException.Create($"Expression value out of range: {_unresolvedExpression.Expression} = {floatResult:0.00}", this);
+                    return true;
+                }
+                _unresolvedExpression.ResolvedValue = 0;
+                throw ParserException.Create($"Unresolvable expression: {_unresolvedExpression.Expression}", this);
+
+            } else {
+                if (TryEvaluateExpression(exprLc, out int evaluated)) {
+                    value = (ushort)evaluated;
+                    _unresolvedExpression.ResolvedValue = value;
+                    if (evaluated < short.MinValue || evaluated > ushort.MaxValue)
+                        throw ParserException.Create($"Expression value out of range: {_unresolvedExpression.Expression} = {evaluated}", this);
+                    return true;
+                }
+                _unresolvedExpression.ResolvedValue = 0;
+                throw ParserException.Create($"Unresolvable expression: {_unresolvedExpression.Expression}", this);
+            }
         }
 
         public override bool TryAccept(CodeReader reader) {
@@ -24,7 +133,20 @@ namespace Assembler.Tokens {
                 // Consume the '{'
                 reader.Read();
                 var exprBuilder = new StringBuilder();
+                var unresolvedExprBuilder = new StringBuilder();
                 while (reader.Current != '}' && reader.Current != '\0') {
+                    if (char.IsLetter(reader.Current) || reader.Current == '@') {
+                        // identifier found, read it.
+                        var identifierToken = new IdentifierToken();
+                        identifierToken.AddDebugData(reader.Position, reader.Line, reader.FilePath);
+                        if (identifierToken.TryAccept(reader)) {
+                            _unresolvedExpression ??= new();
+                            _unresolvedExpression.AddUnresolvedIdentifier(identifierToken);
+                            unresolvedExprBuilder.Append(identifierToken.Value);
+                        }
+                    } else {
+                        unresolvedExprBuilder.Append(reader.Current);
+                    }
                     exprBuilder.Append(reader.LowerCurrent);
                     reader.Read();
                 }
@@ -42,6 +164,14 @@ namespace Assembler.Tokens {
                     useFloating = true;
                     reader.Read();
                 }
+
+                if (_unresolvedExpression != null) {
+                    _unresolvedExpression.Expression = unresolvedExprBuilder.ToString();
+                    _unresolvedExpression.UseFloating = useFloating;
+                    Value = 0;
+                    return true;
+                }
+
                 if (useFloating) {
                     if (TryEvaluateExpressionFloat(expr, out double floatResult)) {
                         if (floatResult < short.MinValue || floatResult > ushort.MaxValue)
@@ -360,6 +490,18 @@ namespace Assembler.Tokens {
         private int HexValue(char c) {
             if (c >= '0' && c <= '9') return c - '0';
             return c - 'a' + 10;
+        }
+
+        public override string ToString() {
+            if (!IsResolved) {
+                return _unresolvedExpression.Expression;
+            }
+
+            if (_unresolvedExpression?.ResolvedValue != null) {
+                return _unresolvedExpression.ResolvedValue.Value.ToString();
+            }
+
+            return Value.ToString();
         }
     }
 }

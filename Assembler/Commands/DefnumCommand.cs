@@ -14,31 +14,37 @@ namespace Assembler.Commands {
         protected override void PreParseInner(TokenReader reader, IRegion region) {
             ParseParameters<IdentifierToken, NumberToken>(reader, out var identifierToken, out var numToken);
 
-            var udr = (UserDefinedRegion)region;
-            if (udr.IsExported) {
-                Defnum(reader, identifierToken, numToken);
-            }
+            //var udr = (UserDefinedRegion)region;
+            //if (udr.IsExported) {
+            Defnum(reader, identifierToken, numToken);
+            //}
         }
 
         protected override void ParseInner(TokenReader reader, LabelsContext labelsContext, RomBuilder romBuilder) {
             ParseParameters<IdentifierToken, NumberToken>(reader, out var identifierToken, out var numToken);
 
-            var udr = (UserDefinedRegion)labelsContext.CurrentRegion;
-            if (!udr.IsExported) {
-                Defnum(reader, identifierToken, numToken);
-            } else {
-                AddDebugSymbol(identifierToken, numToken);
-            }
+            //if (!numToken.IsResolved && !labelsContext.TryResolveNumberToken(numToken)) {
+            //throw ParserException.Create("Unresolved number token", numToken);
+            //}
+
+            // var udr = (UserDefinedRegion)labelsContext.CurrentRegion;
+            // if (!udr.IsExported) {
+            //    Defnum(reader, identifierToken, numToken);
+            // } else {
+            AddDebugSymbol(identifierToken, numToken);
+            // }
         }
 
         private void Defnum(TokenReader reader, IdentifierToken identifierToken, NumberToken numToken) {
-            var numTokenCopy = new NumberToken(numToken.Value, numToken.CodePosition, numToken.LineNumber, identifierToken.FilePath);
+            //var numTokenCopy = new NumberToken(numToken.SafeValue, numToken.CodePosition, numToken.LineNumber, identifierToken.FilePath);
+            var numTokenCopy = numToken.DeepCopy();
+            ((TokenBase<ushort>)numTokenCopy).AddDebugData(numToken.CodePosition, numToken.LineNumber, identifierToken.FilePath);
 
             if (!TryInsertToken(identifierToken.Value, numTokenCopy, out var errorMessage)) {
                 throw ParserException.Create(errorMessage, reader.Current);
             }
 
-            AddDebugSymbol(identifierToken, numToken);
+            // AddDebugSymbol(identifierToken, numToken);
         }
 
         private void AddDebugSymbol(IdentifierToken identifierToken, NumberToken numToken) {

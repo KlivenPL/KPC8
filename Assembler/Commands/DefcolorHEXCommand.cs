@@ -9,7 +9,7 @@ namespace Assembler.Commands {
     internal class DefcolorHEXCommand : CommandBase {
         public override CommandType Type => CommandType.DefcolorHEX;
 
-        protected override CommandAllowedIn AcceptedRegions => CommandAllowedIn.ConstRegion | CommandAllowedIn.UserDefinedRegion;
+        protected override CommandAllowedIn AcceptedRegions => CommandAllowedIn.UserDefinedRegion;
 
         protected override void PreParseInner(TokenReader reader, IRegion region) {
             ParseParameters<IdentifierToken, StringToken>(reader, out var identifierToken, out var hexColorToken);

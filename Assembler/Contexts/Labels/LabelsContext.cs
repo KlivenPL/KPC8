@@ -196,6 +196,38 @@ namespace Assembler.Contexts.Labels {
             }
         }
 
+        public NumberToken GetNumberToken(string numberTokenName) {
+            SplitIdentifier(numberTokenName, out var moduleStr, out var regionStr, out var identifierStr);
+
+            var foundToken = TryAllThenThrow(GetFromLocalRegion, GetFromOtherRegion, GetFromOtherModule);
+
+            if (foundToken is not NumberToken nt) {
+                throw new InvalidTokenClassException(foundToken, TokenClass.Number, CurrentModule, CurrentRegion);
+            }
+
+            return nt;
+
+            IToken GetFromLocalRegion() {
+                if (moduleStr != null || regionStr != null) {
+                    throw new OtherInnerException("Go for other region");
+                }
+
+                return CurrentRegion.GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
+
+            IToken GetFromOtherRegion() {
+                if (moduleStr != null) {
+                    throw new OtherInnerException("Go for other module");
+                }
+
+                return CurrentModule.GetRegion(regionStr)?.GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
+
+            IToken GetFromOtherModule() {
+                return modules.FirstOrDefault(x => x.Name == moduleStr)?.GetExportedRegion(regionStr).GetToken(identifierStr)?.Value ?? throw new Exception();
+            }
+        }
+
         public void ResolveLabel(string labelDef, ushort address) {
             if (!TryFindLabel(labelDef, out var oldAddress)) {
                 throw new Exception("Label not found");

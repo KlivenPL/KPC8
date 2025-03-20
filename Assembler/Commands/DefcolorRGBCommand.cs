@@ -9,7 +9,7 @@ namespace Assembler.Commands {
     internal class DefcolorRGBCommand : CommandBase {
         public override CommandType Type => CommandType.DefcolorRGB;
 
-        protected override CommandAllowedIn AcceptedRegions => CommandAllowedIn.ConstRegion | CommandAllowedIn.UserDefinedRegion;
+        protected override CommandAllowedIn AcceptedRegions => CommandAllowedIn.UserDefinedRegion;
 
         protected override void PreParseInner(TokenReader reader, IRegion region) {
             ParseParameters<IdentifierToken, NumberToken, NumberToken, NumberToken>(reader, out var identifierToken, out var r8Token, out var g8Token, out var b8Token);

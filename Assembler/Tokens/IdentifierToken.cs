@@ -24,9 +24,14 @@ namespace Assembler.Tokens {
             if (char.IsLetter(reader.Current) || reader.Current == '@') {
                 var sb = new StringBuilder(reader.Current.ToString());
 
-                while (reader.Read() && (char.IsLetterOrDigit(reader.Current) || reader.Current == '_' || reader.Current == '.')) {
-                    sb.Append(reader.Current);
+                while (reader.TryPeek(out var c) && (char.IsLetterOrDigit(c) || c == '_' || c == '.')) {
+                    sb.Append(c);
+                    reader.Read();
                 }
+
+                //while (reader.Read() && (char.IsLetterOrDigit(reader.Current) || reader.Current == '_' || reader.Current == '.')) {
+                //    sb.Append(reader.Current);
+                //}
 
                 Value = sb.ToString();
                 return true;

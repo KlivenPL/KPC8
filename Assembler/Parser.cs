@@ -50,11 +50,15 @@ namespace Assembler {
 
             PreParseAllRegions(ref reader, constRegion);
 
+            NumberTokenResolveRescue.BeginResolvableContext(labelsContext.GetNumberToken);
+
             ParseTokens(ref reader, romBuilder, debugSymbolList, ref lastUnresolvedLabelToken);
 
             labelsContext.ResetCurrentModuleAndRegion();
 
             ResolvePseudoinstructions(romBuilder, debugSymbolList);
+
+            NumberTokenResolveRescue.EndResolvableContext();
 
             debugSymbols = debugSymbolList;
             return romBuilder.Build();
